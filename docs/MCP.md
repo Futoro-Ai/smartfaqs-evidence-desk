@@ -8,6 +8,12 @@ Evidence Desk exposes its fixed tool registry at:
 POST /mcp
 ```
 
+The public deployment is available at:
+
+```text
+https://smartfaqs-evidence-desk.vercel.app/mcp
+```
+
 It implements the MCP Streamable HTTP request/response surface needed for
 initialization, `tools/list`, and `tools/call`. The transport is stateless so a
 client can repeat initialization without server-side session storage.

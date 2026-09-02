@@ -5,6 +5,8 @@ how a person and an AI agent can investigate the same source material through
 WebMCP. The visible workspace and the agent-facing tools share one fixed,
 schema-validated capability layer.
 
+**Live application:** [smartfaqs-evidence-desk.vercel.app](https://smartfaqs-evidence-desk.vercel.app/)
+
 The demo includes:
 
 - a working evidence search and review interface;
@@ -73,7 +75,7 @@ See [WebMCP Guide](docs/WEBMCP.md) and [Tool Reference](docs/TOOL_REFERENCE.md).
 The same fixed capability registry is available over Streamable HTTP:
 
 ```text
-https://<deployment-host>/mcp
+https://smartfaqs-evidence-desk.vercel.app/mcp
 ```
 
 The endpoint supports MCP initialization, tool discovery, and tool calls. It

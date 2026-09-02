@@ -35,8 +35,8 @@ server endpoint for clients that operate independently of the open page.
 
 ## Submission Checklist
 
-- [ ] Public live application URL
-- [ ] Public Futoro-AI GitHub repository
+- [x] Public live application URL
+- [x] Public Futoro-AI GitHub repository
 - [x] Complete source and synthetic assets
 - [x] Apache-2.0 license and trademark notice
 - [x] Local setup and test instructions
@@ -47,8 +47,6 @@ server endpoint for clients that operate independently of the open page.
 
 ## Public Links
 
-These links will be updated after publication:
-
-- Repository: `https://github.com/Futoro-AI/smartfaqs-evidence-desk`
-- Live application: pending
+- Repository: [github.com/Futoro-Ai/smartfaqs-evidence-desk](https://github.com/Futoro-Ai/smartfaqs-evidence-desk)
+- Live application: [smartfaqs-evidence-desk.vercel.app](https://smartfaqs-evidence-desk.vercel.app/)
 - Demo video: pending

@@ -66,7 +66,7 @@ custom event that updates the visible React state.
 
 ## Submission Fields To Complete
 
-- Live URL: pending deployment
-- Public repository: https://github.com/Futoro-AI/smartfaqs-evidence-desk
+- Live URL: https://smartfaqs-evidence-desk.vercel.app/
+- Public repository: https://github.com/Futoro-Ai/smartfaqs-evidence-desk
 - Demo video: pending upload
 - Team members: add final entrant names
