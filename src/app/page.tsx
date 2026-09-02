@@ -267,13 +267,24 @@ export default function Home() {
       const { name, input, result } = toolEvent.detail ?? {};
       if (!name || !input || !result) return;
       const selectedRef = input.sourceRef ?? (result as { sourceRef?: unknown }).sourceRef;
+      const sourceChanged =
+        isSourceRef(selectedRef) && selectedRef !== selectedSource;
+
+      if (
+        sourceChanged &&
+        (name === "select_knowledge_source" ||
+          name === "search_evidence" ||
+          name === "read_evidence_chunk" ||
+          name === "stage_evidence_answer")
+      ) {
+        setCitationRefs([]);
+        setPacket(null);
+        setDecision("pending");
+      }
 
       if (name === "select_knowledge_source" && isSourceRef(selectedRef)) {
         setSelectedSource(selectedRef);
         setResults(demoSearch(selectedRef, query));
-        setCitationRefs([]);
-        setPacket(null);
-        setDecision("pending");
       }
       if (name === "search_evidence") {
         const response = result as { results?: EvidenceSearchResult[]; query?: string };
@@ -316,7 +327,7 @@ export default function Home() {
     }
     window.addEventListener("evidence-desk:tool-result", receiveToolResult);
     return () => window.removeEventListener("evidence-desk:tool-result", receiveToolResult);
-  }, [query]);
+  }, [query, selectedSource]);
 
   return (
     <main className={styles.page}>

@@ -271,6 +271,7 @@ describe("Evidence Desk MCP Streamable HTTP endpoint", () => {
     );
 
     expect(response.status).toBe(204);
+    expect(response.headers.get("allow")).toBe("POST, OPTIONS");
     expect(response.headers.get("access-control-allow-origin")).toBe(
       "https://agent.example",
     );

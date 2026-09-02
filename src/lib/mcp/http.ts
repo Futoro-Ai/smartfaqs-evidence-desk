@@ -196,7 +196,7 @@ export function handleMcpOptions(
     new Response(null, {
       status: 204,
       headers: {
-        Allow: "GET, POST, OPTIONS",
+        Allow: "POST, OPTIONS",
         "Access-Control-Allow-Headers": [
           "Accept",
           "Content-Type",

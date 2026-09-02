@@ -84,6 +84,17 @@ test("registers fixed WebMCP tools and reflects an agent call in the page", asyn
   });
   await expect(page.getByText("Approved", { exact: true })).toBeVisible();
   await expect(page.getByText("1 reference · pending")).toBeVisible();
+
+  await page.evaluate(async () => {
+    await window.__evidenceDeskTools.search_evidence.execute({
+      sourceRef: "source:benefits-guide",
+      query: "retirement match",
+      limit: 2,
+    });
+  });
+  await expect(page.getByText("Awaiting review", { exact: true })).toBeVisible();
+  await expect(page.getByText("Select citations from the evidence pane.")).toBeVisible();
+  await expect(page.getByText("Not prepared", { exact: true })).toBeVisible();
 });
 
 test("completes the bounded human review workflow", async ({ page }) => {
