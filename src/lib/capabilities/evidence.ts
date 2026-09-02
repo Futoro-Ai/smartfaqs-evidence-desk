@@ -211,7 +211,9 @@ export function stageEvidenceAnswer(
 }
 
 export function exportEvidencePacket(
-  input: ToolInput<"export_evidence_packet">,
+  input: ToolInput<"export_evidence_packet"> & {
+    decision?: EvidencePacket["decision"];
+  },
 ): EvidencePacket {
   const source = requireSource(input.sourceRef);
   const chunks = input.evidenceRefs.map((ref) =>
@@ -223,7 +225,7 @@ export function exportEvidencePacket(
     answerPresent: input.answer.length > 0,
     evidenceCount: chunks.length,
     evidenceLabels: chunks.map((chunk) => chunk.label),
-    decision: input.decision,
+    decision: input.decision ?? "pending",
     boundaryStatus: "synthetic_public_data_only",
   };
 }

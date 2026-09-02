@@ -17,8 +17,8 @@ keeping every important state change visible in the human interface.
 ## New Work
 
 This standalone application and its WebMCP integration were created during the
-2026 WebMCP Challenge submission period. It does not publish or depend on the
-private SmartFAQs UCI repository.
+2026 WebMCP Challenge submission period. It does not publish or depend on any
+private SmartFAQs repository.
 
 ## Demonstrated Workflow
 
@@ -32,3 +32,23 @@ private SmartFAQs UCI repository.
 
 The same capability implementations are also exposed through a fixed MCP
 server endpoint for clients that operate independently of the open page.
+
+## Submission Checklist
+
+- [ ] Public live application URL
+- [ ] Public Futoro-AI GitHub repository
+- [x] Complete source and synthetic assets
+- [x] Apache-2.0 license and trademark notice
+- [x] Local setup and test instructions
+- [x] WebMCP tool documentation
+- [x] Standard MCP endpoint documentation
+- [ ] Public demo video under three minutes
+- [ ] Devpost submission fields completed
+
+## Public Links
+
+These links will be updated after publication:
+
+- Repository: `https://github.com/Futoro-AI/smartfaqs-evidence-desk`
+- Live application: pending
+- Demo video: pending

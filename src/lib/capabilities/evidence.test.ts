@@ -1,17 +1,31 @@
 import { describe, expect, it } from "vitest";
 
+import { toolDefinitions } from "@/lib/capabilities/contracts";
 import {
   checkEvidenceReadiness,
   executeEvidenceTool,
   exportEvidencePacket,
+  listKnowledgeSources,
   readEvidenceChunk,
   searchEvidence,
   stageEvidenceAnswer,
 } from "@/lib/capabilities/evidence";
 
 describe("Evidence Desk capability contracts", () => {
+  it("publishes defaulted inputs as optional", () => {
+    const search = toolDefinitions.find(
+      ({ name }) => name === "search_evidence",
+    );
+    const exported = toolDefinitions.find(
+      ({ name }) => name === "export_evidence_packet",
+    );
+
+    expect(search?.inputSchema.required).not.toContain("limit");
+    expect(exported?.inputSchema.properties).not.toHaveProperty("decision");
+  });
+
   it("lists only the fixed synthetic sources", () => {
-    const result = executeEvidenceTool("list_knowledge_sources", {});
+    const result = listKnowledgeSources();
 
     expect(result).toMatchObject({ status: "ready", sourceCount: 3 });
     expect(result.sources).toHaveLength(3);
@@ -102,5 +116,24 @@ describe("Evidence Desk capability contracts", () => {
       boundaryStatus: "synthetic_public_data_only",
     });
     expect(JSON.stringify(result)).not.toContain("104 hours");
+  });
+
+  it("keeps approval state outside the agent tool contract", () => {
+    expect(() =>
+      executeEvidenceTool("export_evidence_packet", {
+        sourceRef: "source:employee-handbook",
+        answer: "A staged answer.",
+        evidenceRefs: ["chunk:leave-accrual-table"],
+        decision: "approved",
+      }),
+    ).toThrow();
+
+    expect(
+      executeEvidenceTool("export_evidence_packet", {
+        sourceRef: "source:employee-handbook",
+        answer: "A staged answer.",
+        evidenceRefs: ["chunk:leave-accrual-table"],
+      }),
+    ).toMatchObject({ decision: "pending" });
   });
 });

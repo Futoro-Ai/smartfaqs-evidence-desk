@@ -48,7 +48,6 @@ export const toolInputSchemas = {
       sourceRef: sourceRefSchema,
       answer: z.string().trim().min(1).max(700),
       evidenceRefs: evidenceRefsSchema,
-      decision: z.enum(["pending", "approved", "rejected"]).default("pending"),
     })
     .strict(),
 } as const;
@@ -113,7 +112,7 @@ const metadata: Record<
   export_evidence_packet: {
     title: "Export a sanitized evidence packet",
     description:
-      "Create a compact verification packet using validated synthetic evidence labels and the human decision state.",
+      "Create a pending verification packet using validated synthetic evidence labels. Only the human interface can attach an approval decision.",
     annotations: { readOnlyHint: true, untrustedContentHint: false },
   },
 };
@@ -125,6 +124,7 @@ export const toolDefinitions: ToolDefinition[] = (
   ...metadata[name],
   inputSchema: z.toJSONSchema(toolInputSchemas[name], {
     target: "draft-7",
+    io: "input",
     unrepresentable: "any",
   }) as Record<string, unknown>,
 }));

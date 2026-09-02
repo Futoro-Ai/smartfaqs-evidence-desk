@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SmartFAQs Evidence Desk
 
-## Getting Started
+SmartFAQs Evidence Desk is a complete synthetic-data application for exploring
+how a person and an AI agent can investigate the same source material through
+WebMCP. The visible workspace and the agent-facing tools share one fixed,
+schema-validated capability layer.
 
-First, run the development server:
+The demo includes:
+
+- a working evidence search and review interface;
+- imperative WebMCP tools registered in the top-level page;
+- a standards-oriented MCP Streamable HTTP endpoint at `/mcp`;
+- bounded text and table evidence from three fictional policy sources;
+- source-scoped citation selection and human answer approval;
+- a sanitized evidence packet export;
+- unit, protocol, build, and browser-level checks.
+
+No SmartFAQs production service, customer document, credential, private
+repository code, or private development tool is included or contacted.
+
+## Quick Start
+
+Requirements:
+
+- Node.js 22 or newer
+- npm 10 or newer
 
 ```bash
+git clone https://github.com/Futoro-AI/smartfaqs-evidence-desk.git
+cd smartfaqs-evidence-desk
+npm ci
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application does not require an API key, database, or external service.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Try the Human Workflow
 
-## Learn More
+1. Select **Northstar Employee Handbook**.
+2. Search for `annual leave after five years`.
+3. Inspect the annual leave table and accrual-method text.
+4. Add both evidence items to the review set.
+5. Stage this answer:
 
-To learn more about Next.js, take a look at the following resources:
+   > Employees with 5-9 completed years receive 104 hours, or 13 days, of
+   > annual leave. It is credited in equal increments each biweekly pay period.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. Approve or reject the staged answer.
+7. Copy or download the sanitized evidence packet.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Try It With ChatGPT WebMCP
 
-## Deploy on Vercel
+WebMCP requires a compatible browser environment and a secure context in a
+deployed build. Open the live application from ChatGPT's browser and ask:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```text
+Use the tools on this page. Select the Northstar Employee Handbook, check its
+evidence readiness, and find the annual leave allowance and accrual method for
+an employee with five completed years. Stage an answer with the evidence you
+used, but leave the final decision to me.
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Agent-triggered actions are reflected in the same visible interface. The agent
+can stage an answer, but it cannot approve it.
+
+See [WebMCP Guide](docs/WEBMCP.md) and [Tool Reference](docs/TOOL_REFERENCE.md).
+
+## Use the MCP Endpoint
+
+The same fixed capability registry is available over Streamable HTTP:
+
+```text
+https://<deployment-host>/mcp
+```
+
+The endpoint supports MCP initialization, tool discovery, and tool calls. It
+does not expose a generic command, arbitrary URL fetch, filesystem access, or
+credential access. See [MCP Endpoint Guide](docs/MCP.md) for examples.
+
+## Commands
+
+```bash
+npm run dev        # local development server
+npm run lint       # ESLint
+npm test           # Vitest unit and protocol tests
+npm run build      # production build
+npm run test:e2e   # Playwright browser tests
+npm run check      # lint, unit tests, and production build
+```
+
+## Project Map
+
+```text
+src/app/                    Next.js UI and /mcp route
+src/data/                   Synthetic policy sources and chunks
+src/lib/capabilities/       Shared schemas and deterministic tool behavior
+src/lib/webmcp/             Browser WebMCP registration adapter
+src/lib/mcp/                Streamable HTTP MCP adapter
+docs/                       Public architecture and usage documentation
+```
+
+## Design Boundaries
+
+- Every tool is explicitly named and schema validated.
+- Searches are limited to one selected synthetic source and at most five
+  bounded results.
+- Chunk reads fail closed if the chunk is outside the selected source.
+- Agent tools cannot approve or reject a staged answer.
+- Evidence exports contain labels and counts, not raw evidence bodies.
+- Remote MCP browser origins are checked against `MCP_ALLOWED_ORIGINS`.
+- The interface remains fully usable without an agent.
+
+See [Architecture](docs/ARCHITECTURE.md) and [Security Policy](SECURITY.md).
+
+## Challenge Entry
+
+This standalone application was created for the 2026 OpenAI WebMCP Challenge.
+Submission notes, evidence, and the short demo script are in
+[CHALLENGE.md](CHALLENGE.md) and [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
+
+## License
+
+Source code is licensed under the [Apache License 2.0](LICENSE). The license
+permits commercial use. The Futoro-AI and SmartFAQs names and marks remain
+subject to [TRADEMARKS.md](TRADEMARKS.md).

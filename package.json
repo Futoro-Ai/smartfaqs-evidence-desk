@@ -2,6 +2,22 @@
   "name": "smartfaqs-evidence-desk",
   "version": "0.1.0",
   "private": true,
+  "description": "A complete synthetic evidence workspace with WebMCP and Streamable HTTP MCP interfaces.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Futoro-AI/smartfaqs-evidence-desk.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "webmcp",
+    "mcp",
+    "model-context-protocol",
+    "evidence",
+    "nextjs"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -23,8 +39,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^16.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

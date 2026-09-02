@@ -3,7 +3,7 @@
 ## Scope
 
 This repository is a synthetic-data demonstration. It must not contain or
-connect to private SmartFAQs documents, production credentials, private UCI
+connect to private SmartFAQs documents, production credentials, private
 services, or customer data.
 
 Please report suspected vulnerabilities privately through GitHub's security
@@ -19,3 +19,32 @@ exploit, credential, or private data.
 - Human approval cannot be invoked by WebMCP or MCP tools.
 - Tool results never include environment variables, filesystem paths, or
   deployment credentials.
+
+## Threat Model
+
+The main untrusted inputs are agent tool arguments, remote MCP JSON-RPC
+requests, browser origins, search text, and synthetic evidence content.
+
+Controls include:
+
+- strict schemas that reject extra fields;
+- source-scoped chunk authorization;
+- bounded query, answer, evidence-reference, and result sizes;
+- a fixed registry with no dynamic command dispatch;
+- browser-origin validation on the remote MCP endpoint;
+- human-only answer approval;
+- synthetic repository-local data with no provider connection;
+- sanitized evidence exports.
+
+Evidence packets are illustrative summaries. They are not signed and do not
+cryptographically bind an approval decision to answer text.
+
+This demo is not an authentication or multi-tenant reference implementation.
+Deployments that add private data must add authenticated identity, per-tenant
+authorization, auditability, rate limits, retention rules, and an independent
+security review before use.
+
+## Supported Versions
+
+Security fixes are applied to the current `main` branch. This challenge demo
+does not maintain older release branches.
