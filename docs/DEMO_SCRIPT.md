@@ -30,6 +30,9 @@ Show these visible transitions:
 4. bounded chunks inspected;
 5. answer staged with evidence labels.
 
+Open one result and point out its revision-qualified OKF concept reference. The
+path shows the source and section used without exposing a database identifier.
+
 ## 1:20-1:45 - Human Control
 
 Explain that the agent cannot approve its own answer. Approve the answer in the

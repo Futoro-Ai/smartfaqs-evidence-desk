@@ -17,6 +17,13 @@ npm run check
 npm run test:e2e
 ```
 
+When changing `knowledge/northstar`, regenerate and inspect the catalog:
+
+```bash
+npm run okf:compile
+npm run okf:check
+```
+
 ## Capability Changes
 
 The tool registry is intentionally closed. A new tool must include:
@@ -34,8 +41,15 @@ credential access, hidden approval, or production/private data dependencies.
 
 ## Data
 
-Only fictional, repository-local data may be added. Do not contribute customer
-documents, copied confidential material, credentials, or private service URLs.
+Only fictional, repository-local data marked `synthetic_public_demo` may be
+added to the public runtime catalog. Do not contribute customer documents,
+third-party text without redistribution rights, copied confidential material,
+credentials, raw document/chunk identifiers, or private service URLs.
+
+Use the local Docling converter only in `.local/`. A pull request that promotes
+converted material must document source rights, provenance, review state, and
+why publication is permitted. Generated catalog changes without their matching
+OKF source changes are not accepted.
 
 ## License
 

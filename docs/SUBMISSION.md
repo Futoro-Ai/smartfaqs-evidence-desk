@@ -22,6 +22,11 @@ The same fixed schemas and deterministic capability implementations are also
 available through a standard MCP Streamable HTTP endpoint. The app requires no
 account, API key, database, or private service.
 
+Its evidence is authored as an OKF v0.2 Markdown tree organized by policy
+section. A deterministic compiler validates lifecycle, rights, provenance,
+stable IDs, tables, and source scope before generating the catalog. An
+ICM-style folder workflow makes the retrieval and review sequence readable.
+
 ## Problem
 
 Agents commonly infer actions from page structure and return answers without a
@@ -50,6 +55,7 @@ custom event that updates the visible React state.
 - polished responsive interface usable without an agent;
 - a table and surrounding-text evidence workflow using synthetic data;
 - WebMCP and Streamable HTTP MCP interfaces;
+- OKF-native source knowledge and revision-qualified concept references;
 - strict source boundaries and human-only approval;
 - public tests, documentation, license, security policy, and live deployment.
 

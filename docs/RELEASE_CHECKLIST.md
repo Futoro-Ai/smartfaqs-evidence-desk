@@ -7,6 +7,8 @@
 - [x] `LICENSE`, `NOTICE`, `TRADEMARKS.md`, `SECURITY.md`, and `PRIVACY.md` are visible.
 - [x] No private URL, credential, customer identifier, or private source file is present.
 - [x] CI passes from a clean `npm ci` install.
+- [x] `npm run okf:check` confirms the generated catalog matches its OKF source.
+- [x] Public compilation rejects draft, deprecated, or local-private concepts.
 
 ## Application
 
@@ -26,6 +28,7 @@
 - [x] Deployed `MCP_ALLOWED_ORIGINS` uses exact HTTPS origins and no wildcard.
 - [ ] The hosting edge applies a shared request-rate policy to `/mcp`.
 - [x] Production bundle contains only synthetic evidence.
+- [x] Docling-derived local output and `.local/` are excluded from Git.
 
 ## Submission
 

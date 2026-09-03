@@ -1,8 +1,9 @@
-export const SOURCE_REFS = [
-  "source:employee-handbook",
-  "source:benefits-guide",
-  "source:remote-work-standard",
-] as const;
+import catalog from "@/data/okfCatalog.generated.json";
+
+export const SOURCE_REFS = catalog.sources.map(({ ref }) => ref) as [
+  string,
+  ...string[],
+];
 
 export type SourceRef = (typeof SOURCE_REFS)[number];
 export type EvidenceKind = "text" | "table";
@@ -25,10 +26,11 @@ export type EvidenceTable = {
 
 export type EvidenceChunk = {
   ref: string;
+  conceptRef: string;
   sourceRef: SourceRef;
   label: string;
   section: string;
-  page: number;
+  page: number | null;
   kind: EvidenceKind;
   content: string;
   table?: EvidenceTable;
@@ -37,9 +39,10 @@ export type EvidenceChunk = {
 
 export type EvidenceSearchResult = {
   chunkRef: string;
+  conceptRef: string;
   label: string;
   section: string;
-  page: number;
+  page: number | null;
   kind: EvidenceKind;
   excerpt: string;
   score: number;

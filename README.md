@@ -3,7 +3,9 @@
 SmartFAQs Evidence Desk is a complete synthetic-data application for exploring
 how a person and an AI agent can investigate the same source material through
 WebMCP. The visible workspace and the agent-facing tools share one fixed,
-schema-validated capability layer.
+schema-validated capability layer. Its editable knowledge is an Open Knowledge
+Format (OKF) v0.2 Markdown hierarchy compiled into the same bounded runtime
+catalog used by the page, WebMCP, and MCP endpoint.
 
 **Live application:** [smartfaqs-evidence-desk.vercel.app](https://smartfaqs-evidence-desk.vercel.app/)
 
@@ -15,6 +17,9 @@ The demo includes:
 - bounded text and table evidence from three fictional policy sources;
 - source-scoped citation selection and human answer approval;
 - a sanitized evidence packet export;
+- an inspectable OKF knowledge bundle organized by source and section;
+- a reusable, fail-closed Docling JSONL-to-OKF conversion module;
+- an ICM-style folder workflow that documents each retrieval decision;
 - unit, protocol, build, and browser-level checks.
 
 No SmartFAQs production service, customer document, credential, private
@@ -38,6 +43,10 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000).
 
 The application does not require an API key, database, or external service.
+
+The shipped corpus is fictional. Private or third-party Docling exports can be
+converted only into ignored local output and cannot pass the public-catalog
+rights gate without an explicit reviewed metadata change.
 
 ## Try the Human Workflow
 
@@ -88,6 +97,8 @@ credential access. See [MCP Endpoint Guide](docs/MCP.md) for examples.
 npm run dev        # local development server
 npm run lint       # ESLint
 npm test           # Vitest unit and protocol tests
+npm run okf:check  # validate OKF and confirm the catalog is current
+npm run okf:compile # regenerate the catalog after approved knowledge edits
 npm run build      # production build
 npm run test:e2e   # Playwright browser tests
 npm run check      # lint, unit tests, and production build
@@ -97,10 +108,13 @@ npm run check      # lint, unit tests, and production build
 
 ```text
 src/app/                    Next.js UI and /mcp route
-src/data/                   Synthetic policy sources and chunks
+knowledge/northstar/        Editable OKF v0.2 synthetic knowledge bundle
+scripts/okf/                OKF compiler, validator, and Docling converter
+src/data/                   Generated deterministic runtime catalog
 src/lib/capabilities/       Shared schemas and deterministic tool behavior
 src/lib/webmcp/             Browser WebMCP registration adapter
 src/lib/mcp/                Streamable HTTP MCP adapter
+workflows/retrieve/         ICM-style inspectable retrieval stages
 docs/                       Public architecture and usage documentation
 ```
 
@@ -109,13 +123,15 @@ docs/                       Public architecture and usage documentation
 - Every tool is explicitly named and schema validated.
 - Searches are limited to one selected synthetic source and at most five
   bounded results.
+- Public builds accept only stable concepts marked `synthetic_public_demo`.
 - Chunk reads fail closed if the chunk is outside the selected source.
 - Agent tools cannot approve or reject a staged answer.
 - Evidence exports contain labels and counts, not raw evidence bodies.
 - Remote MCP browser origins are checked against `MCP_ALLOWED_ORIGINS`.
 - The interface remains fully usable without an agent.
 
-See [Architecture](docs/ARCHITECTURE.md) and [Security Policy](SECURITY.md).
+See [OKF and Interpretable Retrieval](docs/OKF_ICM.md),
+[Architecture](docs/ARCHITECTURE.md), and [Security Policy](SECURITY.md).
 
 ## Challenge Entry
 

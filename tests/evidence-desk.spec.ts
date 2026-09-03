@@ -112,6 +112,11 @@ test("completes the bounded human review workflow", async ({ page }) => {
 
   await expect(page.getByText("4 bounded evidence matches found.")).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Reference: northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule",
+    ),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Stage for review" }).click();
   await expect(page.getByText("2 citations staged for human review.")).toBeVisible();

@@ -56,6 +56,8 @@ describe("Evidence Desk capability contracts", () => {
     expect(result.status).toBe("matches_found");
     expect(result.results[0]).toMatchObject({
       chunkRef: "chunk:leave-accrual-table",
+      conceptRef:
+        "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule",
       kind: "table",
     });
     expect(result.results[0].excerpt).toContain("104 hours");

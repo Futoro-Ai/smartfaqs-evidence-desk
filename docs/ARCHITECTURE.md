@@ -15,19 +15,44 @@ actions the visible application cannot represent.
 ## Data Flow
 
 ```text
-Synthetic sources and chunks
-          |
-          v
+OKF v0.2 Markdown bundle + YAML frontmatter
+                    |
+                    v
+        build-time profile validation
+                    |
+                    v
+        generated deterministic catalog
+                    |
+                    v
 Strict Zod schemas + fixed capability registry
-        /   |   \
-       /    |    \
-React UI  WebMCP  MCP /mcp
-       \    |    /
-        visible result/event state
+                  /   |   \
+                 /    |    \
+          React UI  WebMCP  MCP /mcp
+                 \    |    /
+                  visible state
 ```
 
-All source material is committed synthetic data. There is no database or
-provider dependency.
+All shipped source material is committed synthetic data. There is no database
+or provider dependency. The application never parses files at request time;
+build-time compilation produces a checked-in JSON catalog suitable for both
+browser and server bundles.
+
+## Knowledge and Workflow Layers
+
+`knowledge/northstar` is the editable OKF v0.2 bundle. Section-numbered folders
+provide hierarchy, plain `index.md` files support progressive disclosure, and
+normal concept files carry standards-compliant frontmatter. Stable application
+IDs and revision-qualified concept paths serve different purposes and are both
+retained.
+
+`scripts/okf/lib.mjs` validates and compiles the bundle. Its Docling-compatible
+converter uses the same profile but always emits local-private, draft output.
+The public compiler accepts only stable synthetic-demo content.
+
+`workflows/retrieve` records the ICM-style sequence from contract and scope
+through retrieval, verification, human review, and export. These documents are
+inspectable contracts, not executable authority. See
+[OKF and Interpretable Retrieval](OKF_ICM.md).
 
 ## Capability Boundary
 
@@ -65,6 +90,14 @@ The agent-facing export tool can create only a pending packet. The human
 interface can create a packet with the visible decision state. Both forms
 contain only the source label, evidence labels, counts, decision state, and the
 synthetic-data boundary marker.
+
+## Retrieval
+
+The current retrieval implementation is deterministic lexical scoring over one
+selected source. It searches concept titles, section paths, bounded content,
+keywords, and table cells, then returns at most five results. It is deliberately
+small and interpretable; this project does not claim vector, semantic, graph, or
+production-scale retrieval.
 
 ## Trust Model
 

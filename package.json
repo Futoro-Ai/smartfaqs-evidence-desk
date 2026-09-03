@@ -19,10 +19,14 @@
     "nextjs"
   ],
   "scripts": {
+    "predev": "npm run okf:compile",
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run okf:check && next build",
     "start": "next start",
     "lint": "eslint",
+    "okf:compile": "node scripts/okf/compile-bundle.mjs",
+    "okf:check": "node scripts/okf/compile-bundle.mjs --check",
+    "okf:convert:docling": "node scripts/okf/convert-docling.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -47,6 +51,7 @@
     "eslint-config-next": "16.3.4",
     "jsdom": "^29.1.1",
     "typescript": "^5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "yaml": "^2.8.3"
   }
 }

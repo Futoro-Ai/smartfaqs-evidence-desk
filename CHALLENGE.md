@@ -8,6 +8,10 @@ source, verify readiness, search bounded evidence, inspect individual chunks,
 and stage an evidence-backed answer. The person remains responsible for final
 approval.
 
+The source corpus is an inspectable OKF v0.2 Markdown hierarchy, and the
+retrieval lifecycle is documented as an ICM-style sequence of folder contracts.
+The same validated generated catalog serves the human page, WebMCP, and MCP.
+
 ## Why WebMCP
 
 Without WebMCP, an agent must infer controls and scrape visual text. With
@@ -42,6 +46,8 @@ server endpoint for clients that operate independently of the open page.
 - [x] Local setup and test instructions
 - [x] WebMCP tool documentation
 - [x] Standard MCP endpoint documentation
+- [x] Portable OKF source bundle and deterministic catalog build
+- [x] Docling-compatible local conversion module and rights guard
 - [ ] Public demo video under three minutes
 - [ ] Devpost submission fields completed
 

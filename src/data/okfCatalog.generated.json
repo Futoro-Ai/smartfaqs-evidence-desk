@@ -1,0 +1,257 @@
+{
+  "schemaVersion": "smartfaqs-okf-catalog.v1",
+  "okfVersion": "0.2",
+  "bundleId": "northstar-demo",
+  "revision": "2026.3",
+  "sources": [
+    {
+      "ref": "source:employee-handbook",
+      "label": "Northstar Employee Handbook",
+      "summary": "Leave, scheduling, conduct, and workplace policy.",
+      "owner": "People Operations",
+      "version": "2026.2",
+      "updatedAt": "August 18, 2026",
+      "accent": "green",
+      "chunkCount": 4
+    },
+    {
+      "ref": "source:benefits-guide",
+      "label": "Northstar Benefits Guide",
+      "summary": "Health, retirement, and wellness program overview.",
+      "owner": "Total Rewards",
+      "version": "2026.1",
+      "updatedAt": "July 9, 2026",
+      "accent": "coral",
+      "chunkCount": 3
+    },
+    {
+      "ref": "source:remote-work-standard",
+      "label": "Distributed Work Standard",
+      "summary": "Eligibility, security, equipment, and travel guidance.",
+      "owner": "Workplace Systems",
+      "version": "2026.3",
+      "updatedAt": "August 25, 2026",
+      "accent": "gold",
+      "chunkCount": 3
+    }
+  ],
+  "chunks": [
+    {
+      "ref": "chunk:medical-plan",
+      "conceptRef": "northstar-demo@2026.3/benefits-guide/02-01-health-coverage/medical-plan-choices",
+      "sourceRef": "source:benefits-guide",
+      "label": "Medical plan choices",
+      "section": "2.1 Health Coverage",
+      "page": 6,
+      "kind": "text",
+      "content": "Employees may choose between two synthetic medical plans during annual\nenrollment. Coverage begins on the first day of the month after eligibility.",
+      "keywords": [
+        "medical",
+        "health",
+        "coverage",
+        "enrollment",
+        "eligibility"
+      ]
+    },
+    {
+      "ref": "chunk:retirement-match",
+      "conceptRef": "northstar-demo@2026.3/benefits-guide/03-03-retirement/retirement-contribution",
+      "sourceRef": "source:benefits-guide",
+      "label": "Retirement contribution",
+      "section": "3.3 Retirement",
+      "page": 12,
+      "kind": "text",
+      "content": "Northstar contributes a fictional dollar-for-dollar match on the first four\npercent of eligible compensation after 90 days of service.",
+      "keywords": [
+        "retirement",
+        "match",
+        "four",
+        "percent",
+        "90",
+        "days"
+      ]
+    },
+    {
+      "ref": "chunk:wellness-credit",
+      "conceptRef": "northstar-demo@2026.3/benefits-guide/05-01-wellness/wellness-learning-credit",
+      "sourceRef": "source:benefits-guide",
+      "label": "Wellness learning credit",
+      "section": "5.1 Wellness",
+      "page": 20,
+      "kind": "text",
+      "content": "A fictional annual learning and wellness credit of $400 is available for\napproved activities and courses.",
+      "keywords": [
+        "wellness",
+        "learning",
+        "credit",
+        "400",
+        "courses"
+      ]
+    },
+    {
+      "ref": "chunk:leave-eligibility",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-01-time-away/eligibility-and-proration",
+      "sourceRef": "source:employee-handbook",
+      "label": "Eligibility and proration",
+      "section": "4.1 Time Away",
+      "page": 17,
+      "kind": "text",
+      "content": "Regular full-time employees participate in the annual leave program. Part-time\nallowances are prorated according to scheduled hours.",
+      "keywords": [
+        "full-time",
+        "part-time",
+        "eligible",
+        "prorated",
+        "annual",
+        "leave"
+      ]
+    },
+    {
+      "ref": "chunk:leave-accrual-table",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule",
+      "sourceRef": "source:employee-handbook",
+      "label": "Annual leave schedule",
+      "section": "4.2 Annual Leave",
+      "page": 18,
+      "kind": "table",
+      "content": "Full-time annual leave allowance by completed years of service. One day is\neight working hours.",
+      "table": {
+        "headers": [
+          "Completed service",
+          "Annual hours",
+          "Equivalent days"
+        ],
+        "rows": [
+          [
+            "0-4 years",
+            "80 hours",
+            "10 days"
+          ],
+          [
+            "5-9 years",
+            "104 hours",
+            "13 days"
+          ],
+          [
+            "10+ years",
+            "128 hours",
+            "16 days"
+          ]
+        ]
+      },
+      "keywords": [
+        "annual",
+        "leave",
+        "vacation",
+        "service",
+        "104",
+        "13",
+        "days"
+      ]
+    },
+    {
+      "ref": "chunk:leave-accrual-method",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/leave-accrual-method",
+      "sourceRef": "source:employee-handbook",
+      "label": "How leave is recorded",
+      "section": "4.2 Annual Leave",
+      "page": 19,
+      "kind": "text",
+      "content": "Annual leave is credited in equal increments each biweekly pay period.\nEmployees can review accrued and scheduled balances in the People Portal.",
+      "keywords": [
+        "leave",
+        "credited",
+        "accrued",
+        "pay",
+        "period",
+        "balance",
+        "portal"
+      ]
+    },
+    {
+      "ref": "chunk:holiday-schedule",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-04-holidays/observed-holidays",
+      "sourceRef": "source:employee-handbook",
+      "label": "Observed holidays",
+      "section": "4.4 Holidays",
+      "page": 22,
+      "kind": "text",
+      "content": "Northstar publishes the observed holiday calendar each November for the\nfollowing year. Holiday time is separate from annual leave.",
+      "keywords": [
+        "holiday",
+        "calendar",
+        "annual",
+        "leave",
+        "separate"
+      ]
+    },
+    {
+      "ref": "chunk:remote-eligibility",
+      "conceptRef": "northstar-demo@2026.3/remote-work-standard/01-02-eligibility/remote-work-eligibility",
+      "sourceRef": "source:remote-work-standard",
+      "label": "Remote-work eligibility",
+      "section": "1.2 Eligibility",
+      "page": 3,
+      "kind": "text",
+      "content": "Roles are evaluated for distributed work according to collaboration, customer,\ndata-handling, and equipment requirements.",
+      "keywords": [
+        "remote",
+        "distributed",
+        "eligibility",
+        "customer",
+        "equipment"
+      ]
+    },
+    {
+      "ref": "chunk:remote-security",
+      "conceptRef": "northstar-demo@2026.3/remote-work-standard/03-01-information-security/workspace-security",
+      "sourceRef": "source:remote-work-standard",
+      "label": "Workspace security",
+      "section": "3.1 Information Security",
+      "page": 9,
+      "kind": "text",
+      "content": "Confidential information must be accessed on managed devices through approved\nencrypted connections. Shared public computers are prohibited.",
+      "keywords": [
+        "security",
+        "managed",
+        "device",
+        "encrypted",
+        "confidential"
+      ]
+    },
+    {
+      "ref": "chunk:remote-equipment",
+      "conceptRef": "northstar-demo@2026.3/remote-work-standard/04-02-equipment/standard-equipment",
+      "sourceRef": "source:remote-work-standard",
+      "label": "Standard equipment",
+      "section": "4.2 Equipment",
+      "page": 13,
+      "kind": "table",
+      "content": "Standard equipment by distributed-work classification.",
+      "table": {
+        "headers": [
+          "Classification",
+          "Provided equipment"
+        ],
+        "rows": [
+          [
+            "Hybrid",
+            "Laptop, dock, headset"
+          ],
+          [
+            "Remote",
+            "Laptop, dock, monitor, headset"
+          ]
+        ]
+      },
+      "keywords": [
+        "remote",
+        "hybrid",
+        "equipment",
+        "laptop",
+        "monitor",
+        "headset"
+      ]
+    }
+  ]
+}

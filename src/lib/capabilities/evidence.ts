@@ -1,4 +1,4 @@
-import { evidenceChunks, knowledgeSources } from "@/data/syntheticEvidence";
+import { evidenceChunks, knowledgeSources } from "@/data/evidenceCatalog";
 import {
   parseToolInput,
   type ToolInput,
@@ -136,7 +136,7 @@ export function checkEvidenceReadiness(
     textChunkCount: scopedChunks.length - tableChunkCount,
     tableChunkCount,
     citationLabelsAvailable: scopedChunks.every(
-      (chunk) => Boolean(chunk.label) && chunk.page > 0,
+      (chunk) => Boolean(chunk.label) && Boolean(chunk.conceptRef),
     ),
     blockedBy: [] as string[],
   };
@@ -149,10 +149,16 @@ export function searchEvidence(input: ToolInput<"search_evidence">) {
     .filter((chunk) => chunk.sourceRef === source.ref)
     .map((chunk) => ({ chunk, score: scoreChunk(chunk, terms) }))
     .filter(({ score }) => score > 0)
-    .sort((a, b) => b.score - a.score || a.chunk.page - b.chunk.page)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        (a.chunk.page ?? Number.MAX_SAFE_INTEGER) -
+          (b.chunk.page ?? Number.MAX_SAFE_INTEGER),
+    )
     .slice(0, input.limit)
     .map(({ chunk, score }) => ({
       chunkRef: chunk.ref,
+      conceptRef: chunk.conceptRef,
       label: chunk.label,
       section: chunk.section,
       page: chunk.page,
@@ -179,6 +185,7 @@ export function readEvidenceChunk(
     status: "ready" as const,
     sourceLabel: source.label,
     chunkRef: chunk.ref,
+    conceptRef: chunk.conceptRef,
     label: chunk.label,
     section: chunk.section,
     page: chunk.page,
@@ -199,8 +206,9 @@ export function stageEvidenceAnswer(
     status: "staged_for_human_review" as const,
     sourceLabel: source.label,
     answer: input.answer,
-    evidence: chunks.map(({ ref, label, section, page, kind }) => ({
+    evidence: chunks.map(({ ref, conceptRef, label, section, page, kind }) => ({
       chunkRef: ref,
+      conceptRef,
       label,
       section,
       page,

@@ -5,7 +5,7 @@ All object schemas reject extra fields.
 
 ## `list_knowledge_sources`
 
-Lists the three fictional source summaries.
+Lists the three fictional source summaries compiled from the OKF bundle.
 
 Input: empty object.
 
@@ -50,10 +50,18 @@ Input:
 ```
 
 `query` is 2-160 characters. `limit` is 1-5.
+Each result includes its stable `chunkRef` and revision-qualified OKF
+`conceptRef`.
 
 ## `read_evidence_chunk`
 
-Reads one bounded chunk after checking it belongs to the selected source.
+Reads one bounded chunk after checking it belongs to the selected source. The
+result includes both the stable `chunkRef` request key and a
+revision-qualified, path-based `conceptRef` such as:
+
+```text
+northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule
+```
 
 Input:
 
@@ -81,7 +89,8 @@ Input:
 }
 ```
 
-The output always states that human approval is required.
+The output always states that human approval is required. Staged citation
+metadata includes the OKF `conceptRef` for inspectability.
 
 ## `export_evidence_packet`
 

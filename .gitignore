@@ -22,6 +22,9 @@
 # production
 /build
 
+# private/local conversion outputs
+/.local/
+
 # misc
 .DS_Store
 *.pem
