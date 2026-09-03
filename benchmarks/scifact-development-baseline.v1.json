@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "smartfaqs-benchmark-baseline.v1",
+  "benchmark": "SciFact labeled development split",
+  "recordedAt": "2026-09-03T23:12:25.527Z",
+  "inputFingerprints": {
+    "archiveSha256": "11c621288d41ac144d29b13b0f8503b3820b7d6e8b1f6ff24dff335c196d76be",
+    "corpusSha256": "b8d6c89624cb2ed74dee8938effc4f5d8bd2086887880af8110d64be4ceade62",
+    "claimsDevSha256": "86f0435d08fdb65d1aa41d1472684f57e6e71930626497bdf4d7a9ec1a632217"
+  },
+  "corpusDocumentCount": 5183,
+  "evidenceChunkCount": 45952,
+  "evaluatedQueryCount": 188,
+  "bounds": {
+    "evidenceResultLimit": 5,
+    "navigationSectionLimit": 3
+  },
+  "modes": {
+    "productionWithAncestry": {
+      "evidence": {
+        "1": { "hitRate": 0.218085, "meanRecall": 0.150488, "mrr": 0.218085, "ndcg": 0.218085 },
+        "3": { "hitRate": 0.361702, "meanRecall": 0.244238, "mrr": 0.283688, "ndcg": 0.23689 },
+        "5": { "hitRate": 0.414894, "meanRecall": 0.320479, "mrr": 0.295656, "ndcg": 0.270304 }
+      },
+      "documentsFromEvidence": {
+        "1": { "hitRate": 0.430851, "meanRecall": 0.41445, "mrr": 0.430851, "ndcg": 0.430851 },
+        "3": { "hitRate": 0.515957, "meanRecall": 0.494238, "mrr": 0.471631, "ndcg": 0.468739 },
+        "5": { "hitRate": 0.515957, "meanRecall": 0.494238, "mrr": 0.471631, "ndcg": 0.467844 }
+      },
+      "sectionNavigation": {
+        "1": { "hitRate": 0.303191, "meanRecall": 0.296986, "mrr": 0.303191, "ndcg": 0.303191 },
+        "3": { "hitRate": 0.420213, "meanRecall": 0.400709, "mrr": 0.352837, "ndcg": 0.360029 }
+      }
+    },
+    "ablationWithoutAncestry": {
+      "evidence": {
+        "1": { "hitRate": 0.308511, "meanRecall": 0.216534, "mrr": 0.308511, "ndcg": 0.308511 },
+        "3": { "hitRate": 0.489362, "meanRecall": 0.352615, "mrr": 0.390071, "ndcg": 0.332363 },
+        "5": { "hitRate": 0.553191, "meanRecall": 0.432497, "mrr": 0.404167, "ndcg": 0.367457 }
+      },
+      "documentsFromEvidence": {
+        "1": { "hitRate": 0.547872, "meanRecall": 0.526152, "mrr": 0.547872, "ndcg": 0.547872 },
+        "3": { "hitRate": 0.654255, "meanRecall": 0.62828, "mrr": 0.596631, "ndcg": 0.594497 },
+        "5": { "hitRate": 0.670213, "meanRecall": 0.645567, "mrr": 0.600089, "ndcg": 0.600557 }
+      },
+      "sectionNavigation": {
+        "1": { "hitRate": 0.303191, "meanRecall": 0.296986, "mrr": 0.303191, "ndcg": 0.303191 },
+        "3": { "hitRate": 0.420213, "meanRecall": 0.400709, "mrr": 0.352837, "ndcg": 0.360029 }
+      }
+    }
+  }
+}

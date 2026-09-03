@@ -20,6 +20,7 @@ The demo includes:
 - an inspectable OKF knowledge bundle organized by source and section;
 - first-class heading concepts with bounded structural rollups and ancestry-aware retrieval;
 - a reusable, fail-closed Docling JSONL-to-OKF conversion module;
+- an optional local SciFact sentence-retrieval benchmark with a structural ablation;
 - an ICM-style folder workflow that documents each retrieval decision;
 - unit, protocol, build, and browser-level checks.
 
@@ -100,6 +101,9 @@ npm run lint       # ESLint
 npm test           # Vitest unit and protocol tests
 npm run okf:check  # validate OKF and confirm the catalog is current
 npm run okf:compile # regenerate the catalog after approved knowledge edits
+npm run benchmark:scifact:prepare # download SciFact into ignored local storage
+npm run benchmark:scifact:smoke   # run the fixed first-50-query retrieval check
+npm run benchmark:scifact         # run the full labeled development benchmark
 npm run build      # production build
 npm run test:e2e   # Playwright browser tests
 npm run check      # lint, unit tests, and production build
@@ -111,6 +115,8 @@ npm run check      # lint, unit tests, and production build
 src/app/                    Next.js UI and /mcp route
 knowledge/northstar/        Editable OKF v0.2 synthetic knowledge bundle
 scripts/okf/                OKF compiler, validator, and Docling converter
+scripts/benchmarks/         Local-only public retrieval benchmark adapters
+benchmarks/                 Sanitized, fingerprint-bound aggregate baselines
 src/data/                   Generated deterministic runtime catalog
 src/lib/capabilities/       Shared schemas and deterministic tool behavior
 src/lib/webmcp/             Browser WebMCP registration adapter
@@ -132,6 +138,7 @@ docs/                       Public architecture and usage documentation
 - The interface remains fully usable without an agent.
 
 See [OKF and Interpretable Retrieval](docs/OKF_ICM.md),
+[Retrieval Benchmarks](docs/BENCHMARKS.md),
 [Architecture](docs/ARCHITECTURE.md), and [Security Policy](SECURITY.md).
 
 ## Challenge Entry

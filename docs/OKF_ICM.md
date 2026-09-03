@@ -222,6 +222,12 @@ This is lexical retrieval, not embedding or model-based retrieval. The OKF
 bundle can later feed BM25, vector, graph, or table-aware indexes without
 changing the source format, but those systems are not claimed here.
 
+The optional SciFact harness exercises this same lexical ranker against public
+evidence annotations and compares ancestry-aware scoring with an otherwise
+identical no-ancestry ablation. It creates an in-memory evaluation catalog and
+does not promote third-party content into the public OKF bundle. See
+[Retrieval Benchmarks](BENCHMARKS.md).
+
 ## Methodology References
 
 - [Open Knowledge Format v0.2 specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
