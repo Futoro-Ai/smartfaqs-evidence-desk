@@ -36,8 +36,10 @@ catalog. The downloaded files and all result reports stay below
 
 The preparation command downloads SciFact from the fixed URL used by the
 official project, validates archive paths before extraction, enforces a 128 MiB
-archive limit, records a SHA-256 download receipt, and refuses to replace an
-incomplete existing dataset directory.
+archive limit, verifies pinned archive and evaluated-file SHA-256 fingerprints,
+records a download receipt, and refuses to replace an incomplete existing
+dataset directory. An upstream byte change requires an explicit adapter and
+baseline review.
 
 ```bash
 npm run benchmark:scifact:prepare
@@ -163,6 +165,6 @@ Sources:
   contains the same rationale.
 - This benchmark measures retrieval only, not claim verification or answer
   correctness.
-- The source download URL is an upstream `latest` artifact. The local receipt
-  fingerprints the exact bytes used; compare fingerprints before comparing
-  results from different machines or dates.
+- The source download URL is an upstream `latest` artifact, so the preparer
+  pins the exact archive and evaluated-file fingerprints used for this
+  baseline. A changed upstream artifact fails closed pending review.

@@ -10,6 +10,14 @@ import { promisify } from "node:util";
 const execute = promisify(execFile);
 const SOURCE_URL =
   "https://scifact.s3-us-west-2.amazonaws.com/release/latest/data.tar.gz";
+const EXPECTED_ARCHIVE_SHA256 =
+  "11c621288d41ac144d29b13b0f8503b3820b7d6e8b1f6ff24dff335c196d76be";
+const EXPECTED_FILE_SHA256 = {
+  "corpus.jsonl":
+    "b8d6c89624cb2ed74dee8938effc4f5d8bd2086887880af8110d64be4ceade62",
+  "claims_dev.jsonl":
+    "86f0435d08fdb65d1aa41d1472684f57e6e71930626497bdf4d7a9ec1a632217",
+};
 const MAX_ARCHIVE_BYTES = 128 * 1024 * 1024;
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -43,6 +51,17 @@ async function datasetReady() {
   ).every(Boolean);
 }
 
+async function verifyDataset(directory) {
+  for (const [name, expectedHash] of Object.entries(EXPECTED_FILE_SHA256)) {
+    const contents = await readFile(path.join(directory, name));
+    if (contents.length === 0) throw new Error(`scifact_file_empty:${name}`);
+    const actualHash = createHash("sha256").update(contents).digest("hex");
+    if (actualHash !== expectedHash) {
+      throw new Error(`scifact_file_hash_mismatch:${name}`);
+    }
+  }
+}
+
 function validateArchiveEntries(stdout) {
   const entries = stdout.split(/\r?\n/).filter(Boolean);
   if (entries.length === 0) throw new Error("scifact_archive_empty");
@@ -61,6 +80,7 @@ function validateArchiveEntries(stdout) {
 
 async function prepare() {
   if (await datasetReady()) {
+    await verifyDataset(dataDirectory);
     return { status: "already_prepared", dataDirectory };
   }
   if (await stat(dataDirectory).catch(() => null)) {
@@ -90,6 +110,10 @@ async function prepare() {
     if (archive.length > MAX_ARCHIVE_BYTES) {
       throw new Error("scifact_archive_too_large");
     }
+    const archiveSha256 = createHash("sha256").update(archive).digest("hex");
+    if (archiveSha256 !== EXPECTED_ARCHIVE_SHA256) {
+      throw new Error("scifact_archive_hash_mismatch");
+    }
     await writeFile(archivePath, archive);
 
     const listing = await execute("tar", ["-tzf", archivePath], {
@@ -98,10 +122,7 @@ async function prepare() {
     validateArchiveEntries(listing.stdout);
     await execute("tar", ["-xzf", archivePath, "-C", temporaryRoot]);
 
-    for (const name of requiredFiles) {
-      const contents = await readFile(path.join(temporaryRoot, "data", name));
-      if (contents.length === 0) throw new Error(`scifact_file_empty:${name}`);
-    }
+    await verifyDataset(path.join(temporaryRoot, "data"));
     await rename(path.join(temporaryRoot, "data"), dataDirectory);
     await writeFile(
       path.join(benchmarkRoot, "download-receipt.json"),
@@ -110,7 +131,7 @@ async function prepare() {
           schemaVersion: "smartfaqs-benchmark-download-receipt.v1",
           sourceUrl: SOURCE_URL,
           resolvedUrl: response.url,
-          archiveSha256: createHash("sha256").update(archive).digest("hex"),
+          archiveSha256,
           etag: response.headers.get("etag"),
           lastModified: response.headers.get("last-modified"),
           preparedAt: new Date().toISOString(),
