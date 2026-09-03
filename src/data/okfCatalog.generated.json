@@ -12,7 +12,8 @@
       "version": "2026.2",
       "updatedAt": "August 18, 2026",
       "accent": "green",
-      "chunkCount": 4
+      "chunkCount": 4,
+      "sectionCount": 4
     },
     {
       "ref": "source:benefits-guide",
@@ -22,7 +23,8 @@
       "version": "2026.1",
       "updatedAt": "July 9, 2026",
       "accent": "coral",
-      "chunkCount": 3
+      "chunkCount": 3,
+      "sectionCount": 3
     },
     {
       "ref": "source:remote-work-standard",
@@ -32,7 +34,340 @@
       "version": "2026.3",
       "updatedAt": "August 25, 2026",
       "accent": "gold",
-      "chunkCount": 3
+      "chunkCount": 3,
+      "sectionCount": 3
+    }
+  ],
+  "sections": [
+    {
+      "ref": "section:benefits-health-coverage",
+      "conceptRef": "northstar-demo@2026.3/benefits-guide/02-01-health-coverage/section",
+      "sourceRef": "source:benefits-guide",
+      "label": "2.1 Health Coverage",
+      "description": "Medical plan coverage options in the benefits guide.",
+      "sectionPath": [
+        "2.1 Health Coverage"
+      ],
+      "depth": 1,
+      "sourceOrder": 210,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 6,
+      "aliases": [],
+      "keywords": [
+        "health",
+        "medical",
+        "coverage",
+        "plan"
+      ],
+      "parentRef": null,
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 1,
+        "tableCount": 0,
+        "pageStart": 6,
+        "pageEnd": 6,
+        "descendantDigest": "sha256:61a8099e783deee26bb3d7c3"
+      }
+    },
+    {
+      "ref": "section:benefits-retirement",
+      "conceptRef": "northstar-demo@2026.3/benefits-guide/03-03-retirement/section",
+      "sourceRef": "source:benefits-guide",
+      "label": "3.3 Retirement",
+      "description": "Retirement contribution information in the benefits guide.",
+      "sectionPath": [
+        "3.3 Retirement"
+      ],
+      "depth": 1,
+      "sourceOrder": 330,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 12,
+      "aliases": [],
+      "keywords": [
+        "retirement",
+        "contribution",
+        "plan"
+      ],
+      "parentRef": null,
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 1,
+        "tableCount": 0,
+        "pageStart": 12,
+        "pageEnd": 12,
+        "descendantDigest": "sha256:50c20e321e6f6ec12596267d"
+      }
+    },
+    {
+      "ref": "section:benefits-wellness",
+      "conceptRef": "northstar-demo@2026.3/benefits-guide/05-01-wellness/section",
+      "sourceRef": "source:benefits-guide",
+      "label": "5.1 Wellness",
+      "description": "Wellness program information in the benefits guide.",
+      "sectionPath": [
+        "5.1 Wellness"
+      ],
+      "depth": 1,
+      "sourceOrder": 510,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 20,
+      "aliases": [],
+      "keywords": [
+        "wellness",
+        "learning",
+        "credit"
+      ],
+      "parentRef": null,
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 1,
+        "tableCount": 0,
+        "pageStart": 20,
+        "pageEnd": 20,
+        "descendantDigest": "sha256:eda847a89021613fe4285b80"
+      }
+    },
+    {
+      "ref": "section:employee-handbook-time-away",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/section",
+      "sourceRef": "source:employee-handbook",
+      "label": "4 Time Away",
+      "description": "Time-away policy sections in the employee handbook.",
+      "sectionPath": [
+        "4 Time Away"
+      ],
+      "depth": 1,
+      "sourceOrder": 400,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 17,
+      "aliases": [],
+      "keywords": [
+        "time",
+        "away",
+        "leave",
+        "holiday"
+      ],
+      "parentRef": null,
+      "rollup": {
+        "directSectionCount": 3,
+        "directEvidenceCount": 0,
+        "descendantEvidenceCount": 4,
+        "textCount": 3,
+        "tableCount": 1,
+        "pageStart": 17,
+        "pageEnd": 22,
+        "descendantDigest": "sha256:e8f1420d7c31b26700951f4e"
+      }
+    },
+    {
+      "ref": "section:employee-handbook-time-away-eligibility",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-01-time-away/section",
+      "sourceRef": "source:employee-handbook",
+      "label": "4.1 Time Away",
+      "description": "Eligibility and proration rules for time-away programs.",
+      "sectionPath": [
+        "4 Time Away",
+        "4.1 Time Away"
+      ],
+      "depth": 2,
+      "sourceOrder": 410,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 17,
+      "aliases": [],
+      "keywords": [
+        "time",
+        "away",
+        "eligibility",
+        "proration"
+      ],
+      "parentRef": "section:employee-handbook-time-away",
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 1,
+        "tableCount": 0,
+        "pageStart": 17,
+        "pageEnd": 17,
+        "descendantDigest": "sha256:5e9a614ce2b1677241428cea"
+      }
+    },
+    {
+      "ref": "section:employee-handbook-annual-leave",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/section",
+      "sourceRef": "source:employee-handbook",
+      "label": "4.2 Annual Leave",
+      "description": "Annual leave entitlement and accrual rules.",
+      "sectionPath": [
+        "4 Time Away",
+        "4.2 Annual Leave"
+      ],
+      "depth": 2,
+      "sourceOrder": 420,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 18,
+      "aliases": [
+        "Annual Leave"
+      ],
+      "keywords": [
+        "annual",
+        "leave",
+        "vacation",
+        "accrual"
+      ],
+      "parentRef": "section:employee-handbook-time-away",
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 2,
+        "descendantEvidenceCount": 2,
+        "textCount": 1,
+        "tableCount": 1,
+        "pageStart": 18,
+        "pageEnd": 19,
+        "descendantDigest": "sha256:aed5d1151dfac2f6b8366547"
+      }
+    },
+    {
+      "ref": "section:employee-handbook-holidays",
+      "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-04-holidays/section",
+      "sourceRef": "source:employee-handbook",
+      "label": "4.4 Holidays",
+      "description": "Observed holiday policy in the employee handbook.",
+      "sectionPath": [
+        "4 Time Away",
+        "4.4 Holidays"
+      ],
+      "depth": 2,
+      "sourceOrder": 440,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 22,
+      "aliases": [],
+      "keywords": [
+        "holiday",
+        "holidays",
+        "observed"
+      ],
+      "parentRef": "section:employee-handbook-time-away",
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 1,
+        "tableCount": 0,
+        "pageStart": 22,
+        "pageEnd": 22,
+        "descendantDigest": "sha256:aa9d06a40c044f61148c1f84"
+      }
+    },
+    {
+      "ref": "section:remote-work-eligibility",
+      "conceptRef": "northstar-demo@2026.3/remote-work-standard/01-02-eligibility/section",
+      "sourceRef": "source:remote-work-standard",
+      "label": "1.2 Eligibility",
+      "description": "Eligibility requirements in the remote work standard.",
+      "sectionPath": [
+        "1.2 Eligibility"
+      ],
+      "depth": 1,
+      "sourceOrder": 120,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 3,
+      "aliases": [],
+      "keywords": [
+        "remote",
+        "work",
+        "eligibility"
+      ],
+      "parentRef": null,
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 1,
+        "tableCount": 0,
+        "pageStart": 3,
+        "pageEnd": 3,
+        "descendantDigest": "sha256:bf4840f8d6a611c99793fe2c"
+      }
+    },
+    {
+      "ref": "section:remote-work-information-security",
+      "conceptRef": "northstar-demo@2026.3/remote-work-standard/03-01-information-security/section",
+      "sourceRef": "source:remote-work-standard",
+      "label": "3.1 Information Security",
+      "description": "Workspace security requirements for remote work.",
+      "sectionPath": [
+        "3.1 Information Security"
+      ],
+      "depth": 1,
+      "sourceOrder": 310,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 9,
+      "aliases": [],
+      "keywords": [
+        "information",
+        "security",
+        "workspace",
+        "remote"
+      ],
+      "parentRef": null,
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 1,
+        "tableCount": 0,
+        "pageStart": 9,
+        "pageEnd": 9,
+        "descendantDigest": "sha256:01626b1196f60fdd188f752b"
+      }
+    },
+    {
+      "ref": "section:remote-work-equipment",
+      "conceptRef": "northstar-demo@2026.3/remote-work-standard/04-02-equipment/section",
+      "sourceRef": "source:remote-work-standard",
+      "label": "4.2 Equipment",
+      "description": "Standard equipment responsibilities for remote work.",
+      "sectionPath": [
+        "4.2 Equipment"
+      ],
+      "depth": 1,
+      "sourceOrder": 420,
+      "structuralOrigin": "authored",
+      "headingRecordCount": 1,
+      "page": 13,
+      "aliases": [],
+      "keywords": [
+        "remote",
+        "work",
+        "equipment"
+      ],
+      "parentRef": null,
+      "rollup": {
+        "directSectionCount": 0,
+        "directEvidenceCount": 1,
+        "descendantEvidenceCount": 1,
+        "textCount": 0,
+        "tableCount": 1,
+        "pageStart": 13,
+        "pageEnd": 13,
+        "descendantDigest": "sha256:d8fae2f48af29e101dfac3c2"
+      }
     }
   ],
   "chunks": [
@@ -40,6 +375,11 @@
       "ref": "chunk:medical-plan",
       "conceptRef": "northstar-demo@2026.3/benefits-guide/02-01-health-coverage/medical-plan-choices",
       "sourceRef": "source:benefits-guide",
+      "sectionRef": "section:benefits-health-coverage",
+      "sectionConceptRef": "northstar-demo@2026.3/benefits-guide/02-01-health-coverage/section",
+      "sectionPath": [
+        "2.1 Health Coverage"
+      ],
       "label": "Medical plan choices",
       "section": "2.1 Health Coverage",
       "page": 6,
@@ -57,6 +397,11 @@
       "ref": "chunk:retirement-match",
       "conceptRef": "northstar-demo@2026.3/benefits-guide/03-03-retirement/retirement-contribution",
       "sourceRef": "source:benefits-guide",
+      "sectionRef": "section:benefits-retirement",
+      "sectionConceptRef": "northstar-demo@2026.3/benefits-guide/03-03-retirement/section",
+      "sectionPath": [
+        "3.3 Retirement"
+      ],
       "label": "Retirement contribution",
       "section": "3.3 Retirement",
       "page": 12,
@@ -75,6 +420,11 @@
       "ref": "chunk:wellness-credit",
       "conceptRef": "northstar-demo@2026.3/benefits-guide/05-01-wellness/wellness-learning-credit",
       "sourceRef": "source:benefits-guide",
+      "sectionRef": "section:benefits-wellness",
+      "sectionConceptRef": "northstar-demo@2026.3/benefits-guide/05-01-wellness/section",
+      "sectionPath": [
+        "5.1 Wellness"
+      ],
       "label": "Wellness learning credit",
       "section": "5.1 Wellness",
       "page": 20,
@@ -92,6 +442,12 @@
       "ref": "chunk:leave-eligibility",
       "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-01-time-away/eligibility-and-proration",
       "sourceRef": "source:employee-handbook",
+      "sectionRef": "section:employee-handbook-time-away-eligibility",
+      "sectionConceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-01-time-away/section",
+      "sectionPath": [
+        "4 Time Away",
+        "4.1 Time Away"
+      ],
       "label": "Eligibility and proration",
       "section": "4.1 Time Away",
       "page": 17,
@@ -110,6 +466,12 @@
       "ref": "chunk:leave-accrual-table",
       "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule",
       "sourceRef": "source:employee-handbook",
+      "sectionRef": "section:employee-handbook-annual-leave",
+      "sectionConceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/section",
+      "sectionPath": [
+        "4 Time Away",
+        "4.2 Annual Leave"
+      ],
       "label": "Annual leave schedule",
       "section": "4.2 Annual Leave",
       "page": 18,
@@ -153,6 +515,12 @@
       "ref": "chunk:leave-accrual-method",
       "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/leave-accrual-method",
       "sourceRef": "source:employee-handbook",
+      "sectionRef": "section:employee-handbook-annual-leave",
+      "sectionConceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/section",
+      "sectionPath": [
+        "4 Time Away",
+        "4.2 Annual Leave"
+      ],
       "label": "How leave is recorded",
       "section": "4.2 Annual Leave",
       "page": 19,
@@ -172,6 +540,12 @@
       "ref": "chunk:holiday-schedule",
       "conceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-04-holidays/observed-holidays",
       "sourceRef": "source:employee-handbook",
+      "sectionRef": "section:employee-handbook-holidays",
+      "sectionConceptRef": "northstar-demo@2026.3/employee-handbook/04-time-away/04-04-holidays/section",
+      "sectionPath": [
+        "4 Time Away",
+        "4.4 Holidays"
+      ],
       "label": "Observed holidays",
       "section": "4.4 Holidays",
       "page": 22,
@@ -189,6 +563,11 @@
       "ref": "chunk:remote-eligibility",
       "conceptRef": "northstar-demo@2026.3/remote-work-standard/01-02-eligibility/remote-work-eligibility",
       "sourceRef": "source:remote-work-standard",
+      "sectionRef": "section:remote-work-eligibility",
+      "sectionConceptRef": "northstar-demo@2026.3/remote-work-standard/01-02-eligibility/section",
+      "sectionPath": [
+        "1.2 Eligibility"
+      ],
       "label": "Remote-work eligibility",
       "section": "1.2 Eligibility",
       "page": 3,
@@ -206,6 +585,11 @@
       "ref": "chunk:remote-security",
       "conceptRef": "northstar-demo@2026.3/remote-work-standard/03-01-information-security/workspace-security",
       "sourceRef": "source:remote-work-standard",
+      "sectionRef": "section:remote-work-information-security",
+      "sectionConceptRef": "northstar-demo@2026.3/remote-work-standard/03-01-information-security/section",
+      "sectionPath": [
+        "3.1 Information Security"
+      ],
       "label": "Workspace security",
       "section": "3.1 Information Security",
       "page": 9,
@@ -223,6 +607,11 @@
       "ref": "chunk:remote-equipment",
       "conceptRef": "northstar-demo@2026.3/remote-work-standard/04-02-equipment/standard-equipment",
       "sourceRef": "source:remote-work-standard",
+      "sectionRef": "section:remote-work-equipment",
+      "sectionConceptRef": "northstar-demo@2026.3/remote-work-standard/04-02-equipment/section",
+      "sectionPath": [
+        "4.2 Equipment"
+      ],
       "label": "Standard equipment",
       "section": "4.2 Equipment",
       "page": 13,

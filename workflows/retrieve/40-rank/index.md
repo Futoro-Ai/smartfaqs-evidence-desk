@@ -2,9 +2,11 @@
 
 ## Action
 
-Give an exact keyword match a three-point boost and a searchable-content match
-one point. Sort by score, then page when available. Return no more than the
-caller-requested limit, which schemas cap at five.
+Give an exact keyword match a three-point boost, a section-ancestry match a
+two-point boost, and a searchable-content match one point. Score section
+navigation candidates separately. Sort evidence by score, then page when
+available. Return no more than three sections and the caller-requested evidence
+limit, which schemas cap at five.
 
 ## Known Ceiling
 

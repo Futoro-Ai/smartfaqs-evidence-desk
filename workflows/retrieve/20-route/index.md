@@ -6,10 +6,13 @@ The selected source and a focused query.
 
 ## Action
 
-Use source metadata and section paths compiled from OKF folders to constrain the
-candidate set. The editable `index.md` files provide human/agent progressive
-disclosure; the runtime uses their validated generated catalog.
+Score first-class section concepts using their titles, heading ancestry,
+aliases, descriptions, and bounded keywords. The editable `index.md` files
+provide human/agent progressive disclosure; the runtime uses their validated
+generated catalog and derived structural rollups.
 
 ## Output
 
-A bounded set of concepts from only the selected source.
+Up to three matched navigation sections from only the selected source. Each
+match identifies its descendant evidence count without returning descendant
+content.

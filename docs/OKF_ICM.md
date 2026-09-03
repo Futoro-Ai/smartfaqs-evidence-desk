@@ -35,7 +35,9 @@ knowledge/northstar/                 OKF v0.2 public synthetic bundle
     index.md                         source-level directory index
     source.md                        source concept
     04-time-away/
+      section.md                     first-class structural concept
       04-02-annual-leave/
+        section.md                   heading metadata and identity
         annual-leave-schedule.md     evidence concept
 
 scripts/okf/lib.mjs                 reusable parser, validator, compiler,
@@ -51,6 +53,12 @@ OKF concept; `index.md` files provide progressive disclosure and are not
 concepts. Only the root `index.md` carries `okf_version`, as required by OKF
 v0.2.
 
+Every distinct heading path is represented by a folder and a `section.md`
+concept. The folder carries hierarchy, `index.md` enumerates immediate children,
+and `section.md` preserves the heading's identity, order, provenance, and
+structural origin. A heading inferred from descendant paths is explicitly
+distinguished from a heading record observed in the source.
+
 ## SmartFAQs OKF Profile
 
 The parser accepts unknown top-level OKF fields, as the standard requires. The
@@ -61,7 +69,7 @@ Every application concept uses:
 
 | Field | Purpose |
 | --- | --- |
-| `type` | Standard OKF concept type. This app consumes `Knowledge Bundle`, `Knowledge Source`, and `Evidence`. |
+| `type` | Standard OKF concept type. This app consumes `Knowledge Bundle`, `Knowledge Source`, `Document Section`, and `Evidence`. |
 | `title`, `description` | Human and agent display metadata. |
 | `status` | Standard OKF lifecycle state. Public compilation requires `stable`. |
 | `generated` | Standard OKF producer and timestamp. |
@@ -69,6 +77,9 @@ Every application concept uses:
 | `smartfaqs.profile_version` | Pins this extension contract. |
 | `smartfaqs.stable_id` | Stable application key that survives a file move. |
 | `smartfaqs.source_ref` | Bounded source-scope key. |
+| `smartfaqs.section_path` | Ordered heading ancestry for a `Document Section`. |
+| `smartfaqs.structural_origin` | Whether a section was authored, observed as an explicit heading, or inferred from descendant paths. |
+| `smartfaqs.heading_record_count` | Number of source heading records represented by the section concept. |
 | `smartfaqs.section` | Human-readable section path. |
 | `smartfaqs.page` | Optional positive page number. It remains `null` when the exporter provides none. |
 | `smartfaqs.kind` | `text` or `table`. |
@@ -115,9 +126,12 @@ non-public rights class.
 
 The converter accepts newline-delimited JSON chunks that contain `text` and
 either `heading_path_v2` or `heading_path`. It prefers `heading_path_v2`, uses
-the heading hierarchy as folders, omits heading-only rows as evidence, and
-creates one bounded concept per substantive chunk. Tables remain Markdown
-tables. Unknown input fields are tolerated but are not copied to frontmatter.
+the heading hierarchy as folders, preserves explicit heading-only rows as
+first-class section concepts, synthesizes missing parent sections, and creates
+one bounded evidence concept per substantive chunk. Repeated records for the
+same full heading path are represented by one section with a deterministic
+record count. Tables remain Markdown tables. Unknown input fields are tolerated
+but are not copied to frontmatter.
 
 Run a metadata-only inspection first:
 
@@ -139,7 +153,8 @@ npm run okf:convert:docling -- \
 
 The dry run writes nothing and reports counts only. It does not print chunk
 text, document IDs, chunk IDs, source references from the input, or planned
-section names.
+section names. It separately reports heading records, explicit sections,
+inferred sections, and substantive evidence concepts.
 
 After rights and local handling are understood, write an ignored local bundle:
 
@@ -184,9 +199,24 @@ This repository does not modify or contact an Ambrosia deployment.
 ## Retrieval Behavior
 
 The current runtime is intentionally small. It filters to one selected source,
-scores query terms against titles, sections, text, keywords, and table cells,
-then returns at most five results. A read must present both the selected source
-and a matching stable chunk reference. React escapes rendered content.
+scores section concepts and substantive evidence separately, and boosts evidence
+whose heading ancestry matches the query. Search responses include up to three
+matched navigation sections plus at most five evidence results. Every evidence
+result carries its bounded section path and section concept reference. A read
+must present both the selected source and a matching stable chunk reference.
+React escapes rendered content.
+
+A heading-only leaf remains searchable and navigable even when it has no
+descendant evidence. Its section concept can truthfully establish that the
+heading exists and where it sits in the document, but it cannot substantiate a
+claim about content that was not captured beneath it.
+
+Section rollups are derived during compilation. They include direct child and
+evidence counts, descendant text/table counts, an available page range, and a
+digest of descendant concept references. They never concatenate descendant
+text or become independent factual authority. Section concepts can establish
+document organization and enrich a retrieved chunk's context; substantive
+claims remain grounded in the underlying text or table concept.
 
 This is lexical retrieval, not embedding or model-based retrieval. The OKF
 bundle can later feed BM25, vector, graph, or table-aware indexes without

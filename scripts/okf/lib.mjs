@@ -88,6 +88,27 @@ const sourceExtensionSchema = z
   })
   .strict();
 
+const sectionExtensionSchema = z
+  .object({
+    profile_version: z.literal(PROFILE_VERSION),
+    role: z.literal("section"),
+    stable_id: z.string().regex(/^section:[a-z0-9][a-z0-9-]*$/),
+    source_ref: z.string().regex(/^source:[a-z0-9][a-z0-9-]*$/),
+    section_path: z.array(z.string().min(1).max(240)).min(1).max(20),
+    depth: z.number().int().positive().max(20),
+    source_order: z.number().int().nonnegative(),
+    structural_origin: z.enum([
+      "authored",
+      "explicit_heading",
+      "inferred_from_heading_path",
+    ]),
+    heading_record_count: z.number().int().nonnegative(),
+    page: z.number().int().positive().nullable().optional(),
+    aliases: z.array(z.string().min(1).max(240)).max(20).optional(),
+    keywords: z.array(z.string().min(1).max(60)).min(1).max(32),
+  })
+  .strict();
+
 const evidenceExtensionSchema = z
   .object({
     profile_version: z.literal(PROFILE_VERSION),
@@ -364,11 +385,11 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
       updatedAt: extension.display_updated_at,
       accent: extension.accent,
       chunkCount: 0,
+      sectionCount: 0,
       displayOrder: extension.display_order,
     };
   });
 
-  const chunkRefs = new Set();
   const sourcePaths = new Map(
     sourceConcepts.map((concept) => {
       const extension = requireExtension(
@@ -379,6 +400,135 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
       return [extension.source_ref, `/${concept.relativePath}`];
     }),
   );
+  const sourceDirectories = new Map(
+    sourceConcepts.map((concept) => {
+      const extension = requireExtension(
+        concept.metadata,
+        sourceExtensionSchema,
+        concept.relativePath,
+      );
+      return [extension.source_ref, path.posix.dirname(concept.relativePath)];
+    }),
+  );
+
+  const sectionConcepts = bundle.concepts.filter(
+    (concept) => concept.metadata.type === "Document Section",
+  );
+  const sectionRefs = new Set();
+  const sectionByDirectory = new Map();
+  const sections = sectionConcepts.map((concept) => {
+    const extension = requireExtension(
+      concept.metadata,
+      sectionExtensionSchema,
+      concept.relativePath,
+    );
+    if (!sourceRefs.has(extension.source_ref)) {
+      throw new Error(`unknown_section_source_ref:${concept.relativePath}`);
+    }
+    if (publicOnly && concept.metadata.status !== "stable") {
+      throw new Error(`public_catalog_section_not_stable:${extension.stable_id}`);
+    }
+    if (sectionRefs.has(extension.stable_id)) {
+      throw new Error(`duplicate_section_ref:${extension.stable_id}`);
+    }
+    if (!concept.metadata.title || !concept.metadata.description) {
+      throw new Error(`section_title_and_description_required:${concept.relativePath}`);
+    }
+    if (extension.depth !== extension.section_path.length) {
+      throw new Error(`section_depth_mismatch:${concept.relativePath}`);
+    }
+    if (concept.metadata.title !== extension.section_path.at(-1)) {
+      throw new Error(`section_title_path_mismatch:${concept.relativePath}`);
+    }
+    if (
+      extension.structural_origin === "explicit_heading" &&
+      extension.heading_record_count === 0
+    ) {
+      throw new Error(`explicit_section_requires_heading_record:${concept.relativePath}`);
+    }
+
+    const directory = path.posix.dirname(concept.relativePath);
+    const sourceDirectory = sourceDirectories.get(extension.source_ref);
+    if (
+      !sourceDirectory ||
+      directory === sourceDirectory ||
+      !directory.startsWith(`${sourceDirectory}/`)
+    ) {
+      throw new Error(`section_outside_source_directory:${concept.relativePath}`);
+    }
+    if (sectionByDirectory.has(directory)) {
+      throw new Error(`duplicate_section_directory:${directory}`);
+    }
+    sectionRefs.add(extension.stable_id);
+    sectionByDirectory.set(directory, extension.stable_id);
+    return {
+      ref: extension.stable_id,
+      conceptRef: `${bundleExtension.bundle_id}@${bundleExtension.revision}/${concept.conceptId}`,
+      sourceRef: extension.source_ref,
+      label: concept.metadata.title,
+      description: concept.metadata.description,
+      sectionPath: extension.section_path,
+      depth: extension.depth,
+      sourceOrder: extension.source_order,
+      structuralOrigin: extension.structural_origin,
+      headingRecordCount: extension.heading_record_count,
+      page: extension.page ?? null,
+      aliases: extension.aliases ?? [],
+      keywords: extension.keywords.map((keyword) => keyword.toLowerCase()),
+      directory,
+      parentRef: null,
+      rollup: {
+        directSectionCount: 0,
+        directEvidenceCount: 0,
+        descendantEvidenceCount: 0,
+        textCount: 0,
+        tableCount: 0,
+        pageStart: null,
+        pageEnd: null,
+        descendantDigest: "",
+      },
+    };
+  });
+  const sectionByRef = new Map(sections.map((section) => [section.ref, section]));
+
+  for (const section of sections) {
+    let parentDirectory = path.posix.dirname(section.directory);
+    while (parentDirectory !== ".") {
+      const parentRef = sectionByDirectory.get(parentDirectory);
+      if (parentRef) {
+        section.parentRef = parentRef;
+        break;
+      }
+      parentDirectory = path.posix.dirname(parentDirectory);
+    }
+    if (section.depth > 1 && !section.parentRef) {
+      throw new Error(`section_parent_concept_missing:${section.conceptRef}`);
+    }
+    if (section.parentRef) {
+      const parent = sectionByRef.get(section.parentRef);
+      if (
+        !parent ||
+        parent.sourceRef !== section.sourceRef ||
+        parent.depth !== section.depth - 1 ||
+        !startsWithPath(section.sectionPath, parent.sectionPath)
+      ) {
+        throw new Error(`section_parent_mismatch:${section.conceptRef}`);
+      }
+      parent.rollup.directSectionCount += 1;
+    }
+  }
+
+  function nearestSection(relativePath) {
+    let directory = path.posix.dirname(relativePath);
+    while (directory !== ".") {
+      const sectionRef = sectionByDirectory.get(directory);
+      if (sectionRef) return sectionByRef.get(sectionRef);
+      directory = path.posix.dirname(directory);
+    }
+    return null;
+  }
+
+  const chunkRefs = new Set();
   const chunks = evidenceConcepts.map((concept) => {
     const extension = requireExtension(
       concept.metadata,
@@ -405,6 +555,10 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
     if (!concept.metadata.title) {
       throw new Error(`evidence_title_required:${concept.relativePath}`);
     }
+    const sectionConcept = nearestSection(concept.relativePath);
+    if (!sectionConcept || sectionConcept.sourceRef !== extension.source_ref) {
+      throw new Error(`evidence_section_concept_missing:${concept.relativePath}`);
+    }
     chunkRefs.add(extension.stable_id);
 
     const tableRange =
@@ -420,6 +574,9 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
       ref: extension.stable_id,
       conceptRef,
       sourceRef: extension.source_ref,
+      sectionRef: sectionConcept.ref,
+      sectionConceptRef: sectionConcept.conceptRef,
+      sectionPath: sectionConcept.sectionPath,
       label: concept.metadata.title,
       section: extension.section,
       page: extension.page ?? null,
@@ -432,13 +589,55 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
     };
   });
 
+  const descendantRefsBySection = new Map(
+    sections.map((section) => [section.ref, []]),
+  );
+  for (const chunk of chunks) {
+    const directSection = sectionByRef.get(chunk.sectionRef);
+    if (!directSection) throw new Error(`unknown_chunk_section:${chunk.conceptRef}`);
+    directSection.rollup.directEvidenceCount += 1;
+
+    let section = directSection;
+    while (section) {
+      section.rollup.descendantEvidenceCount += 1;
+      section.rollup[chunk.kind === "table" ? "tableCount" : "textCount"] += 1;
+      if (Number.isInteger(chunk.page)) {
+        section.rollup.pageStart =
+          section.rollup.pageStart === null
+            ? chunk.page
+            : Math.min(section.rollup.pageStart, chunk.page);
+        section.rollup.pageEnd =
+          section.rollup.pageEnd === null
+            ? chunk.page
+            : Math.max(section.rollup.pageEnd, chunk.page);
+      }
+      descendantRefsBySection.get(section.ref).push(chunk.conceptRef);
+      section = section.parentRef ? sectionByRef.get(section.parentRef) : null;
+    }
+  }
+  for (const section of sections) {
+    section.rollup.descendantDigest = `sha256:${digest(
+      descendantRefsBySection.get(section.ref).sort().join("\n"),
+      24,
+    )}`;
+  }
+
   for (const source of sources) {
     source.chunkCount = chunks.filter((chunk) => chunk.sourceRef === source.ref).length;
+    source.sectionCount = sections.filter(
+      (section) => section.sourceRef === source.ref,
+    ).length;
     if (source.chunkCount === 0) throw new Error(`source_has_no_evidence:${source.ref}`);
   }
 
   sources.sort(
     (left, right) => left.displayOrder - right.displayOrder || left.ref.localeCompare(right.ref),
+  );
+  sections.sort(
+    (left, right) =>
+      left.sourceRef.localeCompare(right.sourceRef) ||
+      left.sourceOrder - right.sourceOrder ||
+      left.conceptRef.localeCompare(right.conceptRef),
   );
   chunks.sort((left, right) => left.conceptRef.localeCompare(right.conceptRef));
   return {
@@ -455,6 +654,24 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
       updatedAt: source.updatedAt,
       accent: source.accent,
       chunkCount: source.chunkCount,
+      sectionCount: source.sectionCount,
+    })),
+    sections: sections.map((section) => ({
+      ref: section.ref,
+      conceptRef: section.conceptRef,
+      sourceRef: section.sourceRef,
+      label: section.label,
+      description: section.description,
+      sectionPath: section.sectionPath,
+      depth: section.depth,
+      sourceOrder: section.sourceOrder,
+      structuralOrigin: section.structuralOrigin,
+      headingRecordCount: section.headingRecordCount,
+      page: section.page,
+      aliases: section.aliases,
+      keywords: section.keywords,
+      parentRef: section.parentRef,
+      rollup: section.rollup,
     })),
     chunks,
   };
@@ -508,7 +725,7 @@ function conceptMarkdown(metadata, title, content) {
   return `${frontmatterBlock(metadata)}\n# ${title}\n\n${content.trim()}\n`;
 }
 
-function doclingSummary(rows, selectedRows, evidenceRows, sectionPaths) {
+function doclingSummary(rows, selectedRows, evidenceRows, sectionNodes) {
   const chunkTypes = {};
   let pageMetadataCount = 0;
   let maxChunkCharacters = 0;
@@ -523,8 +740,16 @@ function doclingSummary(rows, selectedRows, evidenceRows, sectionPaths) {
     inputRowCount: rows.length,
     selectedRowCount: selectedRows.length,
     evidenceDocumentCount: evidenceRows.length,
-    headingOnlyOmittedCount: selectedRows.length - evidenceRows.length,
-    sectionPathCount: sectionPaths.size,
+    headingOnlyRecordCount: selectedRows.filter(
+      (row) => row.chunk_type === "heading_only",
+    ).length,
+    sectionConceptCount: sectionNodes.size,
+    explicitSectionCount: [...sectionNodes.values()].filter(
+      (section) => section.headingRecordCount > 0,
+    ).length,
+    inferredSectionCount: [...sectionNodes.values()].filter(
+      (section) => section.headingRecordCount === 0,
+    ).length,
     pageMetadataCount,
     maxChunkCharacters,
     chunkTypeCounts: Object.fromEntries(Object.entries(chunkTypes).sort()),
@@ -576,10 +801,35 @@ export async function convertDoclingJsonl({
   );
   if (evidenceRows.length === 0) throw new Error("no_docling_evidence_selected");
 
-  const sectionPaths = new Set(
-    evidenceRows.map((row) => headingPathFor(row).join("\u001f")),
-  );
-  const summary = doclingSummary(rows, selectedRows, evidenceRows, sectionPaths);
+  const sectionNodes = new Map();
+  selectedRows.forEach((row, ordinal) => {
+    const headings = headingPathFor(row);
+    const rowOrder = row.chunk_index ?? ordinal;
+    headings.forEach((heading, index) => {
+      const sectionPath = headings.slice(0, index + 1);
+      const key = sectionPath.join("\u001f");
+      const existing = sectionNodes.get(key) ?? {
+        key,
+        sectionPath,
+        sourceOrder: rowOrder,
+        page: null,
+        headingRecordCount: 0,
+      };
+      existing.sourceOrder = Math.min(existing.sourceOrder, rowOrder);
+      if (Number.isInteger(row.page_start) && row.page_start > 0) {
+        existing.page =
+          existing.page === null
+            ? row.page_start
+            : Math.min(existing.page, row.page_start);
+      }
+      if (row.chunk_type === "heading_only" && index === headings.length - 1) {
+        existing.headingRecordCount += 1;
+      }
+      sectionNodes.set(key, existing);
+    });
+  });
+
+  const summary = doclingSummary(rows, selectedRows, evidenceRows, sectionNodes);
   if (dryRun) return summary;
   if (!outputDirectory) throw new Error("output_directory_required");
 
@@ -665,24 +915,88 @@ export async function convertDoclingJsonl({
     description: "Source metadata and local-use boundary.",
   });
 
-  const usedRefs = new Map();
-  evidenceRows.forEach((row, ordinal) => {
-    const headings = headingPathFor(row);
-    const sectionSlugs = headings.map(slug);
+  const sectionDirectoryByKey = new Map();
+  const sectionNodesInOrder = [...sectionNodes.values()].sort(
+    (left, right) =>
+      left.sectionPath.length - right.sectionPath.length ||
+      left.sourceOrder - right.sourceOrder ||
+      left.key.localeCompare(right.key),
+  );
+  for (const sectionNode of sectionNodesInOrder) {
     let currentDirectory = sourceDirectory;
-    sectionSlugs.forEach((sectionSlug, index) => {
+    sectionNode.sectionPath.forEach((heading) => {
+      const sectionSlug = slug(heading);
       addIndexEntry(currentDirectory, {
         kind: "directory",
         name: sectionSlug,
-        title: headings[index],
+        title: heading,
       });
       currentDirectory = `${currentDirectory}/${sectionSlug}`;
       const existingTitle = directoryTitles.get(currentDirectory);
-      if (existingTitle && existingTitle !== headings[index]) {
+      if (existingTitle && existingTitle !== heading) {
         throw new Error("section_slug_collision");
       }
-      directoryTitles.set(currentDirectory, headings[index]);
+      directoryTitles.set(currentDirectory, heading);
     });
+
+    const title = sectionNode.sectionPath.at(-1);
+    const stableId = `section:${slug(documentRef)}-${digest(
+      `${sourceRef}\0${sectionNode.key}`,
+      16,
+    )}`;
+    const keywords = Array.from(
+      new Set(
+        sectionNode.sectionPath
+          .flatMap((heading) => slug(heading).split("-"))
+          .filter((word) => word.length > 1),
+      ),
+    ).slice(0, 32);
+    const metadata = {
+      type: "Document Section",
+      title,
+      description: `Source heading ${title}.`,
+      status: "draft",
+      generated: { by: "process:smartfaqs-docling-okf", at: generatedAt },
+      sources: [
+        {
+          id: slug(documentRef),
+          resource: `/${sourceDirectory}/source.md`,
+          title: sourceTitle,
+          author: "process:docling-lab",
+        },
+      ],
+      smartfaqs: {
+        profile_version: PROFILE_VERSION,
+        role: "section",
+        stable_id: stableId,
+        source_ref: sourceRef,
+        section_path: sectionNode.sectionPath,
+        depth: sectionNode.sectionPath.length,
+        source_order: sectionNode.sourceOrder,
+        structural_origin:
+          sectionNode.headingRecordCount > 0
+            ? "explicit_heading"
+            : "inferred_from_heading_path",
+        heading_record_count: sectionNode.headingRecordCount,
+        page: sectionNode.page,
+        keywords: keywords.length ? keywords : ["section"],
+      },
+    };
+    files.set(`${currentDirectory}/section.md`, conceptMarkdown(metadata, title, ""));
+    addIndexEntry(currentDirectory, {
+      kind: "document",
+      name: "section.md",
+      title,
+      description: metadata.description,
+    });
+    sectionDirectoryByKey.set(sectionNode.key, currentDirectory);
+  }
+
+  const usedRefs = new Map();
+  evidenceRows.forEach((row, ordinal) => {
+    const headings = headingPathFor(row);
+    const currentDirectory = sectionDirectoryByKey.get(headings.join("\u001f"));
+    if (!currentDirectory) throw new Error("evidence_section_directory_missing");
 
     const kind = row.chunk_type === "table" ? "table" : "text";
     const identityMaterial = row.semantic_span_hash || row.text;

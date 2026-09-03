@@ -63,8 +63,14 @@ function chunkFor(ref: string, sourceRef: SourceRef) {
   );
 }
 
-function locationLabel(section: string, page: number | null) {
-  return page ? `${section} · p. ${page}` : section;
+function locationLabel(
+  sectionPath: string[] | undefined,
+  page: number | null,
+  fallbackSection: string,
+  pageLabel = "p.",
+) {
+  const structuralPath = sectionPath?.join(" > ") || fallbackSection;
+  return page ? `${structuralPath} · ${pageLabel} ${page}` : structuralPath;
 }
 
 function demoSearch(sourceRef: SourceRef, query: string) {
@@ -368,7 +374,7 @@ export default function Home() {
               </button>;
             })}
           </div>
-          <div className={styles.scopeNote}><BookOpen size={17} aria-hidden="true" /><div><strong>Bounded source scope</strong><span>{source.chunkCount} indexed excerpts from {source.updatedAt}</span></div></div>
+          <div className={styles.scopeNote}><BookOpen size={17} aria-hidden="true" /><div><strong>Bounded source scope</strong><span>{source.sectionCount} sections · {source.chunkCount} indexed excerpts from {source.updatedAt}</span></div></div>
         </aside>
 
         <section className={styles.evidencePanel} aria-labelledby="evidence-heading">
@@ -388,7 +394,7 @@ export default function Home() {
               <div className={styles.resultList}>
                 {results.length > 0 ? results.map((result) => <button className={`${styles.resultItem} ${result.chunkRef === activeChunk?.ref ? styles.resultActive : ""}`} key={result.chunkRef} onClick={() => openChunk(result.chunkRef)} type="button" aria-pressed={result.chunkRef === activeChunk?.ref}>
                   <span className={styles.resultIcon} aria-hidden="true">{result.kind === "table" ? <TableProperties size={16} /> : <FileText size={16} />}</span>
-                  <span className={styles.resultContent}><span className={styles.resultTitle}>{result.label}</span><span className={styles.resultExcerpt}>{result.excerpt}</span><span className={styles.resultMeta}>{locationLabel(result.section, result.page)}</span></span>
+                  <span className={styles.resultContent}><span className={styles.resultTitle}>{result.label}</span><span className={styles.resultExcerpt}>{result.excerpt}</span><span className={styles.resultMeta}>{locationLabel(result.sectionPath, result.page, result.section)}</span></span>
                 </button>) : <p className={styles.emptyState}>No matching evidence in this source. Try a more specific policy term.</p>}
               </div>
             </div>
@@ -398,7 +404,7 @@ export default function Home() {
                   <div><div className={styles.documentKind}>{activeChunk.kind === "table" ? <TableProperties size={15} /> : <FileText size={15} />}{activeChunk.kind === "table" ? "Table evidence" : "Text evidence"}</div><h3>{activeChunk.label}</h3></div>
                   <button className={`${styles.citationToggle} ${citationRefs.includes(activeChunk.ref) ? styles.citationSelected : ""}`} onClick={() => toggleCitation(activeChunk.ref)} type="button" aria-pressed={citationRefs.includes(activeChunk.ref)}>{citationRefs.includes(activeChunk.ref) ? <Check size={15} aria-hidden="true" /> : <ClipboardCheck size={15} aria-hidden="true" />}{citationRefs.includes(activeChunk.ref) ? "Cited" : "Add citation"}</button>
                 </div>
-                <p className={styles.documentMeta}>{activeChunk.page ? `${activeChunk.section} · page ${activeChunk.page}` : activeChunk.section}</p>
+                <p className={styles.documentMeta}>{locationLabel(activeChunk.sectionPath, activeChunk.page, activeChunk.section, "page")}</p>
                 <p className={styles.documentText}>{activeChunk.content}</p>
                 {activeChunk.table && <div className={styles.tableWrap}><table><caption className={styles.srOnly}>{activeChunk.label}</caption><thead><tr>{activeChunk.table.headers.map((header) => <th key={header}>{header}</th>)}</tr></thead><tbody>{activeChunk.table.rows.map((row) => <tr key={row.join("-")}>{row.map((cell) => <td key={cell}>{cell}</td>)}</tr>)}</tbody></table></div>}
                 <div className={styles.documentFooter}><span>Reference: {activeChunk.conceptRef}</span><span>Source-bounded</span></div>

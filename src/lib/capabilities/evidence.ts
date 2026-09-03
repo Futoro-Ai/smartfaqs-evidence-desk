@@ -1,4 +1,8 @@
-import { evidenceChunks, knowledgeSources } from "@/data/evidenceCatalog";
+import {
+  evidenceChunks,
+  knowledgeSections,
+  knowledgeSources,
+} from "@/data/evidenceCatalog";
 import {
   parseToolInput,
   type ToolInput,
@@ -8,6 +12,7 @@ import type {
   EvidenceChunk,
   EvidencePacket,
   EvidenceSearchResult,
+  KnowledgeSection,
   KnowledgeSource,
   SourceRef,
 } from "@/lib/evidence/types";
@@ -62,6 +67,7 @@ function queryTerms(query: string): string[] {
 }
 
 function scoreChunk(chunk: EvidenceChunk, terms: string[]): number {
+  const structuralContext = chunk.sectionPath.join(" ").toLowerCase();
   const searchable = [
     chunk.label,
     chunk.section,
@@ -75,6 +81,29 @@ function scoreChunk(chunk: EvidenceChunk, terms: string[]): number {
 
   return terms.reduce((score, term) => {
     const keywordBoost = chunk.keywords.includes(term) ? 3 : 0;
+    const structuralBoost = structuralContext.includes(term) ? 2 : 0;
+    return (
+      score +
+      keywordBoost +
+      structuralBoost +
+      (searchable.includes(term) ? 1 : 0)
+    );
+  }, 0);
+}
+
+function scoreSection(section: KnowledgeSection, terms: string[]): number {
+  const searchable = [
+    section.label,
+    section.description,
+    section.sectionPath.join(" "),
+    section.aliases.join(" "),
+    section.keywords.join(" "),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return terms.reduce((score, term) => {
+    const keywordBoost = section.keywords.includes(term) ? 3 : 0;
     return score + keywordBoost + (searchable.includes(term) ? 1 : 0);
   }, 0);
 }
@@ -93,13 +122,14 @@ export function listKnowledgeSources() {
     status: "ready" as const,
     sourceCount: knowledgeSources.length,
     sources: knowledgeSources.map(
-      ({ ref, label, summary, owner, version, chunkCount }) => ({
+      ({ ref, label, summary, owner, version, chunkCount, sectionCount }) => ({
         sourceRef: ref,
         label,
         summary,
         owner,
         version,
         chunkCount,
+        sectionCount,
       }),
     ),
   };
@@ -125,6 +155,9 @@ export function checkEvidenceReadiness(
   const scopedChunks = evidenceChunks.filter(
     (chunk) => chunk.sourceRef === source.ref,
   );
+  const scopedSections = knowledgeSections.filter(
+    (section) => section.sourceRef === source.ref,
+  );
   const tableChunkCount = scopedChunks.filter(
     (chunk) => chunk.kind === "table",
   ).length;
@@ -133,6 +166,14 @@ export function checkEvidenceReadiness(
     status: "ready" as const,
     sourceLabel: source.label,
     boundedEvidenceAvailable: scopedChunks.length > 0,
+    structuralNavigationAvailable:
+      scopedSections.length > 0 &&
+      scopedSections.every(
+        (section) =>
+          Boolean(section.conceptRef) &&
+          section.rollup.descendantDigest.startsWith("sha256:"),
+      ),
+    sectionCount: scopedSections.length,
     textChunkCount: scopedChunks.length - tableChunkCount,
     tableChunkCount,
     citationLabelsAvailable: scopedChunks.every(
@@ -145,6 +186,25 @@ export function checkEvidenceReadiness(
 export function searchEvidence(input: ToolInput<"search_evidence">) {
   const source = requireSource(input.sourceRef);
   const terms = queryTerms(input.query);
+  const matchedSections = knowledgeSections
+    .filter((section) => section.sourceRef === source.ref)
+    .map((section) => ({ section, score: scoreSection(section, terms) }))
+    .filter(({ score }) => score > 0)
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        left.section.sourceOrder - right.section.sourceOrder,
+    )
+    .slice(0, 3)
+    .map(({ section, score }) => ({
+      sectionRef: section.ref,
+      conceptRef: section.conceptRef,
+      label: section.label,
+      sectionPath: section.sectionPath,
+      parentSectionRef: section.parentRef,
+      descendantEvidenceCount: section.rollup.descendantEvidenceCount,
+      score,
+    }));
   const results: EvidenceSearchResult[] = evidenceChunks
     .filter((chunk) => chunk.sourceRef === source.ref)
     .map((chunk) => ({ chunk, score: scoreChunk(chunk, terms) }))
@@ -159,6 +219,9 @@ export function searchEvidence(input: ToolInput<"search_evidence">) {
     .map(({ chunk, score }) => ({
       chunkRef: chunk.ref,
       conceptRef: chunk.conceptRef,
+      sectionRef: chunk.sectionRef,
+      sectionConceptRef: chunk.sectionConceptRef,
+      sectionPath: chunk.sectionPath,
       label: chunk.label,
       section: chunk.section,
       page: chunk.page,
@@ -172,6 +235,8 @@ export function searchEvidence(input: ToolInput<"search_evidence">) {
     sourceLabel: source.label,
     query: input.query,
     resultCount: results.length,
+    matchedSectionCount: matchedSections.length,
+    matchedSections,
     results,
   };
 }
@@ -186,6 +251,9 @@ export function readEvidenceChunk(
     sourceLabel: source.label,
     chunkRef: chunk.ref,
     conceptRef: chunk.conceptRef,
+    sectionRef: chunk.sectionRef,
+    sectionConceptRef: chunk.sectionConceptRef,
+    sectionPath: chunk.sectionPath,
     label: chunk.label,
     section: chunk.section,
     page: chunk.page,
@@ -206,9 +274,20 @@ export function stageEvidenceAnswer(
     status: "staged_for_human_review" as const,
     sourceLabel: source.label,
     answer: input.answer,
-    evidence: chunks.map(({ ref, conceptRef, label, section, page, kind }) => ({
+    evidence: chunks.map(({
+      ref,
+      conceptRef,
+      sectionConceptRef,
+      sectionPath,
+      label,
+      section,
+      page,
+      kind,
+    }) => ({
       chunkRef: ref,
       conceptRef,
+      sectionConceptRef,
+      sectionPath,
       label,
       section,
       page,

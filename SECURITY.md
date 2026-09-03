@@ -49,6 +49,8 @@ The Docling converter:
 
 - enforces file, row, chunk, path, and frontmatter bounds;
 - sanitizes headings before using them as relative paths;
+- preserves headings as structural concepts while keeping them distinct from
+  substantive citeable evidence;
 - omits raw input document IDs, chunk IDs, and source references;
 - returns only counts from `--dry-run`;
 - writes atomically, refuses to overwrite by default, and allows `--force`

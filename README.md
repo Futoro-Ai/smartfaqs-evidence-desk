@@ -18,6 +18,7 @@ The demo includes:
 - source-scoped citation selection and human answer approval;
 - a sanitized evidence packet export;
 - an inspectable OKF knowledge bundle organized by source and section;
+- first-class heading concepts with bounded structural rollups and ancestry-aware retrieval;
 - a reusable, fail-closed Docling JSONL-to-OKF conversion module;
 - an ICM-style folder workflow that documents each retrieval decision;
 - unit, protocol, build, and browser-level checks.
@@ -121,8 +122,8 @@ docs/                       Public architecture and usage documentation
 ## Design Boundaries
 
 - Every tool is explicitly named and schema validated.
-- Searches are limited to one selected synthetic source and at most five
-  bounded results.
+- Searches are limited to one selected synthetic source, at most three matched
+  navigation sections, and at most five bounded evidence results.
 - Public builds accept only stable concepts marked `synthetic_public_demo`.
 - Chunk reads fail closed if the chunk is outside the selected source.
 - Agent tools cannot approve or reject a staged answer.

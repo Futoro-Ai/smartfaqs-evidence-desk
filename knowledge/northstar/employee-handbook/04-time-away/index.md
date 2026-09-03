@@ -1,5 +1,9 @@
 # 4 Time Away
 
+## Concept
+
+* [4 Time Away](section.md) - Section identity and structural context.
+
 ## Sections
 
 * [4.1 Time Away](04-01-time-away/)

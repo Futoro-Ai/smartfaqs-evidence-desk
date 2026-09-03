@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -86,12 +86,27 @@ describe("SmartFAQs OKF profile", () => {
       revision: "2026.3",
     });
     expect(catalog.sources).toHaveLength(3);
+    expect(catalog.sections).toHaveLength(10);
     expect(catalog.chunks).toHaveLength(10);
+    expect(
+      catalog.sections.find(
+        (section) => section.ref === "section:employee-handbook-time-away",
+      ),
+    ).toMatchObject({
+      sectionPath: ["4 Time Away"],
+      rollup: {
+        directSectionCount: 3,
+        descendantEvidenceCount: 4,
+        tableCount: 1,
+      },
+    });
     expect(
       catalog.chunks.find((chunk) => chunk.ref === "chunk:leave-accrual-table"),
     ).toMatchObject({
       conceptRef:
         "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule",
+      sectionRef: "section:employee-handbook-annual-leave",
+      sectionPath: ["4 Time Away", "4.2 Annual Leave"],
       kind: "table",
       table: { headers: ["Completed service", "Annual hours", "Equivalent days"] },
     });
@@ -134,8 +149,10 @@ describe("Docling JSONL conversion", () => {
       inputRowCount: 4,
       selectedRowCount: 3,
       evidenceDocumentCount: 2,
-      headingOnlyOmittedCount: 1,
-      sectionPathCount: 2,
+      headingOnlyRecordCount: 1,
+      sectionConceptCount: 4,
+      explicitSectionCount: 1,
+      inferredSectionCount: 3,
       pageMetadataCount: 1,
       rightsClass: "local_private_only",
     });
@@ -156,7 +173,25 @@ describe("Docling JSONL conversion", () => {
     });
     const serializedConcepts = JSON.stringify(bundle.concepts);
 
+    expect(catalog.sections).toHaveLength(4);
     expect(catalog.chunks).toHaveLength(2);
+    expect(
+      catalog.sections.find(
+        (section) => section.label === "511 General",
+      ),
+    ).toMatchObject({
+      structuralOrigin: "explicit_heading",
+      headingRecordCount: 1,
+      rollup: { descendantEvidenceCount: 1 },
+    });
+    expect(
+      catalog.sections.find(
+        (section) => section.label === "510 Leave",
+      ),
+    ).toMatchObject({
+      structuralOrigin: "inferred_from_heading_path",
+      rollup: { descendantEvidenceCount: 2 },
+    });
     expect(catalog.chunks.some((chunk) => chunk.kind === "table")).toBe(true);
     expect(
       catalog.chunks.every((chunk) =>
@@ -166,6 +201,68 @@ describe("Docling JSONL conversion", () => {
     expect(serializedConcepts).not.toContain("private-heading-id");
     expect(serializedConcepts).not.toContain("private-prose-id");
     expect(serializedConcepts).not.toContain("private-document-id");
+  });
+
+  it("preserves a heading-only leaf as navigation even without evidence", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-heading-only-"));
+    const inputPath = path.join(root, "chunks.jsonl");
+    await writeFile(
+      inputPath,
+      [
+        {
+          text: "599 Navigation Only",
+          chunk_type: "heading_only",
+          heading_path_v2: [
+            "5 Employee Benefits",
+            "510 Leave",
+            "599 Navigation Only",
+          ],
+        },
+        {
+          text: "Substantive evidence in a sibling section.",
+          chunk_type: "prose",
+          heading_path_v2: [
+            "5 Employee Benefits",
+            "510 Leave",
+            "511 Evidence",
+          ],
+        },
+      ]
+        .map((row) => JSON.stringify(row))
+        .join("\n"),
+    );
+    const options = converterOptions(root, inputPath);
+    await convertDoclingJsonl(options);
+    const catalog = await compileOkfCatalog(options.outputDirectory, {
+      publicOnly: false,
+    });
+
+    expect(
+      catalog.sections.find(
+        (section) => section.label === "599 Navigation Only",
+      ),
+    ).toMatchObject({
+      structuralOrigin: "explicit_heading",
+      headingRecordCount: 1,
+      rollup: { descendantEvidenceCount: 0 },
+    });
+  });
+
+  it("requires the complete section concept ancestry", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-section-parent-"));
+    const inputPath = await writeDoclingFixture(root);
+    const options = converterOptions(root, inputPath);
+    await convertDoclingJsonl(options);
+    await rm(
+      path.join(
+        options.outputDirectory,
+        "fixture-doc/5-employee-benefits/section.md",
+      ),
+    );
+
+    await expect(
+      compileOkfCatalog(options.outputDirectory, { publicOnly: false }),
+    ).rejects.toThrow("section_parent_concept_missing");
   });
 
   it("prevents local-private Docling output from becoming a public catalog", async () => {

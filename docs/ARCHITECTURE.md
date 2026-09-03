@@ -41,9 +41,10 @@ browser and server bundles.
 
 `knowledge/northstar` is the editable OKF v0.2 bundle. Section-numbered folders
 provide hierarchy, plain `index.md` files support progressive disclosure, and
-normal concept files carry standards-compliant frontmatter. Stable application
-IDs and revision-qualified concept paths serve different purposes and are both
-retained.
+normal concept files carry standards-compliant frontmatter. Every section folder
+has a `section.md` concept, so headings remain addressable knowledge rather than
+disappearing during chunk conversion. Stable application IDs and
+revision-qualified concept paths serve different purposes and are both retained.
 
 `scripts/okf/lib.mjs` validates and compiles the bundle. Its Docling-compatible
 converter uses the same profile but always emits local-private, draft output.
@@ -94,10 +95,13 @@ synthetic-data boundary marker.
 ## Retrieval
 
 The current retrieval implementation is deterministic lexical scoring over one
-selected source. It searches concept titles, section paths, bounded content,
-keywords, and table cells, then returns at most five results. It is deliberately
-small and interpretable; this project does not claim vector, semantic, graph, or
-production-scale retrieval.
+selected source. It scores section concepts for navigation, uses heading
+ancestry as a bounded boost for descendant chunks, and searches evidence titles,
+content, keywords, and table cells. Search returns no more than three matched
+sections and five evidence results. Section rollups contain counts, available
+page ranges, and descendant-reference digests, never concatenated child content.
+It is deliberately small and interpretable; this project does not claim vector,
+semantic, graph, or production-scale retrieval.
 
 ## Trust Model
 

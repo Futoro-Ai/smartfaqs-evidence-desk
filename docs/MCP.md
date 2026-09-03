@@ -23,9 +23,10 @@ must send `sourceRef` with every source-scoped tool call, even after calling
 `select_knowledge_source`. WebMCP calls can additionally update the source
 selection visible in the open page.
 
-Search and read results include revision-qualified OKF concept references. The
-client still supplies stable `chunkRef` values for reads and staging, preserving
-the fixed request contract.
+Search responses include bounded section-navigation matches, and search/read
+results include revision-qualified evidence and section concept references with
+their heading ancestry. The client still supplies stable `chunkRef` values for
+reads and staging, preserving the fixed request contract.
 
 `GET /mcp` intentionally returns `405 Method Not Allowed`. This sessionless
 server has no independent server-to-client SSE messages; Streamable HTTP

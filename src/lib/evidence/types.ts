@@ -17,6 +17,39 @@ export type KnowledgeSource = {
   updatedAt: string;
   accent: "green" | "coral" | "gold";
   chunkCount: number;
+  sectionCount: number;
+};
+
+export type SectionRollup = {
+  directSectionCount: number;
+  directEvidenceCount: number;
+  descendantEvidenceCount: number;
+  textCount: number;
+  tableCount: number;
+  pageStart: number | null;
+  pageEnd: number | null;
+  descendantDigest: string;
+};
+
+export type KnowledgeSection = {
+  ref: string;
+  conceptRef: string;
+  sourceRef: SourceRef;
+  label: string;
+  description: string;
+  sectionPath: string[];
+  depth: number;
+  sourceOrder: number;
+  structuralOrigin:
+    | "authored"
+    | "explicit_heading"
+    | "inferred_from_heading_path";
+  headingRecordCount: number;
+  page: number | null;
+  aliases: string[];
+  keywords: string[];
+  parentRef: string | null;
+  rollup: SectionRollup;
 };
 
 export type EvidenceTable = {
@@ -28,6 +61,9 @@ export type EvidenceChunk = {
   ref: string;
   conceptRef: string;
   sourceRef: SourceRef;
+  sectionRef: string;
+  sectionConceptRef: string;
+  sectionPath: string[];
   label: string;
   section: string;
   page: number | null;
@@ -40,6 +76,9 @@ export type EvidenceChunk = {
 export type EvidenceSearchResult = {
   chunkRef: string;
   conceptRef: string;
+  sectionRef: string;
+  sectionConceptRef: string;
+  sectionPath: string[];
   label: string;
   section: string;
   page: number | null;

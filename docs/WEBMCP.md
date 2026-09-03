@@ -33,9 +33,11 @@ application and shows the unsupported adapter state without failing the page.
 8. Leave final packet preparation to the person. The agent export tool can
    produce a pending packet, but it cannot carry an approval decision.
 
-Search and read results expose the revision-qualified OKF concept path used for
-the citation. Agents should retain that value when explaining which concept
-supported a claim, while continuing to use `chunkRef` in tool inputs.
+Search responses expose matched section concepts for navigation. Search and
+read results also expose the evidence chunk's heading ancestry and the
+revision-qualified OKF paths for both its section and evidence concept. Agents
+should use section context to explain where a chunk was found, use the evidence
+concept to support factual claims, and continue using `chunkRef` in tool inputs.
 
 ## Suggested Prompt
 

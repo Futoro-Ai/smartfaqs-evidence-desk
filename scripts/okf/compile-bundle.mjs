@@ -20,6 +20,7 @@ try {
       bundleId: catalog.bundleId,
       revision: catalog.revision,
       sourceCount: catalog.sources.length,
+      sectionCount: catalog.sections.length,
       evidenceCount: catalog.chunks.length,
     }),
   );

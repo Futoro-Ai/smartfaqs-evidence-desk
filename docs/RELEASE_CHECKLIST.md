@@ -9,6 +9,8 @@
 - [x] CI passes from a clean `npm ci` install.
 - [x] `npm run okf:check` confirms the generated catalog matches its OKF source.
 - [x] Public compilation rejects draft, deprecated, or local-private concepts.
+- [x] Heading-only Docling records remain first-class section concepts, including empty leaves.
+- [x] Every evidence concept resolves to a section concept with deterministic structural rollups.
 
 ## Application
 

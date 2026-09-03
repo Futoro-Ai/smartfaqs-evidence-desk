@@ -29,6 +29,7 @@ describe("Evidence Desk capability contracts", () => {
 
     expect(result).toMatchObject({ status: "ready", sourceCount: 3 });
     expect(result.sources).toHaveLength(3);
+    expect(result.sources[0]).toMatchObject({ sectionCount: 4, chunkCount: 4 });
   });
 
   it("reports table and text readiness for the employee handbook", () => {
@@ -39,6 +40,8 @@ describe("Evidence Desk capability contracts", () => {
     expect(result).toMatchObject({
       status: "ready",
       boundedEvidenceAvailable: true,
+      structuralNavigationAvailable: true,
+      sectionCount: 4,
       textChunkCount: 3,
       tableChunkCount: 1,
       citationLabelsAvailable: true,
@@ -54,10 +57,20 @@ describe("Evidence Desk capability contracts", () => {
     });
 
     expect(result.status).toBe("matches_found");
+    expect(result.matchedSections[0]).toMatchObject({
+      sectionRef: "section:employee-handbook-annual-leave",
+      label: "4.2 Annual Leave",
+      sectionPath: ["4 Time Away", "4.2 Annual Leave"],
+      descendantEvidenceCount: 2,
+    });
     expect(result.results[0]).toMatchObject({
       chunkRef: "chunk:leave-accrual-table",
       conceptRef:
         "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule",
+      sectionRef: "section:employee-handbook-annual-leave",
+      sectionConceptRef:
+        "northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/section",
+      sectionPath: ["4 Time Away", "4.2 Annual Leave"],
       kind: "table",
     });
     expect(result.results[0].excerpt).toContain("104 hours");
