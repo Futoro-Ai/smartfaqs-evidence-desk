@@ -10,6 +10,7 @@ import {
   loadSciFactDataset,
   sha256File,
 } from "./scifact-lib.mts";
+import { writeSciFactIcmWorkspace } from "./scifact-workspace.mts";
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -63,13 +64,17 @@ async function run() {
     },
   };
   let reportPath: string | null = null;
+  let workspacePath: string | null = null;
   if (options.save) {
-    const reportName = options.queryLimit
-      ? `scifact-first-${options.queryLimit}.json`
-      : "scifact-full.json";
+    const runName = options.queryLimit
+      ? `scifact-first-${options.queryLimit}`
+      : "scifact-full";
+    const reportName = `${runName}.json`;
     reportPath = path.join(benchmarkRoot, "results", reportName);
     await mkdir(path.dirname(reportPath), { recursive: true });
     await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+    workspacePath = path.join(benchmarkRoot, "workspaces", runName);
+    await writeSciFactIcmWorkspace(workspacePath, report);
   }
 
   console.log(
@@ -82,9 +87,12 @@ async function run() {
         eligibleQueryCount: report.eligibleQueryCount,
         evaluatedQueryCount: report.evaluatedQueryCount,
         durationMs: report.durationMs,
-        productionMetrics: report.modes.productionWithAncestry.metrics,
-        ancestryAblationMetrics: report.modes.ablationWithoutAncestry.metrics,
+        bodyOnlyMetrics: report.modes.lexicalBodyOnly.metrics,
+        fieldedMetrics: report.modes.fieldedWithoutHierarchy.metrics,
+        hierarchyMetrics: report.modes.fieldedWithHierarchy.metrics,
+        complementarity: report.complementarity,
         reportPath,
+        workspacePath,
       },
       null,
       2,

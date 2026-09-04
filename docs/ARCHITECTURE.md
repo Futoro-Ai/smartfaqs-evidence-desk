@@ -51,8 +51,10 @@ converter uses the same profile but always emits local-private, draft output.
 The public compiler accepts only stable synthetic-demo content.
 
 `workflows/retrieve` records the ICM-style sequence from contract and scope
-through retrieval, verification, human review, and export. These documents are
-inspectable contracts, not executable authority. See
+through retrieval, verification, human review, and export. Local benchmark
+runs can also materialize sanitized contract, retrieval, ranking, verification,
+and export artifacts beneath ignored `.local/` storage. Workflow documents and
+run artifacts are inspectable records, not executable authority. See
 [OKF and Interpretable Retrieval](OKF_ICM.md).
 
 ## Capability Boundary
@@ -94,14 +96,20 @@ synthetic-data boundary marker.
 
 ## Retrieval
 
-The current retrieval implementation is deterministic lexical scoring over one
-selected source. It scores section concepts for navigation, uses heading
-ancestry as a bounded boost for descendant chunks, and searches evidence titles,
-content, keywords, and table cells. Search returns no more than three matched
-sections and five evidence results. Section rollups contain counts, available
-page ranges, and descendant-reference digests, never concatenated child content.
-It is deliberately small and interpretable; this project does not claim vector,
-semantic, graph, or production-scale retrieval.
+The current retrieval implementation builds a deterministic source-scoped
+inverted index at process initialization. Unicode-normalized terms are ranked
+with fielded BM25 across evidence bodies, titles, keywords, local and ancestor
+headings, aliases, section identifiers, and separate table header, row-label,
+and cell fields. Section concepts are ranked independently for navigation.
+Matched nested sections can apply a low, bounded boost to at most 20 descendant
+chunks; depth-one titles do not blanket-boost a flat document.
+
+Search still returns no more than three matched sections and five evidence
+results. Heading concepts never appear as factual evidence. Section rollups
+contain counts, available page ranges, and descendant-reference digests, never
+concatenated child content. The implementation is deliberately interpretable;
+this project does not claim vector, graph, learned-reranker, or production-scale
+retrieval.
 
 ## Trust Model
 

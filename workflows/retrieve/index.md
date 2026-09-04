@@ -4,6 +4,10 @@ This folder is an inspectable ICM-style workflow for the fixed Evidence Desk
 capabilities. Read stages in numeric order. The Markdown describes the contract;
 deterministic application code enforces it.
 
+Optional local benchmark runs materialize sanitized artifacts for contract,
+retrieve, rank, verify, and export under ignored `.local/` storage. Those
+artifacts record decisions and metrics, not knowledge text or new authority.
+
 1. [Contract](00-contract/)
 2. [Identity and scope](10-identity-and-scope/)
 3. [Route](20-route/)

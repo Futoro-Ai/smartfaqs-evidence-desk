@@ -15,7 +15,15 @@ import type {
   KnowledgeSource,
   SourceRef,
 } from "@/lib/evidence/types";
-import { rankEvidenceCatalog } from "@/lib/evidence/ranking";
+import {
+  buildEvidenceSearchIndex,
+  rankEvidenceCatalog,
+} from "@/lib/evidence/ranking";
+
+const evidenceSearchIndex = buildEvidenceSearchIndex(
+  knowledgeSections,
+  evidenceChunks,
+);
 
 function requireSource(sourceRef: SourceRef): KnowledgeSource {
   const source = knowledgeSources.find((item) => item.ref === sourceRef);
@@ -119,6 +127,7 @@ export function searchEvidence(input: ToolInput<"search_evidence">) {
     sourceRef: source.ref,
     query: input.query,
     resultLimit: input.limit,
+    searchIndex: evidenceSearchIndex,
   });
   const matchedSections = ranked.matchedSections.map(({ section, score }) => ({
     sectionRef: section.ref,

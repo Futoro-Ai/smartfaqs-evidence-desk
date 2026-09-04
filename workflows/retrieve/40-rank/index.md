@@ -2,13 +2,15 @@
 
 ## Action
 
-Give an exact keyword match a three-point boost, a section-ancestry match a
-two-point boost, and a searchable-content match one point. Score section
-navigation candidates separately. Sort evidence by score, then page when
-available. Return no more than three sections and the caller-requested evidence
-limit, which schemas cap at five.
+Use BM25 term saturation, source-local inverse document frequency, per-field
+length normalization, and fixed reviewed field weights. Score section
+navigation independently. A matched section below depth one may add a
+low-weight boost to no more than 20 descendants, reduced by hierarchy distance;
+a broad depth-one title never blanket-boosts a document. Sort by score, then
+page and source order for deterministic ties. Return no more than three sections
+and the caller-requested evidence limit, which schemas cap at five.
 
 ## Known Ceiling
 
-This is transparent lexical ranking for a small demonstration corpus. It does
+This is transparent lexical BM25F for a bounded demonstration corpus. It does
 not claim semantic recall, learned reranking, or production-scale performance.

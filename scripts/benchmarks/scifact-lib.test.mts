@@ -1,3 +1,7 @@
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -5,6 +9,7 @@ import {
   calculateRankingMetric,
   evaluateSciFactBenchmark,
 } from "./scifact-lib.mts";
+import { writeSciFactIcmWorkspace } from "./scifact-workspace.mts";
 
 const corpus = [
   {
@@ -50,21 +55,34 @@ describe("SciFact benchmark adapter", () => {
     expect(benchmark.chunks).toHaveLength(2);
   });
 
-  it("measures the production ancestry boost against a no-ancestry ablation", () => {
+  it("compares body-only, fielded, and hierarchy-aware BM25 retrieval", () => {
     const result = evaluateSciFactBenchmark(
       buildSciFactBenchmark(corpus, claims),
     );
 
     expect(
-      result.modes.productionWithAncestry.metrics.evidence["1"].hitRate,
-    ).toBe(1);
-    expect(
-      result.modes.ablationWithoutAncestry.metrics.evidence["1"].hitRate,
+      result.modes.lexicalBodyOnly.metrics.evidence["1"].hitRate,
     ).toBe(0);
     expect(
-      result.modes.productionWithAncestry.metrics.sectionNavigation["1"]
+      result.modes.fieldedWithoutHierarchy.metrics.evidence["3"].hitRate,
+    ).toBe(1);
+    expect(
+      result.modes.fieldedWithHierarchy.metrics.evidence["3"].hitRate,
+    ).toBe(1);
+    expect(
+      result.modes.fieldedWithHierarchy.metrics.sectionNavigation["1"]
         .hitRate,
     ).toBe(1);
+    expect(
+      result.modes.fieldedWithHierarchy.diagnostics.failureCategoryCounts
+        .success_within_visible_limit,
+    ).toBe(1);
+    expect(result.complementarity).toMatchObject({
+      bothHit: 1,
+      unionHitRate: 1,
+      meanSharedResultCount: 2,
+      identicalTopFiveCount: 1,
+    });
     expect(JSON.stringify(result)).not.toContain("104 hours");
     expect(JSON.stringify(result)).not.toContain("Benefits overview");
   });
@@ -98,5 +116,43 @@ describe("SciFact benchmark adapter", () => {
     expect(() =>
       evaluateSciFactBenchmark(buildSciFactBenchmark(corpus, claims), 0),
     ).toThrow("invalid_query_limit");
+  });
+
+  it("writes sanitized ICM stage artifacts without benchmark text", async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), "evidence-desk-scifact-"));
+    const evaluation = evaluateSciFactBenchmark(
+      buildSciFactBenchmark(corpus, claims),
+    );
+
+    try {
+      await writeSciFactIcmWorkspace(directory, {
+        ...evaluation,
+        generatedAt: "2026-09-04T00:00:00.000Z",
+        durationMs: 10,
+        inputFingerprints: { corpusSha256: "a", claimsDevSha256: "b" },
+      });
+      const paths = [
+        "index.md",
+        "00-contract/contract.json",
+        "30-retrieve/queries.jsonl",
+        "40-rank/queries.jsonl",
+        "50-verify/queries.jsonl",
+        "80-export/report.json",
+      ];
+      const output = (
+        await Promise.all(
+          paths.map((relativePath) =>
+            readFile(path.join(directory, relativePath), "utf8"),
+          ),
+        )
+      ).join("\n");
+
+      expect(output).toContain("success_within_visible_limit");
+      expect(output).toContain('"queryId":"10"');
+      expect(output).not.toContain("104 hours");
+      expect(output).not.toContain("Benefits overview");
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 });

@@ -18,10 +18,11 @@ The demo includes:
 - source-scoped citation selection and human answer approval;
 - a sanitized evidence packet export;
 - an inspectable OKF knowledge bundle organized by source and section;
-- first-class heading concepts with bounded structural rollups and ancestry-aware retrieval;
+- first-class heading concepts with bounded structural rollups and nested routing;
 - a reusable, fail-closed Docling JSONL-to-OKF conversion module;
-- an optional local SciFact sentence-retrieval benchmark with a structural ablation;
-- an ICM-style folder workflow that documents each retrieval decision;
+- source-scoped fielded BM25 over text, metadata, headings, and table fields;
+- optional SciFact and local-OKF retrieval benchmarks with structural ablations;
+- an ICM-style workflow plus sanitized per-run retrieval artifacts;
 - unit, protocol, build, and browser-level checks.
 
 No SmartFAQs production service, customer document, credential, private
@@ -104,6 +105,7 @@ npm run okf:compile # regenerate the catalog after approved knowledge edits
 npm run benchmark:scifact:prepare # download SciFact into ignored local storage
 npm run benchmark:scifact:smoke   # run the fixed first-50-query retrieval check
 npm run benchmark:scifact         # run the full labeled development benchmark
+npm run benchmark:okf -- --bundle-path <path> --gold-path <path>
 npm run build      # production build
 npm run test:e2e   # Playwright browser tests
 npm run check      # lint, unit tests, and production build

@@ -6,10 +6,11 @@ The selected source and a focused query.
 
 ## Action
 
-Score first-class section concepts using their titles, heading ancestry,
-aliases, descriptions, and bounded keywords. The editable `index.md` files
-provide human/agent progressive disclosure; the runtime uses their validated
-generated catalog and derived structural rollups.
+Rank first-class section concepts with source-scoped fielded BM25 over titles,
+heading ancestry, aliases, section identifiers, descriptions, and bounded
+keywords. The editable `index.md` files provide human/agent progressive
+disclosure; the runtime uses their validated generated catalog and derived
+structural rollups.
 
 ## Output
 

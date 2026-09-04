@@ -6,13 +6,15 @@ Selected-source concepts and normalized query terms.
 
 ## Action
 
-Match terms deterministically against evidence titles, bounded content,
-keywords, table headers/cells, and the evidence concept's section ancestry.
-Heading matches boost descendant chunks so structural context can improve
-retrieval without being mistaken for substantive evidence. Stop words are
-removed. No network, database, model, embedding service, or hidden browser
-content is consulted.
+Normalize Unicode, punctuation, small number words, units, and conservative
+plural forms, then look up complete terms in the selected source's inverted
+index. Body, title, keyword, local heading, ancestor heading, alias, section
+identifier, table header, row-label, and table-cell fields remain distinct.
+Stop words are removed, but negation is retained. No network, database, model,
+embedding service, or hidden browser content is consulted.
 
 ## Output
 
-Only positive-scoring candidates, before the result limit is applied.
+Only positive-scoring or bounded nested-section candidates, before the result
+limit is applied. Local evaluation can retain sanitized candidate counts; the
+public tool response does not expose the internal candidate pool.

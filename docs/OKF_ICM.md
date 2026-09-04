@@ -198,13 +198,21 @@ This repository does not modify or contact an Ambrosia deployment.
 
 ## Retrieval Behavior
 
-The current runtime is intentionally small. It filters to one selected source,
-scores section concepts and substantive evidence separately, and boosts evidence
-whose heading ancestry matches the query. Search responses include up to three
-matched navigation sections plus at most five evidence results. Every evidence
-result carries its bounded section path and section concept reference. A read
-must present both the selected source and a matching stable chunk reference.
-React escapes rendered content.
+The runtime filters to one selected source before ranking. It builds one
+in-memory inverted index from the validated catalog and uses normalized,
+token-boundary fielded BM25 across bodies, evidence titles, keywords, headings,
+aliases, section identifiers, and separate table fields. Common stop words are
+removed, small number words and units are normalized, and negation terms remain
+searchable.
+
+Section concepts and substantive evidence are ranked separately. A matched
+nested section can give a small bounded boost to at most 20 descendants. The
+boost is disabled for depth-one titles so one broad document heading cannot
+promote every child. Search responses include up to three navigation sections
+and at most five evidence results. Every evidence result carries its bounded
+section path and section concept reference. A read must present both the
+selected source and a matching stable chunk reference. React escapes rendered
+content.
 
 A heading-only leaf remains searchable and navigable even when it has no
 descendant evidence. Its section concept can truthfully establish that the
@@ -218,15 +226,17 @@ text or become independent factual authority. Section concepts can establish
 document organization and enrich a retrieved chunk's context; substantive
 claims remain grounded in the underlying text or table concept.
 
-This is lexical retrieval, not embedding or model-based retrieval. The OKF
-bundle can later feed BM25, vector, graph, or table-aware indexes without
-changing the source format, but those systems are not claimed here.
+This is lexical BM25F retrieval, not embedding or model-based retrieval. The
+OKF bundle can later feed vector, graph, or learned reranking without changing
+the source format, but those systems are not claimed here.
 
-The optional SciFact harness exercises this same lexical ranker against public
-evidence annotations and compares ancestry-aware scoring with an otherwise
-identical no-ancestry ablation. It creates an in-memory evaluation catalog and
-does not promote third-party content into the public OKF bundle. See
-[Retrieval Benchmarks](BENCHMARKS.md).
+The optional SciFact harness exercises the same tokenizer, index, and ranker
+against public evidence annotations. It compares body-only BM25, fielded BM25,
+and fielded BM25 with nested routing, records candidate-depth failure classes,
+and writes sanitized local artifacts for the retrieve, rank, verify, and export
+stages. A generic local OKF evaluator provides the corresponding multi-level
+heading and table check without promoting private material into the public
+bundle. See [Retrieval Benchmarks](BENCHMARKS.md).
 
 ## Methodology References
 

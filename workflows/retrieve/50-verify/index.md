@@ -11,6 +11,11 @@
   digest of descendant references.
 - Table documents parsed into a rectangular header/row structure at build time.
 - Public catalog compilation accepted only stable synthetic-demo concepts.
+- Heading concepts may explain navigation and contribute a bounded structural
+  boost, but never enter the evidence result list or substantiate a claim.
+
+Local benchmark verification classifies each miss as visible-rank, deep-rank,
+or no-positive-lexical-match without recording query or evidence text.
 
 ## Stop
 

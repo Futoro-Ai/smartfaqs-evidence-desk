@@ -3,7 +3,14 @@ import { readFile, stat } from "node:fs/promises";
 
 import { z } from "zod";
 
-import { rankEvidenceCatalog } from "../../src/lib/evidence/ranking.ts";
+import {
+  BM25F_BODY_ONLY_WEIGHTS,
+  BM25F_FIELD_WEIGHTS,
+  buildEvidenceSearchIndex,
+  rankEvidenceCatalog,
+  type EvidenceSearchIndex,
+  type SearchFieldWeights,
+} from "../../src/lib/evidence/ranking.ts";
 import type {
   EvidenceChunk,
   KnowledgeSection,
@@ -12,8 +19,11 @@ import type {
 
 const MAX_DATASET_BYTES = 128 * 1024 * 1024;
 const SOURCE_REF = "source:scifact" as SourceRef;
-const EVIDENCE_K = [1, 3, 5] as const;
-const SECTION_K = [1, 3] as const;
+const EVIDENCE_K = [1, 3, 5, 10, 20, 50, 100] as const;
+const SECTION_K = [1, 3, 5, 10] as const;
+const VISIBLE_RESULT_LIMIT = 5;
+const ANALYSIS_RESULT_LIMIT = 100;
+const CANDIDATE_LIMIT = 1_000;
 
 const corpusRowSchema = z
   .object({
@@ -54,6 +64,19 @@ export type SciFactBenchmark = {
   chunks: EvidenceChunk[];
   queries: SciFactQuery[];
   corpusDocumentCount: number;
+  searchIndex: EvidenceSearchIndex;
+};
+
+type FailureCategory =
+  | "success_within_visible_limit"
+  | "relevant_below_visible_limit"
+  | "relevant_below_analysis_limit"
+  | "no_positive_lexical_match";
+
+type RankingMode = {
+  structuralBoost: boolean;
+  hierarchyWeight: number;
+  fieldWeights?: SearchFieldWeights;
 };
 
 type RankingMetric = {
@@ -206,6 +229,7 @@ export function buildSciFactBenchmark(
     chunks,
     queries,
     corpusDocumentCount: documents.size,
+    searchIndex: buildEvidenceSearchIndex(sections, chunks),
   };
 }
 
@@ -283,26 +307,67 @@ function unique(values: string[]): string[] {
   return [...new Set(values)];
 }
 
+function percentile(values: number[], quantile: number): number {
+  const sorted = [...values].sort((left, right) => left - right);
+  const index = Math.min(
+    sorted.length - 1,
+    Math.max(0, Math.ceil(sorted.length * quantile) - 1),
+  );
+  return round(sorted[index] ?? 0);
+}
+
+function firstRelevantRank(expectedRefs: string[], rankedRefs: string[]) {
+  const expected = new Set(expectedRefs);
+  const index = rankedRefs.findIndex((ref) => expected.has(ref));
+  return index < 0 ? null : index + 1;
+}
+
+function failureCategory(
+  firstRank: number | null,
+  relevantPositiveCount: number,
+): FailureCategory {
+  if (firstRank !== null && firstRank <= VISIBLE_RESULT_LIMIT) {
+    return "success_within_visible_limit";
+  }
+  if (firstRank !== null) return "relevant_below_visible_limit";
+  if (relevantPositiveCount > 0) return "relevant_below_analysis_limit";
+  return "no_positive_lexical_match";
+}
+
 function evaluateMode(
   benchmark: SciFactBenchmark,
   queries: SciFactQuery[],
-  structuralBoost: boolean,
+  mode: RankingMode,
 ) {
+  const topFiveByQuery = new Map<string, string[]>();
+  const latencyValues: number[] = [];
   const queryResults = queries.map((query) => {
+    const startedAt = performance.now();
     const ranked = rankEvidenceCatalog(benchmark.sections, benchmark.chunks, {
       sourceRef: SOURCE_REF,
       query: query.query,
-      resultLimit: 5,
-      sectionLimit: 3,
-      structuralBoost,
+      resultLimit: ANALYSIS_RESULT_LIMIT,
+      sectionLimit: SECTION_K.at(-1),
+      candidateLimit: CANDIDATE_LIMIT,
+      structuralBoost: mode.structuralBoost,
+      hierarchyWeight: mode.hierarchyWeight,
+      fieldWeights: mode.fieldWeights,
+      searchIndex: benchmark.searchIndex,
     });
+    latencyValues.push(performance.now() - startedAt);
     const evidenceRefs = ranked.results.map(({ chunk }) => chunk.ref);
+    topFiveByQuery.set(query.id, evidenceRefs.slice(0, VISIBLE_RESULT_LIMIT));
     const evidenceSectionRefs = unique(
       ranked.results.map(({ chunk }) => chunk.sectionRef),
     );
     const navigationSectionRefs = ranked.matchedSections.map(
       ({ section }) => section.ref,
     );
+    const positiveRefs = new Set(ranked.diagnostics.positiveChunkRefs);
+    const relevantPositiveCount = query.relevantChunkRefs.filter((ref) =>
+      positiveRefs.has(ref),
+    ).length;
+    const firstRank = firstRelevantRank(query.relevantChunkRefs, evidenceRefs);
 
     return {
       queryId: query.id,
@@ -310,6 +375,11 @@ function evaluateMode(
       relevantDocumentCount: query.relevantSectionRefs.length,
       retrievedEvidenceCount: evidenceRefs.length,
       retrievedNavigationSectionCount: navigationSectionRefs.length,
+      positiveCandidateCount: ranked.diagnostics.positiveCandidateCount,
+      candidatePoolCount: ranked.diagnostics.candidatePoolCount,
+      relevantPositiveCount,
+      firstRelevantRank: firstRank,
+      failureCategory: failureCategory(firstRank, relevantPositiveCount),
       evidence: metricsFor(query.relevantChunkRefs, evidenceRefs, EVIDENCE_K),
       documentsFromEvidence: metricsFor(
         query.relevantSectionRefs,
@@ -325,22 +395,97 @@ function evaluateMode(
   });
 
   return {
-    structuralBoost,
-    metrics: {
-      evidence: aggregateMetrics(
-        queryResults.map(({ evidence }) => evidence),
-        EVIDENCE_K,
-      ),
-      documentsFromEvidence: aggregateMetrics(
-        queryResults.map(({ documentsFromEvidence }) => documentsFromEvidence),
-        EVIDENCE_K,
-      ),
-      sectionNavigation: aggregateMetrics(
-        queryResults.map(({ sectionNavigation }) => sectionNavigation),
-        SECTION_K,
-      ),
+    report: {
+      config: mode,
+      metrics: {
+        evidence: aggregateMetrics(
+          queryResults.map(({ evidence }) => evidence),
+          EVIDENCE_K,
+        ),
+        documentsFromEvidence: aggregateMetrics(
+          queryResults.map(({ documentsFromEvidence }) => documentsFromEvidence),
+          EVIDENCE_K,
+        ),
+        sectionNavigation: aggregateMetrics(
+          queryResults.map(({ sectionNavigation }) => sectionNavigation),
+          SECTION_K,
+        ),
+      },
+      diagnostics: {
+        meanPositiveCandidateCount: round(
+          queryResults.reduce(
+            (total, result) => total + result.positiveCandidateCount,
+            0,
+          ) / queryResults.length,
+        ),
+        failureCategoryCounts: Object.fromEntries(
+          [
+            "success_within_visible_limit",
+            "relevant_below_visible_limit",
+            "relevant_below_analysis_limit",
+            "no_positive_lexical_match",
+          ].map((category) => [
+            category,
+            queryResults.filter((result) => result.failureCategory === category)
+              .length,
+          ]),
+        ),
+        latencyMs: {
+          median: percentile(latencyValues, 0.5),
+          p95: percentile(latencyValues, 0.95),
+        },
+      },
+      queryResults,
     },
-    queryResults,
+    topFiveByQuery,
+  };
+}
+
+function compareModes(
+  queries: SciFactQuery[],
+  first: Map<string, string[]>,
+  second: Map<string, string[]>,
+) {
+  let bothHit = 0;
+  let firstOnly = 0;
+  let secondOnly = 0;
+  let neither = 0;
+  let identicalTopFive = 0;
+  let totalShared = 0;
+  let totalJaccard = 0;
+
+  for (const query of queries) {
+    const expected = new Set(query.relevantChunkRefs);
+    const firstRefs = first.get(query.id) ?? [];
+    const secondRefs = second.get(query.id) ?? [];
+    const firstSet = new Set(firstRefs);
+    const secondSet = new Set(secondRefs);
+    const firstHit = firstRefs.some((ref) => expected.has(ref));
+    const secondHit = secondRefs.some((ref) => expected.has(ref));
+    if (firstHit && secondHit) bothHit += 1;
+    else if (firstHit) firstOnly += 1;
+    else if (secondHit) secondOnly += 1;
+    else neither += 1;
+
+    const shared = [...firstSet].filter((ref) => secondSet.has(ref)).length;
+    const union = new Set([...firstSet, ...secondSet]).size;
+    totalShared += shared;
+    totalJaccard += union === 0 ? 1 : shared / union;
+    if (JSON.stringify(firstRefs) === JSON.stringify(secondRefs)) {
+      identicalTopFive += 1;
+    }
+  }
+
+  return {
+    cutoff: VISIBLE_RESULT_LIMIT,
+    bothHit,
+    firstOnly,
+    secondOnly,
+    neither,
+    unionHitRate: round((bothHit + firstOnly + secondOnly) / queries.length),
+    meanSharedResultCount: round(totalShared / queries.length),
+    meanJaccard: round(totalJaccard / queries.length),
+    identicalTopFiveCount: identicalTopFive,
   };
 }
 
@@ -354,21 +499,46 @@ export function evaluateSciFactBenchmark(
   const queries = benchmark.queries.slice(0, queryLimit);
   if (queries.length === 0) throw new Error("no_scifact_queries_with_evidence");
 
+  const lexicalBodyOnly = evaluateMode(benchmark, queries, {
+    structuralBoost: false,
+    hierarchyWeight: 0,
+    fieldWeights: BM25F_BODY_ONLY_WEIGHTS,
+  });
+  const fieldedWithoutHierarchy = evaluateMode(benchmark, queries, {
+    structuralBoost: false,
+    hierarchyWeight: 0,
+    fieldWeights: BM25F_FIELD_WEIGHTS,
+  });
+  const fieldedWithHierarchy = evaluateMode(benchmark, queries, {
+    structuralBoost: true,
+    hierarchyWeight: 0.15,
+    fieldWeights: BM25F_FIELD_WEIGHTS,
+  });
+
   return {
-    schemaVersion: "smartfaqs-scifact-benchmark.v1",
+    schemaVersion: "smartfaqs-scifact-benchmark.v2",
     dataset: "SciFact labeled development split",
     corpusDocumentCount: benchmark.corpusDocumentCount,
     evidenceChunkCount: benchmark.chunks.length,
     eligibleQueryCount: benchmark.queries.length,
     evaluatedQueryCount: queries.length,
     bounds: {
-      evidenceResultLimit: 5,
-      navigationSectionLimit: 3,
+      visibleEvidenceResultLimit: VISIBLE_RESULT_LIMIT,
+      analysisEvidenceResultLimit: ANALYSIS_RESULT_LIMIT,
+      candidateLimit: CANDIDATE_LIMIT,
+      visibleNavigationSectionLimit: 3,
+      analysisNavigationSectionLimit: SECTION_K.at(-1),
     },
     modes: {
-      productionWithAncestry: evaluateMode(benchmark, queries, true),
-      ablationWithoutAncestry: evaluateMode(benchmark, queries, false),
+      lexicalBodyOnly: lexicalBodyOnly.report,
+      fieldedWithoutHierarchy: fieldedWithoutHierarchy.report,
+      fieldedWithHierarchy: fieldedWithHierarchy.report,
     },
+    complementarity: compareModes(
+      queries,
+      fieldedWithoutHierarchy.topFiveByQuery,
+      fieldedWithHierarchy.topFiveByQuery,
+    ),
   };
 }
 
