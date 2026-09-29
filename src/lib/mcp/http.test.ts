@@ -207,6 +207,25 @@ describe("Evidence Desk MCP Streamable HTTP endpoint", () => {
     });
   });
 
+  it("stops reading streamed bodies at the byte limit without a length header", async () => {
+    let pulls = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulls += 1;
+        controller.enqueue(new Uint8Array(16_384));
+      },
+    });
+    const request = new Request(MCP_URL, {
+      method: "POST",
+      headers: { Accept: MCP_ACCEPT, "Content-Type": "application/json" },
+      body,
+      duplex: "half",
+    } as RequestInit & { duplex: "half" });
+    const response = await handleMcpPost(request);
+    expect(response.status).toBe(413);
+    expect(pulls).toBeLessThan(10);
+  });
+
   it("accepts same-origin browser requests without an allowlist entry", async () => {
     const response = await handleMcpPost(
       postRequest(

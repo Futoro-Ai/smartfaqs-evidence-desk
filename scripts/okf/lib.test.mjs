@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -17,6 +17,7 @@ function converterOptions(root, inputPath, overrides = {}) {
   return {
     inputPath,
     outputDirectory: path.join(root, "bundle"),
+    allowedOutputRoot: root,
     bundleId: "local-docling-test",
     revision: "fixture-1",
     documentRef: "fixture-doc",
@@ -118,6 +119,10 @@ describe("SmartFAQs OKF profile", () => {
     );
     expect(table.headers).toEqual(["Label", "Value"]);
     expect(table.rows).toEqual([["A | B", "4"]]);
+    const literalBackslash = extractMarkdownTable(
+      "| Label | Value |\n| --- | --- |\n| Path | C:\\temp |",
+    );
+    expect(literalBackslash.rows).toEqual([["Path", "C:\\temp"]]);
   });
 
   it("rejects frontmatter on nested progressive-disclosure indexes", async () => {
@@ -308,6 +313,74 @@ describe("Docling JSONL conversion", () => {
     await expect(
       convertDoclingJsonl({ ...ownedOptions, force: true }),
     ).resolves.toMatchObject({ evidenceDocumentCount: 2 });
+    await expect(convertDoclingJsonl({
+      ...ownedOptions,
+      owner: "x".repeat(121),
+      force: true,
+    })).rejects.toThrow("invalid_smartfaqs_profile");
+    await expect(readFile(path.join(ownedOptions.outputDirectory, "index.md"), "utf8"))
+      .resolves.toContain("Fixture Document");
+  });
+
+  it("keeps private conversion inside the assigned output root", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-boundary-"));
+    const outside = await mkdtemp(path.join(os.tmpdir(), "docling-outside-"));
+    const inputPath = await writeDoclingFixture(root);
+    const options = converterOptions(root, inputPath);
+    await expect(convertDoclingJsonl({
+      ...options, outputDirectory: path.join(outside, "bundle"),
+    })).rejects.toThrow("output_directory_outside_root");
+    await symlink(outside, path.join(root, "link"));
+    await expect(convertDoclingJsonl({
+      ...options, outputDirectory: path.join(root, "link", "bundle"),
+    })).rejects.toThrow("output_directory_outside_root");
+    expect(await readdir(outside)).toEqual([]);
+  });
+
+  it("rejects section and evidence provenance outside their source", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-provenance-"));
+    const inputPath = await writeDoclingFixture(root);
+    const options = converterOptions(root, inputPath);
+    await convertDoclingJsonl(options);
+    const bundle = await loadOkfBundle(options.outputDirectory);
+    const section = bundle.concepts.find((concept) =>
+      concept.metadata.type === "Document Section");
+    const sectionPath = path.join(options.outputDirectory, section.relativePath);
+    const sectionText = await readFile(sectionPath, "utf8");
+    expect(sectionText).toContain("resource: /fixture-doc/source.md");
+    await writeFile(sectionPath, sectionText.replace(
+      "resource: /fixture-doc/source.md", "resource: /wrong/source.md"));
+    await expect(compileOkfCatalog(options.outputDirectory, { publicOnly: false }))
+      .rejects.toThrow("section_source_provenance_mismatch");
+
+    await writeFile(sectionPath, sectionText);
+    const evidence = bundle.concepts.find((concept) =>
+      concept.metadata.type === "Evidence");
+    const evidencePath = path.join(options.outputDirectory, evidence.relativePath);
+    const evidenceText = await readFile(evidencePath, "utf8");
+    expect(evidenceText).toContain("resource: /fixture-doc/source.md");
+    await writeFile(evidencePath, evidenceText.replace(
+      "resource: /fixture-doc/source.md",
+      "resource: /fixture-doc/source.md\n  - resource: /wrong/source.md",
+    ));
+    await expect(compileOkfCatalog(options.outputDirectory, { publicOnly: false }))
+      .rejects.toThrow("evidence_source_provenance_mismatch");
+  });
+
+  it("rejects generated bundles beyond the file bound before writing files", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-many-headings-"));
+    const inputPath = path.join(root, "chunks.jsonl");
+    const rows = Array.from({ length: 5_001 }, (_, index) => ({
+      text: `Heading ${index}`,
+      chunk_type: "heading_only",
+      heading_path_v2: [`Heading ${index}`],
+    }));
+    rows.push({ text: "Bounded fact", chunk_type: "prose", heading_path_v2: ["Fact"] });
+    await writeFile(inputPath, rows.map((row) => JSON.stringify(row)).join("\n") + "\n");
+    await expect(convertDoclingJsonl(converterOptions(root, inputPath, {
+      headingPrefix: [],
+    }))).rejects.toThrow("bundle_file_limit_exceeded");
+    expect(await readdir(root)).toEqual(["chunks.jsonl"]);
   });
 
   it("sanitizes hostile headings into bounded relative paths", async () => {

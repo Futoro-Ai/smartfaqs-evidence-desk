@@ -103,14 +103,40 @@ function forbiddenOriginResponse(): Response {
   return jsonRpcError(403, ErrorCode.ConnectionClosed, "Forbidden origin.");
 }
 
-async function requestBodyIsTooLarge(request: Request): Promise<boolean> {
+async function boundedRequest(request: Request): Promise<Request | null> {
   const declaredLength = request.headers.get("content-length");
   if (declaredLength !== null) {
     const bytes = Number(declaredLength);
-    if (Number.isFinite(bytes) && bytes > MAX_MCP_REQUEST_BYTES) return true;
+    if (Number.isFinite(bytes) && bytes > MAX_MCP_REQUEST_BYTES) return null;
   }
-
-  return (await request.clone().arrayBuffer()).byteLength > MAX_MCP_REQUEST_BYTES;
+  if (!request.body) return request;
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    totalBytes += value.byteLength;
+    if (totalBytes > MAX_MCP_REQUEST_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const body = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  const headers = new Headers(request.headers);
+  headers.delete("content-length");
+  return new Request(request.url, {
+    method: request.method,
+    headers,
+    body,
+    signal: request.signal,
+  });
 }
 
 export async function handleMcpPost(
@@ -123,12 +149,14 @@ export async function handleMcpPost(
   }
 
   try {
-    if (await requestBodyIsTooLarge(request)) {
+    const bounded = await boundedRequest(request);
+    if (!bounded) {
       return addCorsHeaders(
         jsonRpcError(413, ErrorCode.InvalidRequest, "Request body too large."),
         origin.origin,
       );
     }
+    request = bounded;
   } catch {
     return addCorsHeaders(
       jsonRpcError(400, ErrorCode.InvalidRequest, "Invalid request body."),

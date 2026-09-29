@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 import { convertDoclingJsonl } from "./lib.mjs";
+import path from "node:path";
+
+const privateOutputRoot = path.resolve(import.meta.dirname, "../../.local");
 
 const valueOptions = new Set([
   "input-path",
@@ -64,7 +67,10 @@ if (missing.length) {
   process.exitCode = 1;
 } else {
   try {
-    const summary = await convertDoclingJsonl(options);
+    const summary = await convertDoclingJsonl({
+      ...options,
+      allowedOutputRoot: privateOutputRoot,
+    });
     console.log(JSON.stringify(summary, null, 2));
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

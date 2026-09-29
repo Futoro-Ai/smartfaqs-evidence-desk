@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { parseDocument, stringify } from "yaml";
@@ -193,7 +193,7 @@ function parseTableRow(line) {
   let escaped = false;
   for (const character of trimmed) {
     if (escaped) {
-      current += character;
+      current += character === "|" || character === "\\" ? character : `\\${character}`;
       escaped = false;
     } else if (character === "\\") {
       escaped = true;
@@ -204,6 +204,7 @@ function parseTableRow(line) {
       current += character;
     }
   }
+  if (escaped) current += "\\";
   cells.push(current.trim());
   return cells;
 }
@@ -425,6 +426,13 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
     if (!sourceRefs.has(extension.source_ref)) {
       throw new Error(`unknown_section_source_ref:${concept.relativePath}`);
     }
+    const expectedSourcePath = sourcePaths.get(extension.source_ref);
+    if (
+      concept.metadata.sources?.length !== 1 ||
+      concept.metadata.sources[0].resource !== expectedSourcePath
+    ) {
+      throw new Error(`section_source_provenance_mismatch:${concept.relativePath}`);
+    }
     if (publicOnly && concept.metadata.status !== "stable") {
       throw new Error(`public_catalog_section_not_stable:${extension.stable_id}`);
     }
@@ -543,9 +551,8 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
     }
     const expectedSourcePath = sourcePaths.get(extension.source_ref);
     if (
-      !concept.metadata.sources?.some(
-        (source) => source.resource === expectedSourcePath,
-      )
+      concept.metadata.sources?.length !== 1 ||
+      concept.metadata.sources[0].resource !== expectedSourcePath
     ) {
       throw new Error(`evidence_source_provenance_mismatch:${concept.relativePath}`);
     }
@@ -760,6 +767,7 @@ function doclingSummary(rows, selectedRows, evidenceRows, sectionNodes) {
 export async function convertDoclingJsonl({
   inputPath,
   outputDirectory,
+  allowedOutputRoot,
   bundleId,
   revision,
   documentRef,
@@ -832,14 +840,31 @@ export async function convertDoclingJsonl({
   const summary = doclingSummary(rows, selectedRows, evidenceRows, sectionNodes);
   if (dryRun) return summary;
   if (!outputDirectory) throw new Error("output_directory_required");
+  if (!allowedOutputRoot) throw new Error("allowed_output_root_required");
 
   const outputRoot = path.resolve(outputDirectory);
-  if (outputRoot === path.parse(outputRoot).root) {
-    throw new Error("output_directory_must_not_be_filesystem_root");
+  const allowedRoot = path.resolve(allowedOutputRoot);
+  await mkdir(allowedRoot, { recursive: true });
+  if ((await lstat(allowedRoot)).isSymbolicLink()) {
+    throw new Error("allowed_output_root_symlink_forbidden");
   }
+  if (outputRoot === allowedRoot) throw new Error("output_directory_must_be_child");
+  assertInside(allowedRoot, outputRoot, "output_directory");
   const parent = path.dirname(outputRoot);
-  assertInside(parent, outputRoot, "output_directory");
-  const temporaryRoot = `${outputRoot}.tmp-${process.pid}`;
+  let existingParent = parent;
+  while (true) {
+    try {
+      await lstat(existingParent);
+      break;
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      existingParent = path.dirname(existingParent);
+    }
+  }
+  const realAllowedRoot = await realpath(allowedRoot);
+  assertInside(realAllowedRoot, await realpath(existingParent), "output_directory");
+  await mkdir(parent, { recursive: true });
+  assertInside(realAllowedRoot, await realpath(parent), "output_directory");
   const sourceSlug = slug(sourceRef.replace(/^source:/, ""));
   const files = new Map();
   const indexEntries = new Map();
@@ -1058,12 +1083,13 @@ export async function convertDoclingJsonl({
     );
   }
 
-  const outputExists = await stat(outputRoot)
-    .then(() => true)
+  const outputStats = await lstat(outputRoot)
     .catch((error) => {
-      if (error.code === "ENOENT") return false;
+      if (error.code === "ENOENT") return null;
       throw error;
     });
+  if (outputStats?.isSymbolicLink()) throw new Error("output_directory_symlink_forbidden");
+  const outputExists = outputStats !== null;
   if (outputExists && !force) throw new Error("output_directory_exists");
   if (outputExists && force) {
     const marker = await readFile(
@@ -1078,16 +1104,33 @@ export async function convertDoclingJsonl({
     }
     if (!markerIsValid) throw new Error("refusing_to_replace_unowned_directory");
   }
-  await rm(temporaryRoot, { recursive: true, force: true });
-  await mkdir(temporaryRoot, { recursive: true });
-  for (const [relativePath, contents] of files) {
-    const destination = path.join(temporaryRoot, relativePath);
-    assertInside(temporaryRoot, destination, "generated_path");
-    await mkdir(path.dirname(destination), { recursive: true });
-    await writeFile(destination, contents, "utf8");
+  const markdownFiles = [...files].filter(([name]) => name.endsWith(".md"));
+  if (markdownFiles.length > MAX_BUNDLE_FILES) throw new Error("bundle_file_limit_exceeded");
+  if (markdownFiles.some(([, contents]) => Buffer.byteLength(contents) > MAX_MARKDOWN_BYTES)) {
+    throw new Error("markdown_file_too_large");
   }
-  await compileOkfCatalog(temporaryRoot, { publicOnly: false });
-  if (force) await rm(outputRoot, { recursive: true, force: true });
-  await rename(temporaryRoot, outputRoot);
+  const temporaryRoot = await mkdtemp(path.join(parent, ".smartfaqs-okf-tmp-"));
+  try {
+    for (const [relativePath, contents] of files) {
+      const destination = path.join(temporaryRoot, relativePath);
+      assertInside(temporaryRoot, destination, "generated_path");
+      await mkdir(path.dirname(destination), { recursive: true });
+      await writeFile(destination, contents, "utf8");
+    }
+    await compileOkfCatalog(temporaryRoot, { publicOnly: false });
+    const backupRoot = outputExists
+      ? path.join(parent, `.${path.basename(outputRoot)}.backup-${randomUUID()}`)
+      : null;
+    if (backupRoot) await rename(outputRoot, backupRoot);
+    try {
+      await rename(temporaryRoot, outputRoot);
+    } catch (error) {
+      if (backupRoot) await rename(backupRoot, outputRoot);
+      throw error;
+    }
+    if (backupRoot) await rm(backupRoot, { recursive: true });
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
   return summary;
 }
