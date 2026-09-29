@@ -13,6 +13,8 @@ exploit, credential, or private data.
 ## Security Boundaries
 
 - All evidence is synthetic and repository-local.
+- The public runtime catalog is generated only from stable OKF concepts marked
+  `synthetic_public_demo`.
 - Tool inputs are schema validated and bounded.
 - WebMCP tools are registered only in the top-level page.
 - The MCP endpoint exposes a fixed tool registry, not a generic executor.
@@ -35,6 +37,29 @@ Controls include:
 - human-only answer approval;
 - synthetic repository-local data with no provider connection;
 - sanitized evidence exports.
+
+## Knowledge Ingestion Boundary
+
+OKF Markdown and imported Docling content are untrusted data. They cannot add
+tools, change workflow instructions, broaden source scope, or authorize a
+review decision. React escapes displayed content, and the runtime reads only a
+build-time generated catalog.
+
+The Docling converter:
+
+- enforces file, row, chunk, path, and frontmatter bounds;
+- sanitizes headings before using them as relative paths;
+- preserves headings as structural concepts while keeping them distinct from
+  substantive citeable evidence;
+- omits raw input document IDs, chunk IDs, and source references;
+- returns only counts from `--dry-run`;
+- writes atomically, refuses to overwrite by default, and allows `--force`
+  only for a converter-marked destination;
+- always marks output `draft` and `local_private_only`.
+
+`.local/` is ignored. Do not move a converted third-party or private bundle into
+`knowledge/` unless rights, privacy, provenance, lifecycle, and content review
+have been completed. The compiler's rights check is a guard, not legal advice.
 
 Evidence packets are illustrative summaries. They are not signed and do not
 cryptographically bind an approval decision to answer text.

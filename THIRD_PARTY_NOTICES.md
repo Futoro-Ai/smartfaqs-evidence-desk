@@ -36,3 +36,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Optional SciFact Benchmark Data
+
+The repository includes an optional downloader and evaluation adapter for the
+SciFact dataset but does not distribute the dataset itself.
+
+- Project: https://github.com/allenai/scifact
+- Claims and evidence annotations: CC BY 4.0
+- Abstract corpus from S2ORC: ODC-By 1.0
+- Upstream code: Apache-2.0
+
+Downloaded data and benchmark results remain in the Git-ignored `.local/`
+directory. The upstream licenses and attribution requirements continue to
+apply to anyone who downloads or uses the benchmark data.

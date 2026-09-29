@@ -15,19 +15,47 @@ actions the visible application cannot represent.
 ## Data Flow
 
 ```text
-Synthetic sources and chunks
-          |
-          v
+OKF v0.2 Markdown bundle + YAML frontmatter
+                    |
+                    v
+        build-time profile validation
+                    |
+                    v
+        generated deterministic catalog
+                    |
+                    v
 Strict Zod schemas + fixed capability registry
-        /   |   \
-       /    |    \
-React UI  WebMCP  MCP /mcp
-       \    |    /
-        visible result/event state
+                  /   |   \
+                 /    |    \
+          React UI  WebMCP  MCP /mcp
+                 \    |    /
+                  visible state
 ```
 
-All source material is committed synthetic data. There is no database or
-provider dependency.
+All shipped source material is committed synthetic data. There is no database
+or provider dependency. The application never parses files at request time;
+build-time compilation produces a checked-in JSON catalog suitable for both
+browser and server bundles.
+
+## Knowledge and Workflow Layers
+
+`knowledge/northstar` is the editable OKF v0.2 bundle. Section-numbered folders
+provide hierarchy, plain `index.md` files support progressive disclosure, and
+normal concept files carry standards-compliant frontmatter. Every section folder
+has a `section.md` concept, so headings remain addressable knowledge rather than
+disappearing during chunk conversion. Stable application IDs and
+revision-qualified concept paths serve different purposes and are both retained.
+
+`scripts/okf/lib.mjs` validates and compiles the bundle. Its Docling-compatible
+converter uses the same profile but always emits local-private, draft output.
+The public compiler accepts only stable synthetic-demo content.
+
+`workflows/retrieve` records the ICM-style sequence from contract and scope
+through retrieval, verification, human review, and export. Local benchmark
+runs can also materialize sanitized contract, retrieval, ranking, verification,
+and export artifacts beneath ignored `.local/` storage. Workflow documents and
+run artifacts are inspectable records, not executable authority. See
+[OKF and Interpretable Retrieval](OKF_ICM.md).
 
 ## Capability Boundary
 
@@ -65,6 +93,23 @@ The agent-facing export tool can create only a pending packet. The human
 interface can create a packet with the visible decision state. Both forms
 contain only the source label, evidence labels, counts, decision state, and the
 synthetic-data boundary marker.
+
+## Retrieval
+
+The current retrieval implementation builds a deterministic source-scoped
+inverted index at process initialization. Unicode-normalized terms are ranked
+with fielded BM25 across evidence bodies, titles, keywords, local and ancestor
+headings, aliases, section identifiers, and separate table header, row-label,
+and cell fields. Section concepts are ranked independently for navigation.
+Matched nested sections can apply a low, bounded boost to at most 20 descendant
+chunks; depth-one titles do not blanket-boost a flat document.
+
+Search still returns no more than three matched sections and five evidence
+results. Heading concepts never appear as factual evidence. Section rollups
+contain counts, available page ranges, and descendant-reference digests, never
+concatenated child content. The implementation is deliberately interpretable;
+this project does not claim vector, graph, learned-reranker, or production-scale
+retrieval.
 
 ## Trust Model
 

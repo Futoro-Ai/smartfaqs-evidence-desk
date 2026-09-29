@@ -58,14 +58,27 @@ test("registers fixed WebMCP tools and reflects an agent call in the page", asyn
     "export_evidence_packet",
   ]);
 
-  await page.evaluate(async () => {
+  const structuralSearch = await page.evaluate(async () => {
     const tools = window.__evidenceDeskTools;
-    await tools.search_evidence.execute({
+    const response = await tools.search_evidence.execute({
       sourceRef: "source:employee-handbook",
       query: "biweekly accrual method",
       limit: 2,
     });
+    return (response as { structuredContent: unknown }).structuredContent;
+  }) as {
+    matchedSections: Array<{ label: string; sectionPath: string[] }>;
+    results: Array<{ sectionPath: string[] }>;
+  };
+
+  expect(structuralSearch.matchedSections[0]).toMatchObject({
+    label: "4.2 Annual Leave",
+    sectionPath: ["4 Time Away", "4.2 Annual Leave"],
   });
+  expect(structuralSearch.results[0].sectionPath).toEqual([
+    "4 Time Away",
+    "4.2 Annual Leave",
+  ]);
 
   await expect(page.getByLabel("Search bounded evidence")).toHaveValue(
     "biweekly accrual method",
@@ -112,6 +125,14 @@ test("completes the bounded human review workflow", async ({ page }) => {
 
   await expect(page.getByText("4 bounded evidence matches found.")).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible();
+  await expect(
+    page.getByText("4 Time Away > 4.2 Annual Leave · page 18"),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Reference: northstar-demo@2026.3/employee-handbook/04-time-away/04-02-annual-leave/annual-leave-schedule",
+    ),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Stage for review" }).click();
   await expect(page.getByText("2 citations staged for human review.")).toBeVisible();

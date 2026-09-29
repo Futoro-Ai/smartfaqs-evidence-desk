@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "smartfaqs-benchmark-baseline.v2",
+  "benchmark": "SciFact labeled development split",
+  "recordedAt": "2026-09-04",
+  "inputFingerprints": {
+    "archiveSha256": "11c621288d41ac144d29b13b0f8503b3820b7d6e8b1f6ff24dff335c196d76be",
+    "corpusSha256": "b8d6c89624cb2ed74dee8938effc4f5d8bd2086887880af8110d64be4ceade62",
+    "claimsDevSha256": "86f0435d08fdb65d1aa41d1472684f57e6e71930626497bdf4d7a9ec1a632217"
+  },
+  "corpusDocumentCount": 5183,
+  "evidenceChunkCount": 45952,
+  "evaluatedQueryCount": 188,
+  "bounds": {
+    "visibleEvidenceResultLimit": 5,
+    "analysisEvidenceResultLimit": 100,
+    "candidateLimit": 1000,
+    "visibleNavigationSectionLimit": 3
+  },
+  "modes": {
+    "lexicalBodyOnly": {
+      "evidenceHitRate": { "1": 0.37766, "5": 0.574468, "100": 0.867021 },
+      "evidenceMeanRecall": { "5": 0.449835, "100": 0.759302 },
+      "documentHitRate": { "1": 0.574468, "5": 0.755319, "100": 0.957447 },
+      "sectionHitRate": { "3": 0.558511 },
+      "meanPositiveCandidateCount": 8506.446809,
+      "failureCategoryCounts": {
+        "success_within_visible_limit": 108,
+        "relevant_below_visible_limit": 55,
+        "relevant_below_analysis_limit": 16,
+        "no_positive_lexical_match": 9
+      }
+    },
+    "fieldedBm25": {
+      "evidenceHitRate": { "1": 0.446809, "5": 0.696809, "100": 0.925532 },
+      "evidenceMeanRecall": { "5": 0.552704, "100": 0.881516 },
+      "documentHitRate": { "1": 0.680851, "5": 0.840426, "100": 0.962766 },
+      "sectionHitRate": { "3": 0.558511 },
+      "meanPositiveCandidateCount": 11891.106383,
+      "failureCategoryCounts": {
+        "success_within_visible_limit": 131,
+        "relevant_below_visible_limit": 43,
+        "relevant_below_analysis_limit": 12,
+        "no_positive_lexical_match": 2
+      }
+    }
+  },
+  "flatHierarchyAblation": {
+    "fieldedTopFiveListsIdentical": 188,
+    "evaluatedQueryCount": 188,
+    "interpretation": "SciFact has one heading level, so nested descendant routing is intentionally inactive."
+  }
+}

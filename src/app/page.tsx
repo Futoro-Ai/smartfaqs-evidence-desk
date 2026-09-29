@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-import { evidenceChunks, knowledgeSources } from "@/data/syntheticEvidence";
+import { evidenceChunks, knowledgeSources } from "@/data/evidenceCatalog";
 import {
   exportEvidencePacket,
   readEvidenceChunk,
@@ -61,6 +61,16 @@ function chunkFor(ref: string, sourceRef: SourceRef) {
   return evidenceChunks.find(
     (chunk) => chunk.ref === ref && chunk.sourceRef === sourceRef,
   );
+}
+
+function locationLabel(
+  sectionPath: string[] | undefined,
+  page: number | null,
+  fallbackSection: string,
+  pageLabel = "p.",
+) {
+  const structuralPath = sectionPath?.join(" > ") || fallbackSection;
+  return page ? `${structuralPath} · ${pageLabel} ${page}` : structuralPath;
 }
 
 function demoSearch(sourceRef: SourceRef, query: string) {
@@ -364,7 +374,7 @@ export default function Home() {
               </button>;
             })}
           </div>
-          <div className={styles.scopeNote}><BookOpen size={17} aria-hidden="true" /><div><strong>Bounded source scope</strong><span>{source.chunkCount} indexed excerpts from {source.updatedAt}</span></div></div>
+          <div className={styles.scopeNote}><BookOpen size={17} aria-hidden="true" /><div><strong>Bounded source scope</strong><span>{source.sectionCount} sections · {source.chunkCount} indexed excerpts from {source.updatedAt}</span></div></div>
         </aside>
 
         <section className={styles.evidencePanel} aria-labelledby="evidence-heading">
@@ -384,7 +394,7 @@ export default function Home() {
               <div className={styles.resultList}>
                 {results.length > 0 ? results.map((result) => <button className={`${styles.resultItem} ${result.chunkRef === activeChunk?.ref ? styles.resultActive : ""}`} key={result.chunkRef} onClick={() => openChunk(result.chunkRef)} type="button" aria-pressed={result.chunkRef === activeChunk?.ref}>
                   <span className={styles.resultIcon} aria-hidden="true">{result.kind === "table" ? <TableProperties size={16} /> : <FileText size={16} />}</span>
-                  <span className={styles.resultContent}><span className={styles.resultTitle}>{result.label}</span><span className={styles.resultExcerpt}>{result.excerpt}</span><span className={styles.resultMeta}>{result.section} · p. {result.page}</span></span>
+                  <span className={styles.resultContent}><span className={styles.resultTitle}>{result.label}</span><span className={styles.resultExcerpt}>{result.excerpt}</span><span className={styles.resultMeta}>{locationLabel(result.sectionPath, result.page, result.section)}</span></span>
                 </button>) : <p className={styles.emptyState}>No matching evidence in this source. Try a more specific policy term.</p>}
               </div>
             </div>
@@ -394,10 +404,10 @@ export default function Home() {
                   <div><div className={styles.documentKind}>{activeChunk.kind === "table" ? <TableProperties size={15} /> : <FileText size={15} />}{activeChunk.kind === "table" ? "Table evidence" : "Text evidence"}</div><h3>{activeChunk.label}</h3></div>
                   <button className={`${styles.citationToggle} ${citationRefs.includes(activeChunk.ref) ? styles.citationSelected : ""}`} onClick={() => toggleCitation(activeChunk.ref)} type="button" aria-pressed={citationRefs.includes(activeChunk.ref)}>{citationRefs.includes(activeChunk.ref) ? <Check size={15} aria-hidden="true" /> : <ClipboardCheck size={15} aria-hidden="true" />}{citationRefs.includes(activeChunk.ref) ? "Cited" : "Add citation"}</button>
                 </div>
-                <p className={styles.documentMeta}>{activeChunk.section} · page {activeChunk.page}</p>
+                <p className={styles.documentMeta}>{locationLabel(activeChunk.sectionPath, activeChunk.page, activeChunk.section, "page")}</p>
                 <p className={styles.documentText}>{activeChunk.content}</p>
                 {activeChunk.table && <div className={styles.tableWrap}><table><caption className={styles.srOnly}>{activeChunk.label}</caption><thead><tr>{activeChunk.table.headers.map((header) => <th key={header}>{header}</th>)}</tr></thead><tbody>{activeChunk.table.rows.map((row) => <tr key={row.join("-")}>{row.map((cell) => <td key={cell}>{cell}</td>)}</tr>)}</tbody></table></div>}
-                <div className={styles.documentFooter}><span>Reference: {activeChunk.ref}</span><span>Source-bounded</span></div>
+                <div className={styles.documentFooter}><span>Reference: {activeChunk.conceptRef}</span><span>Source-bounded</span></div>
               </> : <p className={styles.emptyState}>Choose a result to inspect its bounded evidence.</p>}
             </article>
           </div>
@@ -410,7 +420,7 @@ export default function Home() {
           <div className={styles.answerMeta}><span>{answer.length}/700</span><span>Human approval required</span></div>
           <div className={styles.citationArea}>
             <div className={styles.subheader}><span>Selected evidence</span><span>{citations.length}/5</span></div>
-            {citations.length > 0 ? <ul className={styles.citationList}>{citations.map((chunk) => <li key={chunk.ref}><button type="button" onClick={() => openChunk(chunk.ref)}>{chunk.label} <span>p. {chunk.page}</span></button><button type="button" className={styles.removeCitation} onClick={() => toggleCitation(chunk.ref)} aria-label={`Remove ${chunk.label} citation`} title="Remove citation"><X size={15} aria-hidden="true" /></button></li>)}</ul> : <p className={styles.noCitations}>Select citations from the evidence pane.</p>}
+            {citations.length > 0 ? <ul className={styles.citationList}>{citations.map((chunk) => <li key={chunk.ref}><button type="button" onClick={() => openChunk(chunk.ref)}>{chunk.label} <span>{chunk.page ? `p. ${chunk.page}` : chunk.section}</span></button><button type="button" className={styles.removeCitation} onClick={() => toggleCitation(chunk.ref)} aria-label={`Remove ${chunk.label} citation`} title="Remove citation"><X size={15} aria-hidden="true" /></button></li>)}</ul> : <p className={styles.noCitations}>Select citations from the evidence pane.</p>}
           </div>
           <button className={styles.stageButton} type="button" onClick={stageAnswer}><ClipboardCheck size={17} aria-hidden="true" />Stage for review</button>
           <div className={styles.reviewActions} aria-label="Human review decision"><button className={styles.approveButton} type="button" onClick={() => setReviewDecision("approved")}><CheckCircle2 size={17} aria-hidden="true" />Approve</button><button className={styles.rejectButton} type="button" onClick={() => setReviewDecision("rejected")}><X size={17} aria-hidden="true" />Reject</button></div>
