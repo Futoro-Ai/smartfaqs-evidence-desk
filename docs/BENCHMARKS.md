@@ -276,6 +276,34 @@ BRIGHT labels and a separately adjudicated table/negation/multi-passage
 set. Keep it offline until candidate recall and ranking improve together
 within a latency and memory budget.
 
+## Independent Semantic Candidate Experiment
+
+The next offline increment is complete on all 61,961 BRIGHT robotics documents
+and a locally regenerated ELM5 OKF bundle. It uses a pinned BGE-small model,
+lossless token windows, separate source indexes and equal-budget RRF at 20,
+50 and 100 candidates. The website, WebMCP and MCP runtime remain lexical.
+
+At pool 100, BRIGHT Hit@5 rises from 21/101 to 29/101 and nDCG@10 from
+0.109251 to 0.155102. The semantic top-100 independently recovers 12 queries
+missed by lexical top-100, but the fixed-budget fused list has only four
+additional top-100 hits net. The larger union is an opportunity bound.
+
+ELM5 includes 48 AI-reviewed questions, split 24 development/24 held-out;
+each split has 18 answerable and six unanswerable questions. Complete@5
+improves from 8/18 to 9/18 on development and 9/18 to 11/18 on held-out.
+However, development negation/exception complete@5 drops from 3/6 to 2/6.
+Unanswerables are not scored as refusals, and external human adjudication
+is absent. The held-out set is now a regression set, not a future tuning holdout.
+
+See [Offline Semantic Candidate Experiment](SEMANTIC_CANDIDATES.md) and the
+[sanitized aggregate](../benchmarks/semantic-candidates-baseline.v1.json) for
+all pool comparisons, source/model hashes, extraction limitations, cold/warm
+timings and reproduction. Cold and cached ranking metrics match exactly;
+ordered-result identity was not checked. This is
+local retrieval evidence, not a leaderboard submission or end-to-end answer
+quality claim. Keep serving lexical retrieval; further domain adjudication
+and exception analysis precede any reranking or guarded runtime proposal.
+
 ## Retrieval Profiles
 
 The SciFact evaluator compares three deterministic profiles over the same
@@ -473,7 +501,8 @@ the dataset.
 
 ## Remaining Limits
 
-- Retrieval is lexical BM25F; there is no embedding model or learned reranker.
+- Runtime retrieval is lexical BM25F. Embedding and reranking experiments are
+  developer-only, offline and not served by the application.
 - SciFact does not test tables or multi-level hierarchy.
 - The local ELM set is small, private, and development-selected.
 - Exact sentence recall is stricter than retrieval of a larger paragraph that

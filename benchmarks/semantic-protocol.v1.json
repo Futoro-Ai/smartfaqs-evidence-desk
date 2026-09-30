@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "smartfaqs-semantic-protocol.v1",
+  "baseCommit": "fc05585bcb6e5783301a378042667f616919a6e1",
+  "modelRevision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+  "datasetRevision": "3066d29c9651a576c8aba4832d249807b181ecae",
+  "poolSizes": [20, 50, 100],
+  "fusion": "rrf60_equal_weights",
+  "lexicalCandidateLimit": 2000,
+  "lexicalControlDepth": 200,
+  "queryWindowPooling": "normalized_mean",
+  "documentWindowPooling": "max_parent",
+  "embeddingBatchOrder": "length_sorted_restored_to_original",
+  "documentWindowTokens": 448,
+  "overlapTokens": 64,
+  "bootstrapSeed": 20260930,
+  "bootstrapSamples": 2000,
+  "coldWorkerTimeoutMs": 3600000,
+  "runtimeEnabled": false,
+  "advanceOnlyIf": {
+    "brightNewlyRecoveredQueriesAt100": 6,
+    "brightFusedNdcgGainAt10": 0.01,
+    "elmCompleteEvidenceAt5DoesNotRegress": true,
+    "warmSemanticQueryP95Ms": 1500,
+    "peakRssMiB": 2048,
+    "externalHumanGoldAdjudicationRequiredBeforeQualityClaim": true
+  },
+  "notes": [
+    "Frozen before any semantic scores; no tuning after holdout disclosure.",
+    "Before target quality scoring, cold CPU execution was changed from a 20-minute non-resumable attempt to a bounded 60-minute resumable attempt after timeout. A second attempt was deliberately stopped for cache hardening. Both fallback packets are retained. Length-sorted batches reduce padding and restore original window order; no token/model/ranking/quality gate changed. GPU acceleration was unavailable in the authorized sandbox.",
+    "BRIGHT robotics is public development evidence, not official leaderboard submission.",
+    "User-selected ELM5 Docling/OKF bundle is the primary table/negation/multi-passage corpus; gold and content stay in ignored local storage.",
+    "ELM5 PDF sha256 652d1612fdff0bb6e85546b981db5ddc59496ad7a27b65c5e88b5efb6b24de95, Docling 2.130.0, OCR off, accurate tables.",
+    "Northstar ten-passage existing regression is a sanity check only.",
+    "Unanswerable questions are not retrieval-quality positives and do not certify abstention.",
+    "A negative experiment is a valid result; runtime remains lexical.",
+    "Reranking is deferred if independent candidate recovery fails; old caps are unsuitable for BRIGHT."
+  ]
+}
