@@ -207,6 +207,75 @@ serving this model. The next experiment should target first-stage candidate
 misses and use an untouched, adjudicated table/negation/multi-passage set before
 any guarded runtime pilot.
 
+## Offline Candidate-Path Analysis
+
+The separate candidate-path experiment keeps the application, WebMCP, and MCP
+routes unchanged. It starts with the source-scoped lexical top 100, selects up
+to six rare terms that appear in at least two of the top three passages, then
+runs a second source-scoped lexical search. At each pool size (20, 50, 100),
+it compares the original list, the second list, their union, and fixed-budget
+reciprocal-rank fusion (RRF with constant 60). The union may contain up to
+twice as many items as the named pool; the fused list is truncated back to
+that pool size. Union recall is therefore an opportunity bound, not an
+equal-budget serving result.
+
+Prepare the pinned datasets as above, then run:
+
+```bash
+npm run benchmark:candidates -- --dataset scifact-dev
+npm run benchmark:candidates -- --dataset beir-scifact
+npm run benchmark:candidates -- --dataset bright-robotics
+npm run benchmark:candidates -- --dataset northstar-independent
+```
+
+The ignored reports under `.local/benchmarks/candidate-analysis/results/`
+contain input and implementation SHA-256 fingerprints, aggregate metrics,
+and per-query failure categories keyed by a digest of the public query ID.
+They contain no raw query or passage text. Categories distinguish a lexical
+top-five hit, a positive item ranked below five but within 100, a positive
+lexical match beyond 100, and no positive lexical match. The six
+unanswerable Northstar questions are classified, not scored as abstentions.
+BRIGHT exclusion IDs absent from its public document corpus are harmless;
+gold IDs must be present and must never be excluded.
+
+Local results on the pinned datasets:
+
+| Dataset | Lexical Hit@5 | Fused Hit@5 | Lexical candidate Hit@100 | Union candidate Hit@100 | Fused candidate Hit@100 | Lexical nDCG@10 | Fused nDCG@10 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| SciFact dev, 188 claims | 0.696809 | 0.712766 | 0.925532 | 0.925532 | 0.914894 | 0.547391 | 0.545088 |
+| BEIR SciFact, 300 queries | 0.753333 | 0.760000 | 0.903333 | 0.923333 | 0.920000 | 0.669547 | 0.659602 |
+| BRIGHT robotics, 101 queries | 0.207921 | 0.237624 | 0.574257 | 0.574257 | 0.564356 | 0.109251 | 0.105240 |
+| Northstar, nine answerable questions | 1.000000 | 1.000000 | 1.000000 | 1.000000 | 1.000000 | 1.000000 | 1.000000 |
+
+BRIGHT has 43 queries with a relevant document that matches a query term
+but falls outside the lexical top 100. The feedback path does not recover
+any additional relevant document in the BRIGHT top-100 union. SciFact dev
+has two cases with no positive lexical match and 12 with a positive item
+beyond 100; BEIR SciFact has two and 27 respectively. Those categories
+identify first-stage work separately from reranking. The SciFact and BEIR
+queries overlap, so they are not independent corroboration. BRIGHT is an
+official public regression, but this local run is not a leaderboard
+submission; the small Northstar set is synthetic and already saturated.
+The private ELM questions were unavailable in this isolated repository.
+
+Per-query median/p95 time for the two retrieval passes, excluding index
+construction and file loading, was 32/72 ms for SciFact dev, 9/17 ms for
+BEIR SciFact, and 107/237 ms for BRIGHT robotics on this local machine.
+Sampled peak process RSS was 685, 264, and 864 MiB respectively; these
+measurements include the in-memory index and vary with the host. The runner
+also records total run time. Passage text is not truncated by this lexical
+experiment; the optional cross-encoder above has a different, explicit
+truncation profile. Neither the RSS sample nor the Node heap limit is an
+OS-enforced production memory cap.
+
+**Decision:** do not adopt pseudo-relevance feedback or RRF in the live
+retriever. The small Hit@5 gains do not compensate for lower nDCG@10 and
+weak BRIGHT candidate recovery. The next candidate experiment should test
+a genuinely complementary, source-scoped semantic path against frozen
+BRIGHT labels and a separately adjudicated table/negation/multi-passage
+set. Keep it offline until candidate recall and ranking improve together
+within a latency and memory budget.
+
 ## Retrieval Profiles
 
 The SciFact evaluator compares three deterministic profiles over the same

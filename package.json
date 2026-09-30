@@ -36,6 +36,7 @@
     "benchmark:bright:robotics": "node --max-old-space-size=4096 --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/benchmarks/run-bright-robotics.mts",
     "benchmark:okf": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/benchmarks/run-okf-retrieval.mts",
     "benchmark:reranker": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/benchmarks/run-reranker.mts",
+    "benchmark:candidates": "node --max-old-space-size=4096 --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/benchmarks/run-candidate-analysis.mts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
