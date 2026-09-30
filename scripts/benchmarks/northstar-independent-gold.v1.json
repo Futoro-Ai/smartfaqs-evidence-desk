@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "smartfaqs-reranker-gold.v1",
+  "reviewStatus": "independently_authored_before_model_scoring",
+  "queries": [
+    {"id":"ns-01","category":"table","sourceRef":"source:remote-work-standard","query":"How does the Remote equipment package differ from Hybrid: what is shared and what item is added?","relevantChunkRefs":["chunk:remote-equipment"]},
+    {"id":"ns-02","category":"numeric_table","sourceRef":"source:employee-handbook","query":"How many more annual leave hours and equivalent days does the 10+ years tier provide than the 5-9 years tier?","relevantChunkRefs":["chunk:leave-accrual-table"]},
+    {"id":"ns-03","category":"numeric","sourceRef":"source:benefits-guide","query":"What compensation share is matched for retirement, and after what service period does the match begin?","relevantChunkRefs":["chunk:retirement-match"]},
+    {"id":"ns-04","category":"numeric","sourceRef":"source:benefits-guide","query":"What is the annual learning and wellness credit, and what kinds of uses are named?","relevantChunkRefs":["chunk:wellness-credit"]},
+    {"id":"ns-05","category":"numeric","sourceRef":"source:benefits-guide","query":"How many synthetic medical plans may employees choose between, and during what enrollment period?","relevantChunkRefs":["chunk:medical-plan"]},
+    {"id":"ns-06","category":"negation","sourceRef":"source:remote-work-standard","query":"If the connection is approved and encrypted, may confidential information still be accessed from a shared public computer?","relevantChunkRefs":["chunk:remote-security"]},
+    {"id":"ns-07","category":"multiple_passages","sourceRef":"source:remote-work-standard","query":"For Remote classification, what equipment is listed, and what controls apply to confidential information?","relevantChunkRefs":["chunk:remote-equipment","chunk:remote-security"]},
+    {"id":"ns-08","category":"multiple_passages","sourceRef":"source:benefits-guide","query":"Contrast the medical coverage start rule with the cadence and amount of the wellness credit.","relevantChunkRefs":["chunk:medical-plan","chunk:wellness-credit"]},
+    {"id":"ns-09","category":"multiple_passages","sourceRef":"source:benefits-guide","query":"Compare the retirement match and wellness credit: give the match share and service trigger, and the credit amount and named uses.","relevantChunkRefs":["chunk:retirement-match","chunk:wellness-credit"]},
+    {"id":"ns-10","category":"no_answer","sourceRef":"source:employee-handbook","query":"What is the annual-leave carryover limit at year end?","relevantChunkRefs":[]},
+    {"id":"ns-11","category":"no_answer","sourceRef":"source:benefits-guide","query":"What are the medical plan names, monthly premiums, and deductibles?","relevantChunkRefs":[]},
+    {"id":"ns-12","category":"no_answer","sourceRef":"source:remote-work-standard","query":"How many remote-work days per week does the standard permit?","relevantChunkRefs":[]},
+    {"id":"ns-13","category":"no_answer","sourceRef":"source:benefits-guide","query":"What is the wellness-credit claim channel and submission deadline?","relevantChunkRefs":[]},
+    {"id":"ns-14","category":"no_answer","sourceRef":"source:remote-work-standard","query":"Which specific job families are authorized for distributed work?","relevantChunkRefs":[]},
+    {"id":"ns-15","category":"no_answer","sourceRef":"source:remote-work-standard","query":"What numerical score or cutoff makes a role eligible for distributed work?","relevantChunkRefs":[]}
+  ]
+}
