@@ -136,14 +136,76 @@ corpora have no such hints, so their scores above measure only the weight
 change. BRIGHT's low absolute score still points to a need for a stronger
 first-stage semantic candidate path rather than more lexical-weight tuning.
 
-The next reranker experiment is separate from this PR's runtime behavior.
-Compare fixed first-stage candidate pools of 20, 50, and 100 on the pinned
-SciFact and BEIR inputs and an independently reviewed ELM set. Record candidate
-recall before reranking, final ranking quality, latency, memory, and text
-truncation for every pool. Keep the model and revision pinned, candidates
-source-scoped, and the feature default-off with a timeout and lexical fallback.
-Do not use the overlapping BEIR SciFact queries as an untouched validation set
-or promote a reranker on aggregate scores alone.
+## Opt-In Local Reranker Experiment
+
+The cross-encoder experiment is a developer-only benchmark. It does not change
+the application, WebMCP, or MCP search route. The scorer runs as a local Python
+subprocess only with `--enable-model`; without that option, the command reports
+the unchanged lexical baseline. It uses the same source-scoped first-stage
+results as the application, limits each query to 100 candidates and each
+passage to 2,000 characters, verifies every model file against
+[`reranker-model.v1.json`](../scripts/benchmarks/reranker-model.v1.json),
+enforces a process timeout, and falls back to lexical ranking if the model is
+unavailable or returns invalid output. No model API is called. The subprocess
+does **not** have an OS-enforced memory limit, so do not use this experiment as
+a production request path.
+
+Prepare the public benchmark datasets using the commands above. With Python
+3.11 and `uv` available, install the optional library in a local virtual
+environment and prepare the model separately:
+
+```bash
+uv venv .local/benchmarks/reranker/venv --python 3.11
+uv pip install --python .local/benchmarks/reranker/venv/bin/python sentence-transformers==6.1.0
+.local/benchmarks/reranker/venv/bin/python scripts/benchmarks/prepare-reranker-model.py
+npm run benchmark:reranker -- --dataset scifact-dev --enable-model \
+  --python .local/benchmarks/reranker/venv/bin/python --timeout-ms 900000
+```
+
+Use `--dataset beir-scifact` or `--dataset northstar-independent` for the
+other sets; `--query-limit N` gives a faster, explicitly partial smoke check.
+Normal `npm test` and `npm run build` never download or load model weights.
+Only `sentence-transformers` is version-pinned in the optional Python
+environment; transitive package versions and hardware can affect timings or
+numeric scores. The report fingerprints the input files, implementation, and
+model manifest but excludes raw query and passage text.
+
+The following local CPU results used the pinned model revision and
+`OMP_NUM_THREADS=2 MKL_NUM_THREADS=2`. Each pool is scored independently.
+Median and p95 are **model prediction time only**, excluding model loading,
+tokenization checks, indexing, and process startup. Memory is the single peak
+for the whole worker run, not a per-pool measurement.
+
+| Dataset | Pool | Candidate Hit@pool | Lexical Hit@5 | Reranked Hit@5 | Lexical nDCG@10 | Reranked nDCG@10 | Median ms | p95 ms | Truncated pairs |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| SciFact dev, 188 claims | 20 | 0.813830 | 0.696809 | 0.781915 | 0.547391 | 0.619754 | 98.2 | 141.8 | 0 |
+| SciFact dev, 188 claims | 50 | 0.882979 | 0.696809 | 0.813830 | 0.547391 | 0.644268 | 212.0 | 298.0 | 4 |
+| SciFact dev, 188 claims | 100 | 0.925532 | 0.696809 | 0.851064 | 0.547391 | 0.672709 | 391.6 | 526.7 | 10 |
+| BEIR SciFact, 300 queries | 20 | 0.850000 | 0.753333 | 0.756667 | 0.669547 | 0.675839 | 198.8 | 226.1 | 5088 |
+| BEIR SciFact, 300 queries | 50 | 0.886667 | 0.753333 | 0.760000 | 0.669547 | 0.672834 | 485.8 | 521.8 | 12539 |
+| BEIR SciFact, 300 queries | 100 | 0.903333 | 0.753333 | 0.763333 | 0.669547 | 0.672911 | 966.8 | 1033.1 | 25095 |
+
+The peak worker memory was 782.9 MiB for SciFact dev and 849.8 MiB for BEIR
+SciFact on this machine. The BEIR test queries overlap SciFact development
+claims and are **not** untouched validation. These are local retrieval
+measurements, not official leaderboard results or answer-quality scores.
+
+The separate 15-question synthetic Northstar set was authored from the public
+bundle by a read-only reviewer before model scoring. Nine questions have
+answerable chunk labels and six are explicitly unanswerable. Its lexical and
+reranked Hit@5 and nDCG@10 are all 1.0 on the nine answerable questions after
+structured table cells are included in model passages. The labels were not
+externally adjudicated, and the six no-answer cases are counted but do not
+measure abstention or false positives. The private ELM evaluation sets cited
+in earlier exploration were unavailable to this isolated worktree; no ELM
+reranker score is claimed here.
+
+**Decision:** keep the current lexical runtime. The SciFact dev gain is
+promising, but BEIR's marginal gain, high truncation, added latency, absent
+memory cap, and lack of independent hard-document evidence do not justify
+serving this model. The next experiment should target first-stage candidate
+misses and use an untouched, adjudicated table/negation/multi-passage set before
+any guarded runtime pilot.
 
 ## Retrieval Profiles
 
