@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { toolDefinitions } from "@/lib/capabilities/contracts";
 import {
@@ -224,6 +224,47 @@ describe("Evidence Desk MCP Streamable HTTP endpoint", () => {
     const response = await handleMcpPost(request);
     expect(response.status).toBe(413);
     expect(pulls).toBeLessThan(10);
+  });
+
+  it("rejects a streamed body when its request is aborted", async () => {
+    const abort = new AbortController();
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) { controller.enqueue(new Uint8Array([123])); },
+    });
+    const request = new Request(MCP_URL, {
+      method: "POST",
+      headers: { Accept: MCP_ACCEPT, "Content-Type": "application/json" },
+      body,
+      signal: abort.signal,
+      duplex: "half",
+    } as RequestInit & { duplex: "half" });
+    const pending = handleMcpPost(request);
+    abort.abort();
+
+    const response = await pending;
+    expect(response.status).toBe(400);
+  });
+
+  it("times out a stalled streamed body before protocol dispatch", async () => {
+    const originalTimeout = AbortSignal.timeout.bind(AbortSignal);
+    const timeout = vi.spyOn(AbortSignal, "timeout")
+      .mockImplementation(() => originalTimeout(20));
+    try {
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) { controller.enqueue(new Uint8Array([123])); },
+      });
+      const request = new Request(MCP_URL, {
+        method: "POST",
+        headers: { Accept: MCP_ACCEPT, "Content-Type": "application/json" },
+        body,
+        duplex: "half",
+      } as RequestInit & { duplex: "half" });
+      const response = await handleMcpPost(request);
+      expect(response.status).toBe(400);
+      expect(timeout).toHaveBeenCalledWith(10_000);
+    } finally {
+      timeout.mockRestore();
+    }
   });
 
   it("accepts same-origin browser requests without an allowlist entry", async () => {

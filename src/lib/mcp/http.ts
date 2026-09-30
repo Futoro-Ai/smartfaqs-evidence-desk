@@ -111,17 +111,31 @@ async function boundedRequest(request: Request): Promise<Request | null> {
   }
   if (!request.body) return request;
   const reader = request.body.getReader();
+  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(10_000)]);
+  let rejectAbort: (error: Error) => void = () => {};
+  const aborted = new Promise<never>((_, reject) => { rejectAbort = reject; });
+  const onAbort = () => {
+    rejectAbort(new Error("request_body_aborted"));
+    void reader.cancel().catch(() => {});
+  };
+  if (signal.aborted) onAbort();
+  else signal.addEventListener("abort", onAbort, { once: true });
   const chunks: Uint8Array[] = [];
   let totalBytes = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    totalBytes += value.byteLength;
-    if (totalBytes > MAX_MCP_REQUEST_BYTES) {
-      await reader.cancel();
-      return null;
+  try {
+    while (true) {
+      const { done, value } = await Promise.race([reader.read(), aborted]);
+      if (signal.aborted) throw new Error("request_body_aborted");
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_MCP_REQUEST_BYTES) {
+        void reader.cancel().catch(() => {});
+        return null;
+      }
+      chunks.push(value);
     }
-    chunks.push(value);
+  } finally {
+    signal.removeEventListener("abort", onAbort);
   }
   const body = new Uint8Array(totalBytes);
   let offset = 0;

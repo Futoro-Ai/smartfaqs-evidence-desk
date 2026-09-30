@@ -2,7 +2,26 @@ import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:
 import os from "node:os";
 import path from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+const publishFault = vi.hoisted(() => ({ failOnce: false }));
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    rename: async (from, to) => {
+      if (
+        publishFault.failOnce &&
+        String(from).includes(".smartfaqs-okf-tmp-") &&
+        String(to).endsWith("/bundle")
+      ) {
+        publishFault.failOnce = false;
+        throw new Error("publish_failed");
+      }
+      return actual.rename(from, to);
+    },
+  };
+});
 
 import {
   compileOkfCatalog,
@@ -110,6 +129,11 @@ describe("SmartFAQs OKF profile", () => {
       sectionPath: ["4 Time Away", "4.2 Annual Leave"],
       kind: "table",
       table: { headers: ["Completed service", "Annual hours", "Equivalent days"] },
+    });
+    expect(
+      catalog.chunks.find((chunk) => chunk.ref === "chunk:leave-accrual-method"),
+    ).toMatchObject({
+      answerQuestions: ["How often is vacation time added to my balance?"],
     });
   });
 
@@ -253,6 +277,75 @@ describe("Docling JSONL conversion", () => {
     });
   });
 
+  it("keeps deep heading ancestry when the display label exceeds the profile limit", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-deep-heading-"));
+    const inputPath = path.join(root, "chunks.jsonl");
+    const headings = [
+      "6 Employee Relations",
+      `620 ${"A".repeat(190)}`,
+      `621 ${"B".repeat(190)}`,
+    ];
+    await writeFile(
+      inputPath,
+      `${JSON.stringify({ text: "Bounded evidence", chunk_type: "prose", heading_path_v2: headings })}\n`,
+    );
+
+    const options = converterOptions(root, inputPath, { headingPrefix: [] });
+    await convertDoclingJsonl(options);
+    const catalog = await compileOkfCatalog(options.outputDirectory, {
+      publicOnly: false,
+    });
+
+    expect(catalog.chunks[0]).toMatchObject({
+      section: headings.at(-1),
+      sectionPath: headings,
+    });
+    expect(catalog.chunks[0].label.length).toBeLessThanOrEqual(160);
+    expect(catalog.sections.map((section) => section.label)).toContain(headings.at(-1));
+    expect(headings.at(-1).length).toBeLessThanOrEqual(240);
+    expect(catalog.sections).toHaveLength(3);
+  });
+
+  it("preserves headerless Docling grids as structured table rows", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-headerless-table-"));
+    const inputPath = path.join(root, "chunks.jsonl");
+    await writeFile(
+      inputPath,
+      `${JSON.stringify({
+        text: "| Award | 500 |\n| Limit | 4 |",
+        chunk_type: "table",
+        heading_path_v2: ["5 Employee Benefits", "510 Leave"],
+      })}\n`,
+    );
+
+    const options = converterOptions(root, inputPath);
+    await convertDoclingJsonl(options);
+    const catalog = await compileOkfCatalog(options.outputDirectory, {
+      publicOnly: false,
+    });
+    expect(catalog.chunks[0].table).toEqual({
+      headers: ["Column 1", "Column 2"],
+      rows: [["Award", "500"], ["Limit", "4"]],
+    });
+  });
+
+  it("rejects headerless Docling grids with inconsistent row widths", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-ragged-table-"));
+    const inputPath = path.join(root, "chunks.jsonl");
+    await writeFile(
+      inputPath,
+      `${JSON.stringify({
+        text: "| Award | 500 |\n| Limit | 4 | 2026 |",
+        chunk_type: "table",
+        heading_path_v2: ["5 Employee Benefits", "510 Leave"],
+      })}\n`,
+    );
+
+    await expect(convertDoclingJsonl(converterOptions(root, inputPath))).rejects.toThrow(
+      "table_not_found:",
+    );
+  });
+
   it("requires the complete section concept ancestry", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "docling-section-parent-"));
     const inputPath = await writeDoclingFixture(root);
@@ -320,6 +413,26 @@ describe("Docling JSONL conversion", () => {
     })).rejects.toThrow("invalid_smartfaqs_profile");
     await expect(readFile(path.join(ownedOptions.outputDirectory, "index.md"), "utf8"))
       .resolves.toContain("Fixture Document");
+  });
+
+  it("restores the previous bundle when force publication fails", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "docling-force-rollback-"));
+    const inputPath = await writeDoclingFixture(root);
+    const options = converterOptions(root, inputPath);
+    await convertDoclingJsonl(options);
+    const previousIndex = await readFile(path.join(options.outputDirectory, "index.md"), "utf8");
+
+    publishFault.failOnce = true;
+    try {
+      await expect(convertDoclingJsonl({ ...options, force: true })).rejects.toThrow(
+        "publish_failed",
+      );
+    } finally {
+      publishFault.failOnce = false;
+    }
+    expect(await readFile(path.join(options.outputDirectory, "index.md"), "utf8")).toBe(
+      previousIndex,
+    );
   });
 
   it("keeps private conversion inside the assigned output root", async () => {

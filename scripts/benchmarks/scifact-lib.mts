@@ -492,12 +492,17 @@ function compareModes(
 export function evaluateSciFactBenchmark(
   benchmark: SciFactBenchmark,
   queryLimit?: number,
+  titleWeight = BM25F_FIELD_WEIGHTS.title,
 ) {
   if (queryLimit !== undefined && (!Number.isInteger(queryLimit) || queryLimit < 1)) {
     throw new Error("invalid_query_limit");
   }
+  if (titleWeight !== 0.35 && titleWeight !== 0.5) {
+    throw new Error("invalid_title_weight");
+  }
   const queries = benchmark.queries.slice(0, queryLimit);
   if (queries.length === 0) throw new Error("no_scifact_queries_with_evidence");
+  const fieldWeights = { ...BM25F_FIELD_WEIGHTS, title: titleWeight };
 
   const lexicalBodyOnly = evaluateMode(benchmark, queries, {
     structuralBoost: false,
@@ -507,12 +512,12 @@ export function evaluateSciFactBenchmark(
   const fieldedWithoutHierarchy = evaluateMode(benchmark, queries, {
     structuralBoost: false,
     hierarchyWeight: 0,
-    fieldWeights: BM25F_FIELD_WEIGHTS,
+    fieldWeights,
   });
   const fieldedWithHierarchy = evaluateMode(benchmark, queries, {
     structuralBoost: true,
     hierarchyWeight: 0.15,
-    fieldWeights: BM25F_FIELD_WEIGHTS,
+    fieldWeights,
   });
 
   return {

@@ -1,14 +1,149 @@
 # Retrieval Benchmarks
 
-Evidence Desk has two local-only retrieval evaluators:
+Evidence Desk has two core local-only retrieval evaluators, plus the BEIR
+SciFact and BRIGHT robotics adapters:
 
 1. SciFact measures first-stage recall on a public scientific claim corpus.
 2. The generic OKF evaluator measures a chosen local bundle, including nested
    headings and tables, against an explicitly reviewed gold set.
 
-Neither evaluator invokes an LLM, generates an answer, modifies a knowledge
-bundle, or adds a database. Dataset files, detailed reports, ICM run artifacts,
+These evaluators do not invoke an LLM, generate an answer, modify a knowledge
+bundle, or add a database. Dataset files, detailed reports, ICM run artifacts,
 and private gold sets remain under `.local/`, which Git ignores.
+
+The separate BEIR SciFact adapter uses the same index and scorer to evaluate
+the official document-level test split. Prepare and run it with:
+
+```bash
+npm run benchmark:beir-scifact:prepare
+npm run benchmark:beir-scifact
+```
+
+It represents each scientific abstract as one evidence chunk and reports binary
+document nDCG@10. The pinned BEIR SciFact test queries overlap the SciFact
+development claims used below. Its document-level judgments differ from the
+development set's rationale-sentence labels, but its score is not independent
+validation of a title weight selected on those claims. The dataset stays in
+`.local/` and the report records input SHA-256 fingerprints.
+
+The preparer verifies pinned SHA-256 values for the extracted files on both
+first download and reuse. Reports also fingerprint the ranking, evaluator,
+adapter, and runner source files, so results from a dirty checkout remain
+distinguishable from results at a clean commit.
+
+A committed ten-query synthetic handbook set exercises text, tables, nested
+sections, and two questions that require both passages. Run it with
+`npm run benchmark:northstar`. The fixed gold labels are in
+`scripts/benchmarks/northstar-structured-gold.v1.json`; this is a small
+development test for Evidence Desk behavior, not an external leaderboard score.
+
+The BRIGHT robotics short-document split tests reasoning-heavy retrieval over
+the complete robotics corpus. Prepare the pinned dataset locally with Python,
+`uv`, and `pyarrow`:
+
+```bash
+UV_CACHE_DIR=.local/benchmarks/uv-cache uv run --no-project --with pyarrow==21.0.0 \
+  python scripts/benchmarks/prepare-bright-robotics.py
+npm run benchmark:bright:robotics
+```
+
+This reports content-only robotics nDCG@10. Document IDs are retained for
+judgments but are not indexed as titles or retrieval text. The result is not
+BRIGHT's 12-dataset leaderboard average. The preparation script verifies both
+original Parquet SHA-256 values and stores its converted JSONL files under
+`.local/`.
+
+On reuse, the preparer checks the converted JSONL files against its receipt
+and confirms that the receipt names the pinned revision and source hashes.
+
+The evaluated inputs are content-bound as follows:
+
+- SciFact uses the upstream `latest` archive only when its SHA-256 is
+  `11c621288d41ac144d29b13b0f8503b3820b7d6e8b1f6ff24dff335c196d76be`.
+  The corpus and development-claims SHA-256 values are in
+  `benchmarks/scifact-bm25f-baseline.v2.json`.
+- BEIR SciFact uses the archive with MD5
+  `5f7d1de60b170fc8027bb7898e2efca1`; its preparation receipt records
+  SHA-256 values for the archive and extracted files.
+- BRIGHT robotics uses dataset revision
+  `3066d29c9651a576c8aba4832d249807b181ecae`; the preparation script
+  pins the Parquet file sizes and SHA-256 values.
+
+## Baseline Before Ranking Changes
+
+The SciFact BM25F baseline artifact records `2026-09-04`. This table combines
+that unchanged baseline with local BEIR, BRIGHT, and Northstar checks. The
+original later-check reports were not retained with implementation fingerprints,
+so their exact chronology and code revisions cannot be reconstructed. The
+SciFact and BEIR values have since been reproduced on the pinned datasets.
+BRIGHT was also rerun with the corrected pre-cutoff exclusion handling; its
+aggregate nDCG@10 was unchanged:
+
+| Evaluation | Scope | Existing result |
+| --- | --- | ---: |
+| SciFact labeled development | 188 claims, sentence-rationale Evidence Hit@5 | 0.696809 |
+| BEIR SciFact official test | 300 queries, document nDCG@10 | 0.669547 |
+| BRIGHT robotics | 101 queries, content-only document nDCG@10 | 0.109251 |
+| Northstar synthetic handbook | 10 authored queries, Evidence Hit@5 | 1.000000 |
+
+The corresponding body-only scores are 0.574468 Hit@5 and 0.662722 nDCG@10
+for SciFact and BEIR SciFact; BRIGHT already uses content only. The
+Northstar set is a local regression check, not an independent test set. Its
+hierarchy-enabled profile has identical ranked top-five lists on eight of ten
+questions and the same top-five sets on all ten, but lowers first-result rank
+on one eligibility question. No result
+above is a leaderboard submission or an end-to-end answer-quality score.
+Dataset fingerprints and per-query results stay in the ignored `.local/`
+reports produced by the commands above.
+
+## First Measured Increment
+
+The SciFact development-set title-weight ablation tried increasing BM25F
+title weight from `0.35` to `0.5`. With that change, rationale Hit@5 is
+`0.707447` (+0.010638) and BEIR SciFact test document nDCG@10 is
+`0.672673` (+0.003126). Title weighting does not apply to the content-only
+BRIGHT robotics corpus.
+The Northstar ten-query result above is from the current hint-enabled bundle;
+it is not an isolated measurement of the title-weight change. The experiment used SciFact
+development claims to choose a weight; the overlapping BEIR SciFact test
+queries cannot establish an independent gain. BRIGHT is a different,
+content-only regression check, not a tuning target or leaderboard submission.
+
+This is not an across-the-board gain. Binary SciFact rationale Hit@100 falls from
+`0.925532` (174/188 claims) to `0.914894` (172/188). The new weights gain one
+top-100 hit and lose three, while gaining two top-five hits and losing none.
+A paired offline reciprocal-rank fusion was also explored, but the ranked-list
+inputs and runner were not retained. Its historical numbers are not a
+reproducible regression baseline. Neither the new weight nor that fusion is a
+demonstrated solution to candidate recall. The runtime therefore keeps the
+`0.35` title weight; `0.5` remains an optional benchmark profile.
+
+Replay the fixed-weight comparison with the same pinned inputs:
+
+```bash
+npm run benchmark:scifact -- --title-weight 0.5
+npm run benchmark:beir-scifact -- --title-weight 0.5
+```
+
+Omit the option for the `0.35` baseline. Each profile writes a separate ignored
+report; only the two fixed weights are accepted. These are local retrieval
+measurements, not independent leaderboard submissions.
+
+The optional, reviewed `smartfaqs.answer_questions` hint on one synthetic
+handbook chunk moves a separate paraphrase probe from rank 3 to rank 1.
+That single local probe is not a generalization result. Official benchmark
+corpora have no such hints, so their scores above measure only the weight
+change. BRIGHT's low absolute score still points to a need for a stronger
+first-stage semantic candidate path rather than more lexical-weight tuning.
+
+The next reranker experiment is separate from this PR's runtime behavior.
+Compare fixed first-stage candidate pools of 20, 50, and 100 on the pinned
+SciFact and BEIR inputs and an independently reviewed ELM set. Record candidate
+recall before reranking, final ranking quality, latency, memory, and text
+truncation for every pool. Keep the model and revision pinned, candidates
+source-scoped, and the feature default-off with a timeout and lexical fallback.
+Do not use the overlapping BEIR SciFact queries as an untouched validation set
+or promote a reranker on aggregate scores alone.
 
 ## Retrieval Profiles
 
@@ -121,7 +256,7 @@ environment-specific and is not part of the committed regression baseline.
 
 The original substring-score baseline remains in
 [`scifact-development-baseline.v1.json`](../benchmarks/scifact-development-baseline.v1.json).
-The current fingerprint-bound aggregate is
+The pinned pre-increment fingerprint-bound aggregate is
 [`scifact-bm25f-baseline.v2.json`](../benchmarks/scifact-bm25f-baseline.v2.json).
 
 | Retrieval | Evidence Hit@1 | Evidence Hit@5 | Evidence Hit@100 | Document Hit@5 |
@@ -180,6 +315,18 @@ numbers, and heading-only parent routes. It achieved 100% Evidence Hit@5 and
 but hierarchy changed their order on 6 of 10 queries. In this set, structure
 improves prioritization rather than adding otherwise missing evidence. This is
 a small development check, not a public benchmark or a held-out quality claim.
+
+A separate, ignored local ELM review corrected two table-evidence references
+in the 40-question gold file. The review receipt records two reviewers and
+`humanValidated=false`; it does not establish human validation. The reviewed
+gold file is `elmc6-40-gold.reviewed.v1.json` (SHA-256
+`41ff641a44274b868410a84a6e49aed38d10f269a4a2611b5d4336397c33c9cd`).
+The 12-paraphrase and 24-question files are also local development sets after
+their recorded runs, not untouched holdouts. Their gold-file SHA-256 values are
+`f7495229e6bd959094df42d5c4620727368fb856e63639746b88b7cfb34cc4a4`
+and `4b6f98bf07a9e384f4bba131b764ed0a0b33d11e5b949ba4c8ffd12e046d957c`,
+respectively. These identifiers support local reproduction without publishing
+private source text or gold labels.
 
 ## Rights And Attribution
 

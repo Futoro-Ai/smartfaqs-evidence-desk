@@ -61,6 +61,16 @@ async function run() {
     generatedAt: new Date().toISOString(),
     durationMs: Math.round(performance.now() - startedAt),
     goldSha256: createHash("sha256").update(goldBytes).digest("hex"),
+    implementationFingerprints: {
+      rankingSha256: createHash("sha256").update(await readFile(
+        path.join(repositoryRoot, "src/lib/evidence/ranking.ts"))).digest("hex"),
+      evaluatorSha256: createHash("sha256").update(await readFile(
+        path.join(repositoryRoot, "scripts/benchmarks/okf-retrieval-lib.mts"))).digest("hex"),
+      compilerSha256: createHash("sha256").update(await readFile(
+        path.join(repositoryRoot, "scripts/okf/lib.mjs"))).digest("hex"),
+      runnerSha256: createHash("sha256").update(await readFile(
+        path.join(repositoryRoot, "scripts/benchmarks/run-okf-retrieval.mts"))).digest("hex"),
+    },
   };
   let reportPath: string | null = null;
   if (options.save) {

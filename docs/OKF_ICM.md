@@ -84,6 +84,7 @@ Every application concept uses:
 | `smartfaqs.page` | Optional positive page number. It remains `null` when the exporter provides none. |
 | `smartfaqs.kind` | `text` or `table`. |
 | `smartfaqs.keywords` | Bounded deterministic retrieval terms. |
+| `smartfaqs.answer_questions` | Optional one to three reviewed question phrasings for an evidence concept; retrieval hints, never answer authority. |
 | `smartfaqs.rights_class` | Prevents local/private material from entering the public catalog. |
 
 The public compiler accepts only `synthetic_public_demo`. A Docling conversion
@@ -174,10 +175,11 @@ npm run okf:convert:docling -- \
   --heading-prefix "5 Employee Benefits|510 Leave"
 ```
 
-The command refuses to overwrite an existing output directory. `--force` is
-available for an intentional regeneration, but it works only when the target
-contains the converter's ownership marker. It will not delete an arbitrary
-directory. `.local/` is ignored by Git.
+The command writes only below the repository's `.local/` directory and refuses
+to overwrite an existing output directory. `--force` is available for an
+intentional regeneration, but it works only when the target contains the
+converter's ownership marker. It will not delete an arbitrary directory.
+`.local/` is ignored by Git.
 
 ## Ambrosia Adoption Boundary
 
@@ -189,7 +191,8 @@ preserve these controls:
 - select document and heading scope before conversion;
 - keep source rights and lifecycle state explicit;
 - keep raw provider/database identifiers out of frontmatter;
-- write to a staging directory and validate before atomic replacement;
+- write to a staging directory, validate, and preserve the prior bundle on
+  publication failure;
 - require separate human review before changing `draft` or
   `local_private_only`;
 - never let knowledge content become workflow instructions.
@@ -201,8 +204,9 @@ This repository does not modify or contact an Ambrosia deployment.
 The runtime filters to one selected source before ranking. It builds one
 in-memory inverted index from the validated catalog and uses normalized,
 token-boundary fielded BM25 across bodies, evidence titles, keywords, headings,
-aliases, section identifiers, and separate table fields. Common stop words are
-removed, small number words and units are normalized, and negation terms remain
+aliases, section identifiers, optional answer-question hints, and separate
+table fields. Common stop words are removed, small number words and units are
+normalized, and negation terms remain
 searchable.
 
 Section concepts and substantive evidence are ranked separately. A matched
@@ -213,6 +217,12 @@ and at most five evidence results. Every evidence result carries its bounded
 section path and section concept reference. A read must present both the
 selected source and a matching stable chunk reference. React escapes rendered
 content.
+
+Answer-question hints are validated and indexed only within their evidence
+concept's selected source. They can improve candidate ranking but cannot
+substantiate an answer, authorize a read, or appear in the bounded search
+response. The Docling converter does not invent hints; generated private
+bundles need an explicit metadata review before any hint is added.
 
 A heading-only leaf remains searchable and navigable even when it has no
 descendant evidence. Its section concept can truthfully establish that the

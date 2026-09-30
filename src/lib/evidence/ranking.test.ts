@@ -189,4 +189,25 @@ describe("fielded evidence ranking", () => {
       "chunk:first",
     ]);
   });
+
+  it("excludes documents before applying candidate and result limits", () => {
+    const sectionValue = section("section:scope", ["Scope"]);
+    const chunks = [
+      chunk("chunk:excluded", "target evidence", sectionValue),
+      chunk("chunk:eligible", "target evidence", sectionValue),
+    ];
+    const ranked = rankEvidenceCatalog([sectionValue], chunks, {
+      sourceRef: sourceA,
+      query: "target evidence",
+      resultLimit: 1,
+      candidateLimit: 1,
+      fieldWeights: BM25F_BODY_ONLY_WEIGHTS,
+      structuralBoost: false,
+      excludedChunkRefs: new Set(["chunk:excluded"]),
+    });
+
+    expect(ranked.results.map(({ chunk: result }) => result.ref)).toEqual(["chunk:eligible"]);
+    expect(ranked.diagnostics.positiveCandidateCount).toBe(1);
+    expect(ranked.diagnostics.positiveChunkRefs).toEqual(["chunk:eligible"]);
+  });
 });

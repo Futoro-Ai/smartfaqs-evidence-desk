@@ -45,7 +45,7 @@ const sourceEntrySchema = z
 const commonConceptSchema = z
   .object({
     type: z.string().min(1).max(80),
-    title: z.string().min(1).max(160).optional(),
+    title: z.string().min(1).max(240).optional(),
     description: z.string().min(1).max(500).optional(),
     resource: z.string().min(1).max(500).optional(),
     tags: z.array(z.string().min(1).max(60)).max(32).optional(),
@@ -119,6 +119,7 @@ const evidenceExtensionSchema = z
     page: z.number().int().positive().nullable().optional(),
     kind: z.enum(["text", "table"]),
     keywords: z.array(z.string().min(1).max(60)).min(1).max(32),
+    answer_questions: z.array(z.string().min(8).max(240)).min(1).max(3).optional(),
   })
   .strict();
 
@@ -240,6 +241,33 @@ export function extractMarkdownTable(body, relativePath = "concept") {
     return { headers, rows, start: index, end };
   }
   throw new Error(`table_not_found:${relativePath}`);
+}
+
+function normalizeDoclingTable(text) {
+  try {
+    extractMarkdownTable(text);
+    return text;
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.startsWith("table_not_found:")) {
+      throw error;
+    }
+  }
+
+  const lines = text.trim().split(/\r?\n/);
+  if (!lines.every((line) => line.trim().startsWith("|") && line.trim().endsWith("|"))) {
+    return text;
+  }
+  const rows = lines.map(parseTableRow);
+  const columnCount = rows[0].length;
+  if (columnCount < 2 || rows.some((row) => row.length !== columnCount)) return text;
+
+  // Keep every source row as data; neutral column names do not imply a source header.
+  const headers = Array.from({ length: columnCount }, (_, index) => `Column ${index + 1}`);
+  return [
+    `| ${headers.join(" | ")} |`,
+    `| ${headers.map(() => "---").join(" | ")} |`,
+    ...lines,
+  ].join("\n");
 }
 
 function bodyContent(body, tableRange) {
@@ -593,6 +621,9 @@ export async function compileOkfCatalog(bundleRoot, { publicOnly = true } = {}) 
         ? { table: { headers: tableRange.headers, rows: tableRange.rows } }
         : {}),
       keywords: extension.keywords.map((keyword) => keyword.toLowerCase()),
+      ...(extension.answer_questions
+        ? { answerQuestions: extension.answer_questions }
+        : {}),
     };
   });
 
@@ -973,7 +1004,8 @@ export async function convertDoclingJsonl({
       new Set(
         sectionNode.sectionPath
           .flatMap((heading) => slug(heading).split("-"))
-          .filter((word) => word.length > 1),
+          .filter((word) => word.length > 1)
+          .map((word) => word.slice(0, 60)),
       ),
     ).slice(0, 32);
     const metadata = {
@@ -1031,14 +1063,20 @@ export async function convertDoclingJsonl({
     const stableId = occurrence === 1 ? baseRef : `${baseRef}-${occurrence}`;
     const order = row.chunk_index_in_section ?? row.chunk_index ?? ordinal;
     const fileName = `${String(order).padStart(4, "0")}-${kind}-${digest(stableId, 8)}.md`;
-    const section = headings.join(" > ");
+    const sectionLabel = headings.join(" > ");
+    const section = sectionLabel.length <= 300 ? sectionLabel : headings.at(-1);
     const title = `${headings.at(-1)} ${kind} ${order + 1}`;
     const keywords = Array.from(
-      new Set(headings.flatMap((heading) => slug(heading).split("-")).filter((word) => word.length > 1)),
+      new Set(
+        headings
+          .flatMap((heading) => slug(heading).split("-"))
+          .filter((word) => word.length > 1)
+          .map((word) => word.slice(0, 60)),
+      ),
     ).slice(0, 32);
     const metadata = {
       type: "Evidence",
-      title,
+      title: title.slice(0, 160),
       description: `Bounded ${kind} evidence in ${section}.`,
       status: "draft",
       generated: { by: "process:smartfaqs-docling-okf", at: generatedAt },
@@ -1062,7 +1100,8 @@ export async function convertDoclingJsonl({
       },
     };
     const relativePath = `${currentDirectory}/${fileName}`;
-    files.set(relativePath, conceptMarkdown(metadata, title, row.text));
+    const body = kind === "table" ? normalizeDoclingTable(row.text) : row.text;
+    files.set(relativePath, conceptMarkdown(metadata, title, body));
     addIndexEntry(currentDirectory, {
       kind: "document",
       name: fileName,

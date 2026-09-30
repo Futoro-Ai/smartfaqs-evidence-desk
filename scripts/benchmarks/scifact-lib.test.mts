@@ -118,6 +118,16 @@ describe("SciFact benchmark adapter", () => {
     ).toThrow("invalid_query_limit");
   });
 
+  it("keeps the default title weight while allowing the fixed ablation profile", () => {
+    const benchmark = buildSciFactBenchmark(corpus, claims);
+    expect(evaluateSciFactBenchmark(benchmark).modes.fieldedWithoutHierarchy.config.fieldWeights?.title)
+      .toBe(0.35);
+    expect(evaluateSciFactBenchmark(benchmark, undefined, 0.5)
+      .modes.fieldedWithoutHierarchy.config.fieldWeights?.title).toBe(0.5);
+    expect(() => evaluateSciFactBenchmark(benchmark, undefined, 2))
+      .toThrow("invalid_title_weight");
+  });
+
   it("writes sanitized ICM stage artifacts without benchmark text", async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), "evidence-desk-scifact-"));
     const evaluation = evaluateSciFactBenchmark(
