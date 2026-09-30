@@ -1,0 +1,1248 @@
+{
+  "schemaVersion": "smartfaqs-semantic-baseline.v1",
+  "status": "OFFLINE_EXPERIMENT_COMPLETE_RUNTIME_NOT_PROMOTED",
+  "runtimeEnabled": false,
+  "measurementDate": "2026-09-30",
+  "baseCommit": "fc05585bcb6e5783301a378042667f616919a6e1",
+  "protocolSha256": "4a9190a870350f18f431dbe69a7a3b7080bd22e6fef7c7438e903227c4a03c2a",
+  "encodingVersion": "length-batched-direct-token-windows-mean-query-max-parent.v2",
+  "model": {
+    "repository": "BAAI/bge-small-en-v1.5",
+    "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "dimensions": 384,
+    "license": "MIT"
+  },
+  "hardware": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M1 Max",
+    "cpuCount": 10,
+    "totalMemoryMiB": 32768,
+    "semanticCpuThreads": 4
+  },
+  "preparationSourceSha256": {
+    "scripts/benchmarks/prepare-elmc5.py": "c5e00fbaef51ab76e8d3cb960d870aa424460cebb3b2887d77a77d83d0087c48",
+    "scripts/benchmarks/prepare-semantic-model.py": "527edb08eba87c6d53c428a8f82adb0929a2b345f693f19bbe9b3853193fc513",
+    "scripts/benchmarks/semantic-requirements.lock.txt": "716941d0f64bd164a73e6979ee87c351a1f8fe24fa586a3b79cce4f3b0d4d5c2",
+    "scripts/benchmarks/prepare-bright-robotics.py": "46207111955a48826a750a11d4ba68b50234828bd396487a8252ff46f567a241",
+    "scripts/okf/convert-docling.mjs": "3ea8071dde31bf178f427e301e4a27f6b7dff499343d94e873e664c24c482b0e",
+    "scripts/okf/lib.mjs": "f618c81296d2f115614a6fe18cfa20b343ae0f41e5e80f4e9ffe15ec1066c747"
+  },
+  "goldReview": {
+    "status": "ai_source_review_not_external_human_adjudication",
+    "totalQuestions": 48,
+    "questionsPerSplit": 24,
+    "questionsPerCategoryPerSplit": 6,
+    "sourceReviewedQuestions": 48,
+    "correctedBeforeScoring": 8,
+    "positiveReferencesDisjoint": true,
+    "externalHumanAdjudication": false,
+    "heldoutNowRegression": true,
+    "authorModel": "gpt-6-luna",
+    "reviewModel": "gpt-6.1-sol",
+    "reasoningEffort": "max"
+  },
+  "datasets": [
+    {
+      "dataset": "bright-robotics",
+      "documentCount": 61961,
+      "sourceCount": 1,
+      "queryCount": 101,
+      "answerableQueryCount": 101,
+      "unanswerableNotScoredCount": 0,
+      "semanticStatus": "ok",
+      "fingerprints": {
+        "documentsSha256": "a35852a3195a840327b2c1abf5841281d0dd239f0f68a4236cd6bf68a89fda33",
+        "examplesSha256": "c2fa9f17d7b176f424e792cd81d1e59d7dc6b4cc7a5f1acacac4f83af6d682d5",
+        "semantic-model.v1.json": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+        "semantic-worker.py": "9047f9723472fcb80e681fd9e1fa13923aac9129a6dc4fc34a4042a240c995e6",
+        "semantic-candidates-lib.mts": "b650f35674c4c4bd4c6d8db38eb1ef85e6e2ac0d5405dc6a6b02a8ecfbaab5ec",
+        "run-semantic-candidates.mts": "75b15ab374f3e10f1318b26ab4ced6cad61a40159bb2eebf81608c43d9b4876b",
+        "rankingSha256": "f5eec2077057f91bd3b676f20dcc8d09ee1e8e87dd257a90f8e5f9cbbd651cf8",
+        "protocolSha256": "4a9190a870350f18f431dbe69a7a3b7080bd22e6fef7c7438e903227c4a03c2a"
+      },
+      "reportSha256": "1f5d8b7288e0461b4d4a2729f700b0858e379b43339494426d11f3b8e0a6b387",
+      "pools": [
+        {
+          "poolSize": 20,
+          "lexical": {
+            "hitAt5": 0.207921,
+            "hitAtK": 0.366337,
+            "recallAtK": 0.209308,
+            "ndcgAt10": 0.109251,
+            "completeAt5": 0.207921
+          },
+          "dense": {
+            "hitAt5": 0.247525,
+            "hitAtK": 0.356436,
+            "recallAtK": 0.187711,
+            "ndcgAt10": 0.135366,
+            "completeAt5": 0.247525
+          },
+          "fused": {
+            "hitAt5": 0.257426,
+            "hitAtK": 0.415842,
+            "recallAtK": 0.228414,
+            "ndcgAt10": 0.144383,
+            "completeAt5": 0.257426
+          },
+          "unionOpportunityHit": 0.455446,
+          "lexical2KHit": 0.475248,
+          "meanJaccard": 0.113295,
+          "newRelevantOccurrences": 42,
+          "newlyRecoveredQueries": 9,
+          "top5Gains": 10,
+          "top5Losses": 5,
+          "pairedNdcgDelta95": [
+            0.0003,
+            0.068858
+          ]
+        },
+        {
+          "poolSize": 50,
+          "lexical": {
+            "hitAt5": 0.207921,
+            "hitAtK": 0.49505,
+            "recallAtK": 0.313471,
+            "ndcgAt10": 0.109251,
+            "completeAt5": 0.207921
+          },
+          "dense": {
+            "hitAt5": 0.247525,
+            "hitAtK": 0.455446,
+            "recallAtK": 0.278869,
+            "ndcgAt10": 0.135366,
+            "completeAt5": 0.247525
+          },
+          "fused": {
+            "hitAt5": 0.277228,
+            "hitAtK": 0.485149,
+            "recallAtK": 0.301999,
+            "ndcgAt10": 0.146349,
+            "completeAt5": 0.277228
+          },
+          "unionOpportunityHit": 0.594059,
+          "lexical2KHit": 0.574257,
+          "meanJaccard": 0.114588,
+          "newRelevantOccurrences": 49,
+          "newlyRecoveredQueries": 10,
+          "top5Gains": 12,
+          "top5Losses": 5,
+          "pairedNdcgDelta95": [
+            -0.005156,
+            0.075218
+          ]
+        },
+        {
+          "poolSize": 100,
+          "lexical": {
+            "hitAt5": 0.207921,
+            "hitAtK": 0.574257,
+            "recallAtK": 0.398531,
+            "ndcgAt10": 0.109251,
+            "completeAt5": 0.207921
+          },
+          "dense": {
+            "hitAt5": 0.247525,
+            "hitAtK": 0.564356,
+            "recallAtK": 0.370757,
+            "ndcgAt10": 0.135366,
+            "completeAt5": 0.247525
+          },
+          "fused": {
+            "hitAt5": 0.287129,
+            "hitAtK": 0.613861,
+            "recallAtK": 0.408462,
+            "ndcgAt10": 0.155102,
+            "completeAt5": 0.287129
+          },
+          "unionOpportunityHit": 0.693069,
+          "lexical2KHit": 0.663366,
+          "meanJaccard": 0.119692,
+          "newRelevantOccurrences": 60,
+          "newlyRecoveredQueries": 12,
+          "top5Gains": 13,
+          "top5Losses": 5,
+          "pairedNdcgDelta95": [
+            0.00249,
+            0.084314
+          ]
+        }
+      ]
+    },
+    {
+      "dataset": "elm-development",
+      "documentCount": 3575,
+      "sourceCount": 1,
+      "queryCount": 24,
+      "answerableQueryCount": 18,
+      "unanswerableNotScoredCount": 6,
+      "semanticStatus": "ok",
+      "fingerprints": {
+        "catalogSha256": "cbe018fe31b4cd798514ecd123e018043a8d8099cee3c9eb242200ced95f746b",
+        "extractionReviewSha256": "56e8ecefe6d8d5e1840e0ccdd9cdf3bef9ef929bbd446d0ad62d9d30e09bb239",
+        "goldSha256": "ae3c0f13cdc0b85db8708d3432d8837d498ddec40063576e479936dc711a45f6",
+        "semantic-model.v1.json": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+        "semantic-worker.py": "9047f9723472fcb80e681fd9e1fa13923aac9129a6dc4fc34a4042a240c995e6",
+        "semantic-candidates-lib.mts": "b650f35674c4c4bd4c6d8db38eb1ef85e6e2ac0d5405dc6a6b02a8ecfbaab5ec",
+        "run-semantic-candidates.mts": "75b15ab374f3e10f1318b26ab4ced6cad61a40159bb2eebf81608c43d9b4876b",
+        "rankingSha256": "f5eec2077057f91bd3b676f20dcc8d09ee1e8e87dd257a90f8e5f9cbbd651cf8",
+        "protocolSha256": "4a9190a870350f18f431dbe69a7a3b7080bd22e6fef7c7438e903227c4a03c2a"
+      },
+      "reportSha256": "f7223529aeffecee11fa7566ab5bad22d9c6dabc93527d51cb60265edcd95d15",
+      "extractionProvenance": {
+        "schemaVersion": "smartfaqs-elm-extraction-review.v1",
+        "pdfSha256": "652d1612fdff0bb6e85546b981db5ddc59496ad7a27b65c5e88b5efb6b24de95",
+        "exportSha256": "f88fc5d4abc336ec9e06d3fb26404116504682314b1222adc44ff0dd52436619",
+        "doclingExportSha256": "c1fc636e672c1cfd172ba19a4118b677213fbfb3e30a2708c70a1d08bbe45d84",
+        "unverifiedGoldTablePages": [
+          221
+        ],
+        "emptyTableItemCount": 1,
+        "warnings": [
+          {
+            "code": "docling_table_cells_dropped",
+            "cellCount": 4,
+            "mappingStatus": "not_verified"
+          }
+        ],
+        "goldExcludedTableCount": 1,
+        "catalogTableCount": 51
+      },
+      "pools": [
+        {
+          "poolSize": 20,
+          "lexical": {
+            "hitAt5": 0.833333,
+            "hitAtK": 0.888889,
+            "recallAtK": 0.789815,
+            "ndcgAt10": 0.583971,
+            "completeAt5": 0.444444
+          },
+          "dense": {
+            "hitAt5": 0.888889,
+            "hitAtK": 0.944444,
+            "recallAtK": 0.82963,
+            "ndcgAt10": 0.664155,
+            "completeAt5": 0.5
+          },
+          "fused": {
+            "hitAt5": 0.833333,
+            "hitAtK": 1,
+            "recallAtK": 0.903704,
+            "ndcgAt10": 0.604526,
+            "completeAt5": 0.5
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 0.888889,
+          "meanJaccard": 0.364263,
+          "newRelevantOccurrences": 4,
+          "newlyRecoveredQueries": 2,
+          "top5Gains": 1,
+          "top5Losses": 1,
+          "pairedNdcgDelta95": [
+            -0.080673,
+            0.102975
+          ],
+          "categories": {
+            "table_numeric": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.726805,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.751358,
+                "completeAt5": 0.833333
+              },
+              "fused": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.760479,
+                "completeAt5": 1
+              }
+            },
+            "negation_exception": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 0.833333,
+                "recallAtK": 0.716667,
+                "ndcgAt10": 0.545822,
+                "completeAt5": 0.5
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 0.833333,
+                "recallAtK": 0.766667,
+                "ndcgAt10": 0.641008,
+                "completeAt5": 0.5
+              },
+              "fused": {
+                "hitAt5": 0.666667,
+                "hitAtK": 1,
+                "recallAtK": 0.933333,
+                "ndcgAt10": 0.509485,
+                "completeAt5": 0.333333
+              }
+            },
+            "multi_passage": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 0.833333,
+                "recallAtK": 0.652778,
+                "ndcgAt10": 0.479286,
+                "completeAt5": 0.166667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.722222,
+                "ndcgAt10": 0.6001,
+                "completeAt5": 0.166667
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.777778,
+                "ndcgAt10": 0.543613,
+                "completeAt5": 0.166667
+              }
+            }
+          }
+        },
+        {
+          "poolSize": 50,
+          "lexical": {
+            "hitAt5": 0.833333,
+            "hitAtK": 0.888889,
+            "recallAtK": 0.847222,
+            "ndcgAt10": 0.583971,
+            "completeAt5": 0.444444
+          },
+          "dense": {
+            "hitAt5": 0.888889,
+            "hitAtK": 1,
+            "recallAtK": 0.953704,
+            "ndcgAt10": 0.664155,
+            "completeAt5": 0.5
+          },
+          "fused": {
+            "hitAt5": 0.833333,
+            "hitAtK": 1,
+            "recallAtK": 0.944444,
+            "ndcgAt10": 0.557735,
+            "completeAt5": 0.5
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 0.944444,
+          "meanJaccard": 0.330482,
+          "newRelevantOccurrences": 5,
+          "newlyRecoveredQueries": 2,
+          "top5Gains": 1,
+          "top5Losses": 1,
+          "pairedNdcgDelta95": [
+            -0.150569,
+            0.05774
+          ],
+          "categories": {
+            "table_numeric": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.726805,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.751358,
+                "completeAt5": 0.833333
+              },
+              "fused": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.760479,
+                "completeAt5": 1
+              }
+            },
+            "negation_exception": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 0.833333,
+                "recallAtK": 0.833333,
+                "ndcgAt10": 0.545822,
+                "completeAt5": 0.5
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.641008,
+                "completeAt5": 0.5
+              },
+              "fused": {
+                "hitAt5": 0.666667,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.401352,
+                "completeAt5": 0.333333
+              }
+            },
+            "multi_passage": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 0.833333,
+                "recallAtK": 0.708333,
+                "ndcgAt10": 0.479286,
+                "completeAt5": 0.166667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.861111,
+                "ndcgAt10": 0.6001,
+                "completeAt5": 0.166667
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.833333,
+                "ndcgAt10": 0.511376,
+                "completeAt5": 0.166667
+              }
+            }
+          }
+        },
+        {
+          "poolSize": 100,
+          "lexical": {
+            "hitAt5": 0.833333,
+            "hitAtK": 0.944444,
+            "recallAtK": 0.902778,
+            "ndcgAt10": 0.583971,
+            "completeAt5": 0.444444
+          },
+          "dense": {
+            "hitAt5": 0.888889,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 0.664155,
+            "completeAt5": 0.5
+          },
+          "fused": {
+            "hitAt5": 0.833333,
+            "hitAtK": 1,
+            "recallAtK": 0.972222,
+            "ndcgAt10": 0.574459,
+            "completeAt5": 0.5
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 1,
+          "meanJaccard": 0.311283,
+          "newRelevantOccurrences": 5,
+          "newlyRecoveredQueries": 1,
+          "top5Gains": 1,
+          "top5Losses": 1,
+          "pairedNdcgDelta95": [
+            -0.141234,
+            0.083474
+          ],
+          "categories": {
+            "table_numeric": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.726805,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.751358,
+                "completeAt5": 0.833333
+              },
+              "fused": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.760479,
+                "completeAt5": 1
+              }
+            },
+            "negation_exception": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.545822,
+                "completeAt5": 0.5
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.641008,
+                "completeAt5": 0.5
+              },
+              "fused": {
+                "hitAt5": 0.666667,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.451523,
+                "completeAt5": 0.333333
+              }
+            },
+            "multi_passage": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 0.833333,
+                "recallAtK": 0.708333,
+                "ndcgAt10": 0.479286,
+                "completeAt5": 0.166667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.6001,
+                "completeAt5": 0.166667
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.916667,
+                "ndcgAt10": 0.511376,
+                "completeAt5": 0.166667
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "elm-heldout",
+      "documentCount": 3575,
+      "sourceCount": 1,
+      "queryCount": 24,
+      "answerableQueryCount": 18,
+      "unanswerableNotScoredCount": 6,
+      "semanticStatus": "ok",
+      "fingerprints": {
+        "catalogSha256": "cbe018fe31b4cd798514ecd123e018043a8d8099cee3c9eb242200ced95f746b",
+        "extractionReviewSha256": "56e8ecefe6d8d5e1840e0ccdd9cdf3bef9ef929bbd446d0ad62d9d30e09bb239",
+        "goldSha256": "036170dacbcd351ee12f1fa6c910cd323ca779f42d261c610484b108e1c2d80a",
+        "semantic-model.v1.json": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+        "semantic-worker.py": "9047f9723472fcb80e681fd9e1fa13923aac9129a6dc4fc34a4042a240c995e6",
+        "semantic-candidates-lib.mts": "b650f35674c4c4bd4c6d8db38eb1ef85e6e2ac0d5405dc6a6b02a8ecfbaab5ec",
+        "run-semantic-candidates.mts": "75b15ab374f3e10f1318b26ab4ced6cad61a40159bb2eebf81608c43d9b4876b",
+        "rankingSha256": "f5eec2077057f91bd3b676f20dcc8d09ee1e8e87dd257a90f8e5f9cbbd651cf8",
+        "protocolSha256": "4a9190a870350f18f431dbe69a7a3b7080bd22e6fef7c7438e903227c4a03c2a"
+      },
+      "reportSha256": "4238efec140b8319bf95f6285412d22b1eb2311c919e079a381dcfb3b5f76c50",
+      "extractionProvenance": {
+        "schemaVersion": "smartfaqs-elm-extraction-review.v1",
+        "pdfSha256": "652d1612fdff0bb6e85546b981db5ddc59496ad7a27b65c5e88b5efb6b24de95",
+        "exportSha256": "f88fc5d4abc336ec9e06d3fb26404116504682314b1222adc44ff0dd52436619",
+        "doclingExportSha256": "c1fc636e672c1cfd172ba19a4118b677213fbfb3e30a2708c70a1d08bbe45d84",
+        "unverifiedGoldTablePages": [
+          221
+        ],
+        "emptyTableItemCount": 1,
+        "warnings": [
+          {
+            "code": "docling_table_cells_dropped",
+            "cellCount": 4,
+            "mappingStatus": "not_verified"
+          }
+        ],
+        "goldExcludedTableCount": 1,
+        "catalogTableCount": 51
+      },
+      "pools": [
+        {
+          "poolSize": 20,
+          "lexical": {
+            "hitAt5": 0.833333,
+            "hitAtK": 1,
+            "recallAtK": 0.925926,
+            "ndcgAt10": 0.633721,
+            "completeAt5": 0.5
+          },
+          "dense": {
+            "hitAt5": 0.944444,
+            "hitAtK": 1,
+            "recallAtK": 0.916667,
+            "ndcgAt10": 0.802237,
+            "completeAt5": 0.722222
+          },
+          "fused": {
+            "hitAt5": 0.888889,
+            "hitAtK": 1,
+            "recallAtK": 0.953704,
+            "ndcgAt10": 0.732433,
+            "completeAt5": 0.611111
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 1,
+          "meanJaccard": 0.309354,
+          "newRelevantOccurrences": 2,
+          "newlyRecoveredQueries": 0,
+          "top5Gains": 1,
+          "top5Losses": 0,
+          "pairedNdcgDelta95": [
+            0.037992,
+            0.154571
+          ],
+          "categories": {
+            "table_numeric": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.944444,
+                "ndcgAt10": 0.573087,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.944444,
+                "ndcgAt10": 0.801032,
+                "completeAt5": 0.666667
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.694044,
+                "completeAt5": 0.666667
+              }
+            },
+            "negation_exception": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.916667,
+                "ndcgAt10": 0.635786,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.783726,
+                "completeAt5": 0.833333
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.725186,
+                "completeAt5": 0.666667
+              }
+            },
+            "multi_passage": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.916667,
+                "ndcgAt10": 0.69229,
+                "completeAt5": 0.166667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.805556,
+                "ndcgAt10": 0.821951,
+                "completeAt5": 0.666667
+              },
+              "fused": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.861111,
+                "ndcgAt10": 0.778069,
+                "completeAt5": 0.5
+              }
+            }
+          }
+        },
+        {
+          "poolSize": 50,
+          "lexical": {
+            "hitAt5": 0.833333,
+            "hitAtK": 1,
+            "recallAtK": 0.986111,
+            "ndcgAt10": 0.633721,
+            "completeAt5": 0.5
+          },
+          "dense": {
+            "hitAt5": 0.944444,
+            "hitAtK": 1,
+            "recallAtK": 0.967593,
+            "ndcgAt10": 0.802237,
+            "completeAt5": 0.722222
+          },
+          "fused": {
+            "hitAt5": 0.888889,
+            "hitAtK": 1,
+            "recallAtK": 0.986111,
+            "ndcgAt10": 0.742621,
+            "completeAt5": 0.611111
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 1,
+          "meanJaccard": 0.314282,
+          "newRelevantOccurrences": 0,
+          "newlyRecoveredQueries": 0,
+          "top5Gains": 1,
+          "top5Losses": 0,
+          "pairedNdcgDelta95": [
+            0.043801,
+            0.165017
+          ],
+          "categories": {
+            "table_numeric": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.573087,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.801032,
+                "completeAt5": 0.666667
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.695833,
+                "completeAt5": 0.666667
+              }
+            },
+            "negation_exception": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.635786,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.783726,
+                "completeAt5": 0.833333
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.757424,
+                "completeAt5": 0.666667
+              }
+            },
+            "multi_passage": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.958333,
+                "ndcgAt10": 0.69229,
+                "completeAt5": 0.166667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.902778,
+                "ndcgAt10": 0.821951,
+                "completeAt5": 0.666667
+              },
+              "fused": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.958333,
+                "ndcgAt10": 0.774606,
+                "completeAt5": 0.5
+              }
+            }
+          }
+        },
+        {
+          "poolSize": 100,
+          "lexical": {
+            "hitAt5": 0.833333,
+            "hitAtK": 1,
+            "recallAtK": 0.986111,
+            "ndcgAt10": 0.633721,
+            "completeAt5": 0.5
+          },
+          "dense": {
+            "hitAt5": 0.944444,
+            "hitAtK": 1,
+            "recallAtK": 0.967593,
+            "ndcgAt10": 0.802237,
+            "completeAt5": 0.722222
+          },
+          "fused": {
+            "hitAt5": 0.888889,
+            "hitAtK": 1,
+            "recallAtK": 0.986111,
+            "ndcgAt10": 0.742621,
+            "completeAt5": 0.611111
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 1,
+          "meanJaccard": 0.30926,
+          "newRelevantOccurrences": 0,
+          "newlyRecoveredQueries": 0,
+          "top5Gains": 1,
+          "top5Losses": 0,
+          "pairedNdcgDelta95": [
+            0.043801,
+            0.165017
+          ],
+          "categories": {
+            "table_numeric": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.573087,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.801032,
+                "completeAt5": 0.666667
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.695833,
+                "completeAt5": 0.666667
+              }
+            },
+            "negation_exception": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.635786,
+                "completeAt5": 0.666667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.783726,
+                "completeAt5": 0.833333
+              },
+              "fused": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 1,
+                "ndcgAt10": 0.757424,
+                "completeAt5": 0.666667
+              }
+            },
+            "multi_passage": {
+              "lexical": {
+                "hitAt5": 0.833333,
+                "hitAtK": 1,
+                "recallAtK": 0.958333,
+                "ndcgAt10": 0.69229,
+                "completeAt5": 0.166667
+              },
+              "dense": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.902778,
+                "ndcgAt10": 0.821951,
+                "completeAt5": 0.666667
+              },
+              "fused": {
+                "hitAt5": 1,
+                "hitAtK": 1,
+                "recallAtK": 0.958333,
+                "ndcgAt10": 0.774606,
+                "completeAt5": 0.5
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "northstar-regression",
+      "documentCount": 10,
+      "sourceCount": 3,
+      "queryCount": 15,
+      "answerableQueryCount": 9,
+      "unanswerableNotScoredCount": 6,
+      "semanticStatus": "ok",
+      "fingerprints": {
+        "catalogSha256": "8aa0d80081482670ebecdd4c05818a63dfe6f2dc99697bbb90f18fc59f56a6af",
+        "goldSha256": "c14f4355a16f031a80c2cb353b467f75e9ff83bbc7c27de6712ee0267fffae38",
+        "semantic-model.v1.json": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+        "semantic-worker.py": "9047f9723472fcb80e681fd9e1fa13923aac9129a6dc4fc34a4042a240c995e6",
+        "semantic-candidates-lib.mts": "b650f35674c4c4bd4c6d8db38eb1ef85e6e2ac0d5405dc6a6b02a8ecfbaab5ec",
+        "run-semantic-candidates.mts": "75b15ab374f3e10f1318b26ab4ced6cad61a40159bb2eebf81608c43d9b4876b",
+        "rankingSha256": "f5eec2077057f91bd3b676f20dcc8d09ee1e8e87dd257a90f8e5f9cbbd651cf8",
+        "protocolSha256": "4a9190a870350f18f431dbe69a7a3b7080bd22e6fef7c7438e903227c4a03c2a"
+      },
+      "reportSha256": "e47e99df5f2816e1421907b7993515db9e0c5533f0040f5c436a86443e2b974e",
+      "pools": [
+        {
+          "poolSize": 20,
+          "lexical": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "dense": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "fused": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 1,
+          "meanJaccard": 0.703704,
+          "newRelevantOccurrences": 0,
+          "newlyRecoveredQueries": 0,
+          "top5Gains": 0,
+          "top5Losses": 0,
+          "pairedNdcgDelta95": [
+            0,
+            0
+          ]
+        },
+        {
+          "poolSize": 50,
+          "lexical": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "dense": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "fused": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 1,
+          "meanJaccard": 0.703704,
+          "newRelevantOccurrences": 0,
+          "newlyRecoveredQueries": 0,
+          "top5Gains": 0,
+          "top5Losses": 0,
+          "pairedNdcgDelta95": [
+            0,
+            0
+          ]
+        },
+        {
+          "poolSize": 100,
+          "lexical": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "dense": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "fused": {
+            "hitAt5": 1,
+            "hitAtK": 1,
+            "recallAtK": 1,
+            "ndcgAt10": 1,
+            "completeAt5": 1
+          },
+          "unionOpportunityHit": 1,
+          "lexical2KHit": 1,
+          "meanJaccard": 0.703704,
+          "newRelevantOccurrences": 0,
+          "newlyRecoveredQueries": 0,
+          "top5Gains": 0,
+          "top5Losses": 0,
+          "pairedNdcgDelta95": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "performance": {
+    "bright": {
+      "coldReportSha256": "1f5d8b7288e0461b4d4a2729f700b0858e379b43339494426d11f3b8e0a6b387",
+      "warmReportSha256": "2c0eac7ab3d45f4f4eed9f1243987ced245677d79948aee854d98c73c85d0a2e",
+      "coldWallMs": 1003112.208208,
+      "warmWallMs": 19612.0545,
+      "coldReceipt": {
+        "startupMs": 8074.136,
+        "peakRssMiB": 1236.141,
+        "indexReceipts": [
+          {
+            "schemaVersion": "smartfaqs-semantic-index.v1",
+            "identity": "f53bf7e05a4c3f2b9cc194f991ac3a84f3599ccad85860f7e26ca3949de86ecb",
+            "corpusSha256": "1aeb5079c438668d176e4fadbb8ba94160718280a746f4db50b384af1f419aa3",
+            "modelManifestSha256": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+            "dimension": 384,
+            "documentCount": 61961,
+            "windowCount": 69918,
+            "inputTokenCount": 6801685,
+            "multiWindowDocumentCount": 4156,
+            "discardedTokenCount": 0,
+            "buildMs": 980601.359,
+            "vectorsSha256": "be73ba9e5c8ed140b361a455188e73cf3af58107d600d06d62022c02ad6c67b3",
+            "parentsSha256": "37947bbcde442d17de497ece380f9530a3cb48d63b3105a8bc60267d2ece8280",
+            "sourceHash": "1106844dbd775e21fd2d580c",
+            "cacheHit": false,
+            "cacheBytes": 107673976
+          }
+        ],
+        "discardedTokenCount": 0,
+        "multiWindowQueryCount": 30,
+        "latencyMs": {
+          "median": 49.391,
+          "p95": 398.677
+        }
+      },
+      "warmReceipt": {
+        "startupMs": 7777.512,
+        "peakRssMiB": 1180.312,
+        "indexReceipts": [
+          {
+            "schemaVersion": "smartfaqs-semantic-index.v1",
+            "identity": "f53bf7e05a4c3f2b9cc194f991ac3a84f3599ccad85860f7e26ca3949de86ecb",
+            "corpusSha256": "1aeb5079c438668d176e4fadbb8ba94160718280a746f4db50b384af1f419aa3",
+            "modelManifestSha256": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+            "dimension": 384,
+            "documentCount": 61961,
+            "windowCount": 69918,
+            "inputTokenCount": 6801685,
+            "multiWindowDocumentCount": 4156,
+            "discardedTokenCount": 0,
+            "buildMs": 980601.359,
+            "vectorsSha256": "be73ba9e5c8ed140b361a455188e73cf3af58107d600d06d62022c02ad6c67b3",
+            "parentsSha256": "37947bbcde442d17de497ece380f9530a3cb48d63b3105a8bc60267d2ece8280",
+            "sourceHash": "1106844dbd775e21fd2d580c",
+            "cacheHit": true,
+            "cacheBytes": 107673976
+          }
+        ],
+        "discardedTokenCount": 0,
+        "multiWindowQueryCount": 30,
+        "latencyMs": {
+          "median": 45.231,
+          "p95": 411.845
+        }
+      },
+      "sameRankingMetrics": true
+    },
+    "elm": {
+      "coldReportSha256": "f7223529aeffecee11fa7566ab5bad22d9c6dabc93527d51cb60265edcd95d15",
+      "warmReportSha256": "0720071c0344461578f6569bafcdaa775332eff303a4481351c53d316763323e",
+      "coldWallMs": 63937.316584,
+      "warmWallMs": 12431.92275,
+      "coldReceipt": {
+        "startupMs": 8136.308,
+        "peakRssMiB": 1029.609,
+        "indexReceipts": [
+          {
+            "schemaVersion": "smartfaqs-semantic-index.v1",
+            "identity": "de2c38466db968c6fcf800d132ff00b387467abd4c3fdbf26500d51ef4a30557",
+            "corpusSha256": "87d2abea290da9d111c332793e94f39779c76046d030d579f13f9effb9676307",
+            "modelManifestSha256": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+            "dimension": 384,
+            "documentCount": 3575,
+            "windowCount": 3597,
+            "inputTokenCount": 288032,
+            "multiWindowDocumentCount": 9,
+            "discardedTokenCount": 0,
+            "buildMs": 54523.966,
+            "vectorsSha256": "30c22a39b726ea961503182976d0ecceb94d0e2c0f0786bd04bd1a2974b3eb8f",
+            "parentsSha256": "ab81521fe215e66cc49d618588d5f02959a9a01febd23ba6561ee462c6c1161d",
+            "sourceHash": "30550f5eda8b6ba5e36b6692",
+            "cacheHit": false,
+            "cacheBytes": 5539636
+          }
+        ],
+        "discardedTokenCount": 0,
+        "multiWindowQueryCount": 0,
+        "latencyMs": {
+          "median": 13.652,
+          "p95": 15.293
+        }
+      },
+      "warmReceipt": {
+        "startupMs": 10726.7,
+        "peakRssMiB": 453.703,
+        "indexReceipts": [
+          {
+            "schemaVersion": "smartfaqs-semantic-index.v1",
+            "identity": "de2c38466db968c6fcf800d132ff00b387467abd4c3fdbf26500d51ef4a30557",
+            "corpusSha256": "87d2abea290da9d111c332793e94f39779c76046d030d579f13f9effb9676307",
+            "modelManifestSha256": "c856705d4df76606fee839c92408828d219e57505861b660060b528f67aebfdb",
+            "dimension": 384,
+            "documentCount": 3575,
+            "windowCount": 3597,
+            "inputTokenCount": 288032,
+            "multiWindowDocumentCount": 9,
+            "discardedTokenCount": 0,
+            "buildMs": 54523.966,
+            "vectorsSha256": "30c22a39b726ea961503182976d0ecceb94d0e2c0f0786bd04bd1a2974b3eb8f",
+            "parentsSha256": "ab81521fe215e66cc49d618588d5f02959a9a01febd23ba6561ee462c6c1161d",
+            "sourceHash": "30550f5eda8b6ba5e36b6692",
+            "cacheHit": true,
+            "cacheBytes": 5539636
+          }
+        ],
+        "discardedTokenCount": 0,
+        "multiWindowQueryCount": 0,
+        "latencyMs": {
+          "median": 18.708,
+          "p95": 36.349
+        }
+      },
+      "sameRankingMetrics": true
+    }
+  },
+  "gateResults": {
+    "brightNewlyRecoveredQueriesAt100": {
+      "required": 6,
+      "observed": 12,
+      "status": "PASS"
+    },
+    "brightFusedNdcgGainAt10": {
+      "required": 0.01,
+      "observed": 0.045851,
+      "status": "PASS"
+    },
+    "elmAggregateCompleteAt5DoesNotRegress": {
+      "developmentLexical": 0.444444,
+      "developmentFused": 0.5,
+      "heldoutLexical": 0.5,
+      "heldoutFused": 0.611111,
+      "status": "PASS"
+    },
+    "warmQueryP95Ms": {
+      "maximum": 1500,
+      "bright": 411.845,
+      "elm": 36.349,
+      "status": "PASS"
+    },
+    "peakWorkerRssMiB": {
+      "maximum": 2048,
+      "observed": 1236.141,
+      "status": "PASS"
+    },
+    "externalHumanGoldAdjudication": {
+      "status": "NOT_DEMONSTRATED"
+    },
+    "additionalCategoryNonRegressionSafeguard": {
+      "frozenAggregateGateUnchanged": true,
+      "developmentNegationLexical": 0.5,
+      "developmentNegationFused": 0.333333,
+      "status": "FAIL"
+    },
+    "runtimePromotion": {
+      "status": "BLOCKED",
+      "reasons": [
+        "external_human_gold_adjudication_not_demonstrated",
+        "development_negation_complete_evidence_regression"
+      ],
+      "rerankingDeferred": true
+    }
+  },
+  "retainedFailedAttempts": [
+    {
+      "reportSha256": "d3acc3809a6ae63486aa89b374be03ec3ce7a276a0b4d474476475f83a6cba76",
+      "status": "LEXICAL_FALLBACK",
+      "reason": "semantic_timeout",
+      "countedAsSemanticMeasurement": false
+    },
+    {
+      "reportSha256": "d45e3c57575c7e1597dcc445584b01400db919fadf0197d844bb2076fd8ec6cc",
+      "status": "LEXICAL_FALLBACK",
+      "reason": "stopped_for_cache_hardening",
+      "countedAsSemanticMeasurement": false
+    }
+  ],
+  "metricDefinitions": {
+    "lexical2KHit": "Hit rate at lexical depth 2*poolSize (40, 100, 200), not at depth 2000.",
+    "newlyRecoveredQueries": "Dense top-K hits with no lexical top-K hit; not net fused successes.",
+    "unionOpportunityHit": "Hit anywhere in at most 2*K union candidates; not fixed-budget quality.",
+    "completeAt5": "At least one alternative from every required group; answerable queries only."
+  },
+  "brightPreparation": {
+    "dataset": "xlangai/BRIGHT",
+    "revision": "3066d29c9651a576c8aba4832d249807b181ecae",
+    "split": "robotics",
+    "receiptSha256": "bae575cf2cb7266f7b89b572dfb6564258bf80c4b6cbeea85d2babba916adb5f",
+    "sourceParquetSha256": {
+      "documents": "2c83f286006a3b2e11a677abe88f382009c5ee79f97c1f43f6a571f3f94e6d15",
+      "examples": "621484c87c9ebae12f81e32a0a8c5d085af4b95cbe1b575ab40ae4b659adb53a"
+    },
+    "conversion": "Pinned pyarrow 21.0.0; evaluated JSONL fingerprints appear in the dataset record."
+  },
+  "limitations": [
+    "Offline robotics only; no official leaderboard submission or complete BRIGHT average.",
+    "Same-manual AI-reviewed ELM5 question holdout, not external human adjudication or independent corpus.",
+    "Unanswerables are counted but not scored; no answer generation or abstention certification.",
+    "Four Docling cells dropped with unverified table mapping; one uncertain table excluded from positive gold.",
+    "Gold and source content are private local artifacts; exact ELM reproduction needs the reviewed gold files.",
+    "Eight numbered-section hints and one internally inconsistent printed arithmetic example remain disclosed.",
+    "Group alternatives flatten for recall/nDCG; only complete@5 uses OR-within/AND-across semantics.",
+    "Per-query latency excludes startup; no OS-enforced memory cap or production admission control.",
+    "Docling model snapshots are not fully pinned; export hashes control the evaluated extraction.",
+    "Existing npm dependency advisories were not remediated by this scoped experiment.",
+    "No audit of embedding-model training-data overlap is claimed."
+  ]
+}
