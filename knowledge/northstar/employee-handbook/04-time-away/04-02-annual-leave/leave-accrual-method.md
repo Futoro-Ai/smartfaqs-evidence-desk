@@ -20,6 +20,7 @@ smartfaqs:
   page: 19
   kind: text
   keywords: [leave, credited, accrued, pay, period, balance, portal]
+  answer_questions: ["How often is vacation time added to my balance?"]
 ---
 
 # How leave is recorded

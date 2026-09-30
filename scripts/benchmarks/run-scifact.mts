@@ -21,6 +21,7 @@ const dataDirectory = path.join(benchmarkRoot, "data");
 
 function parseArguments(values: string[]) {
   let queryLimit: number | undefined;
+  let titleWeight = 0.35;
   let save = true;
   for (let index = 0; index < values.length; index += 1) {
     const argument = values[index];
@@ -30,11 +31,15 @@ function parseArguments(values: string[]) {
       queryLimit = Number(value);
     } else if (argument === "--no-save") {
       save = false;
+    } else if (argument === "--title-weight") {
+      const value = values[++index];
+      if (value !== "0.35" && value !== "0.5") throw new Error("invalid_title_weight");
+      titleWeight = Number(value);
     } else {
       throw new Error(`unknown_option:${argument}`);
     }
   }
-  return { queryLimit, save };
+  return { queryLimit, save, titleWeight };
 }
 
 async function run() {
@@ -51,7 +56,7 @@ async function run() {
   );
   const startedAt = performance.now();
   const benchmark = buildSciFactBenchmark(corpus, claims);
-  const evaluation = evaluateSciFactBenchmark(benchmark, options.queryLimit);
+  const evaluation = evaluateSciFactBenchmark(benchmark, options.queryLimit, options.titleWeight);
   const report = {
     ...evaluation,
     generatedAt: new Date().toISOString(),
@@ -62,13 +67,20 @@ async function run() {
         path.join(dataDirectory, "claims_dev.jsonl"),
       ),
     },
+    implementationFingerprints: {
+      rankingSha256: await sha256File(path.join(repositoryRoot, "src/lib/evidence/ranking.ts")),
+      evaluatorSha256: await sha256File(path.join(repositoryRoot, "scripts/benchmarks/scifact-lib.mts")),
+      runnerSha256: await sha256File(path.join(repositoryRoot, "scripts/benchmarks/run-scifact.mts")),
+    },
   };
   let reportPath: string | null = null;
   let workspacePath: string | null = null;
   if (options.save) {
-    const runName = options.queryLimit
+    const baseRunName = options.queryLimit
       ? `scifact-first-${options.queryLimit}`
       : "scifact-full";
+    const runName = options.titleWeight === 0.35
+      ? baseRunName : `${baseRunName}-title-${options.titleWeight}`;
     const reportName = `${runName}.json`;
     reportPath = path.join(benchmarkRoot, "results", reportName);
     await mkdir(path.dirname(reportPath), { recursive: true });
@@ -87,6 +99,7 @@ async function run() {
         eligibleQueryCount: report.eligibleQueryCount,
         evaluatedQueryCount: report.evaluatedQueryCount,
         durationMs: report.durationMs,
+        titleWeight: options.titleWeight,
         bodyOnlyMetrics: report.modes.lexicalBodyOnly.metrics,
         fieldedMetrics: report.modes.fieldedWithoutHierarchy.metrics,
         hierarchyMetrics: report.modes.fieldedWithHierarchy.metrics,

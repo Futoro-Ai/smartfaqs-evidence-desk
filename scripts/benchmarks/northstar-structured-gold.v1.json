@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "smartfaqs-okf-retrieval-gold.v1",
+  "sourceRef": "source:employee-handbook",
+  "queries": [
+    {
+      "id": "part-time-proration",
+      "query": "How is annual leave prorated for part-time employees?",
+      "relevantChunkRefs": ["chunk:leave-eligibility"],
+      "relevantSectionRefs": ["section:employee-handbook-time-away-eligibility"]
+    },
+    {
+      "id": "full-time-eligibility",
+      "query": "Which employees can participate in annual leave?",
+      "relevantChunkRefs": ["chunk:leave-eligibility"],
+      "relevantSectionRefs": ["section:employee-handbook-time-away-eligibility"]
+    },
+    {
+      "id": "leave-schedule",
+      "query": "What does the annual leave schedule give by years of service?",
+      "relevantChunkRefs": ["chunk:leave-accrual-table"],
+      "relevantSectionRefs": ["section:employee-handbook-annual-leave"]
+    },
+    {
+      "id": "working-hours-per-day",
+      "query": "How many working hours count as one annual leave day?",
+      "relevantChunkRefs": ["chunk:leave-accrual-table"],
+      "relevantSectionRefs": ["section:employee-handbook-annual-leave"]
+    },
+    {
+      "id": "biweekly-crediting",
+      "query": "When is annual leave credited to employees?",
+      "relevantChunkRefs": ["chunk:leave-accrual-method"],
+      "relevantSectionRefs": ["section:employee-handbook-annual-leave"]
+    },
+    {
+      "id": "balance-location",
+      "query": "Where can employees review accrued and scheduled leave balances?",
+      "relevantChunkRefs": ["chunk:leave-accrual-method"],
+      "relevantSectionRefs": ["section:employee-handbook-annual-leave"]
+    },
+    {
+      "id": "holidays-separate",
+      "query": "Is holiday time separate from annual leave?",
+      "relevantChunkRefs": ["chunk:holiday-schedule"],
+      "relevantSectionRefs": ["section:employee-handbook-holidays"]
+    },
+    {
+      "id": "holiday-calendar",
+      "query": "When does Northstar publish the observed holiday calendar?",
+      "relevantChunkRefs": ["chunk:holiday-schedule"],
+      "relevantSectionRefs": ["section:employee-handbook-holidays"]
+    },
+    {
+      "id": "allowance-and-crediting",
+      "query": "What annual leave allowance applies and how is it credited?",
+      "relevantChunkRefs": ["chunk:leave-accrual-table", "chunk:leave-accrual-method"],
+      "relevantSectionRefs": ["section:employee-handbook-annual-leave"]
+    },
+    {
+      "id": "part-time-vs-full-time",
+      "query": "How does the full-time leave schedule apply to part-time employees?",
+      "relevantChunkRefs": ["chunk:leave-eligibility", "chunk:leave-accrual-table"],
+      "relevantSectionRefs": ["section:employee-handbook-time-away-eligibility", "section:employee-handbook-annual-leave"]
+    }
+  ]
+}

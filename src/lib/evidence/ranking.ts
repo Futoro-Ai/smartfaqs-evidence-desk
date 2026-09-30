@@ -21,6 +21,7 @@ export type SearchField =
   | "body"
   | "title"
   | "keywords"
+  | "answerQuestions"
   | "localHeading"
   | "ancestorHeadings"
   | "sectionAliases"
@@ -35,6 +36,7 @@ export const BM25F_BODY_ONLY_WEIGHTS: SearchFieldWeights = {
   body: 1,
   title: 0,
   keywords: 0,
+  answerQuestions: 0,
   localHeading: 0,
   ancestorHeadings: 0,
   sectionAliases: 0,
@@ -48,6 +50,7 @@ export const BM25F_FIELD_WEIGHTS: SearchFieldWeights = {
   body: 1,
   title: 0.35,
   keywords: 1.75,
+  answerQuestions: 0.75,
   localHeading: 0.45,
   ancestorHeadings: 0.1,
   sectionAliases: 2.5,
@@ -61,6 +64,7 @@ const SECTION_FIELD_WEIGHTS: SearchFieldWeights = {
   body: 0.7,
   title: 1.2,
   keywords: 1.75,
+  answerQuestions: 0,
   localHeading: 1.2,
   ancestorHeadings: 0,
   sectionAliases: 2.5,
@@ -74,6 +78,7 @@ const FIELD_B: SearchFieldWeights = {
   body: 0.75,
   title: 0.35,
   keywords: 0.2,
+  answerQuestions: 0,
   localHeading: 0.3,
   ancestorHeadings: 0.3,
   sectionAliases: 0.2,
@@ -117,6 +122,7 @@ export type RankEvidenceOptions = {
   fieldWeights?: SearchFieldWeights;
   hierarchyWeight?: number;
   searchIndex?: EvidenceSearchIndex;
+  excludedChunkRefs?: ReadonlySet<string>;
 };
 
 function singularize(token: string): string {
@@ -160,7 +166,7 @@ export function queryTerms(value: string): string[] {
 
 function emptyFields(): FieldTokens {
   return {
-    body: [], title: [], keywords: [], localHeading: [], ancestorHeadings: [],
+    body: [], title: [], keywords: [], answerQuestions: [], localHeading: [], ancestorHeadings: [],
     sectionAliases: [], sectionIdentifiers: [], tableHeaders: [],
     tableRowLabels: [], tableCells: [],
   };
@@ -193,6 +199,7 @@ function chunkFields(
   fields.body = tokenize(chunk.content);
   fields.title = tokenize(chunk.label);
   fields.keywords = tokenize(chunk.keywords.join(" "));
+  fields.answerQuestions = tokenize(chunk.answerQuestions?.join(" ") ?? "");
   fields.localHeading = tokenize(chunk.sectionPath.at(-1) ?? chunk.section);
   fields.ancestorHeadings = tokenize(chunk.sectionPath.slice(0, -1).join(" "));
   fields.sectionAliases = tokenize(section?.aliases.join(" ") ?? "");
@@ -371,6 +378,7 @@ export function rankEvidenceCatalog(
     fieldWeights = BM25F_FIELD_WEIGHTS,
     hierarchyWeight = 0.15,
     searchIndex,
+    excludedChunkRefs,
   }: RankEvidenceOptions,
 ) {
   if (!Number.isInteger(resultLimit) || resultLimit < 1 || resultLimit > 1_000) {
@@ -433,9 +441,9 @@ export function rankEvidenceCatalog(
     score: roundedScore(score),
   }));
 
-  const positiveChunkRefs = [...chunkScores.keys()].map(
-    (indexValue) => scoped.chunks[indexValue].item.ref,
-  );
+  const positiveChunkRefs = [...chunkScores.keys()]
+    .map((indexValue) => scoped.chunks[indexValue].item.ref)
+    .filter((ref) => !excludedChunkRefs?.has(ref));
   const candidateScores = new Map(chunkScores);
   let structuralRoutingUsed = false;
   if (structuralBoost && hierarchyWeight > 0) {
@@ -454,7 +462,8 @@ export function rankEvidenceCatalog(
   }
 
   const candidates = [...candidateScores.entries()]
-    .filter(([, score]) => score > 0)
+    .filter(([indexValue, score]) =>
+      score > 0 && !excludedChunkRefs?.has(scoped.chunks[indexValue].item.ref))
     .sort(
       ([leftIndex, leftScore], [rightIndex, rightScore]) =>
         rightScore - leftScore ||
@@ -473,7 +482,7 @@ export function rankEvidenceCatalog(
     results,
     diagnostics: {
       normalizedTerms: terms,
-      positiveCandidateCount: chunkScores.size,
+      positiveCandidateCount: positiveChunkRefs.length,
       candidatePoolCount: candidates.length,
       structuralRoutingUsed,
       positiveChunkRefs,

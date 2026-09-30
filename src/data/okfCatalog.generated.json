@@ -534,6 +534,9 @@
         "period",
         "balance",
         "portal"
+      ],
+      "answerQuestions": [
+        "How often is vacation time added to my balance?"
       ]
     },
     {

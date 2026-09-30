@@ -76,6 +76,17 @@ describe("Evidence Desk capability contracts", () => {
     expect(result.results[0].excerpt).toContain("104 hours");
   });
 
+  it("uses a reviewed question hint without returning it as evidence", () => {
+    const result = searchEvidence({
+      sourceRef: "source:employee-handbook",
+      query: "How often does vacation time show up in my account?",
+      limit: 4,
+    });
+
+    expect(result.results[0].chunkRef).toBe("chunk:leave-accrual-method");
+    expect(result.results[0]).not.toHaveProperty("answerQuestions");
+  });
+
   it("fails closed when a chunk is outside the selected source", () => {
     expect(() =>
       readEvidenceChunk({

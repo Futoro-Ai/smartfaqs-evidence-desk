@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.gitnexus/
 /playwright-report/
 /test-results/
 

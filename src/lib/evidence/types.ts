@@ -71,6 +71,7 @@ export type EvidenceChunk = {
   content: string;
   table?: EvidenceTable;
   keywords: string[];
+  answerQuestions?: string[];
 };
 
 export type EvidenceSearchResult = {
