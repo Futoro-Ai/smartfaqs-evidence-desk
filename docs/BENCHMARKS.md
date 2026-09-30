@@ -136,6 +136,15 @@ corpora have no such hints, so their scores above measure only the weight
 change. BRIGHT's low absolute score still points to a need for a stronger
 first-stage semantic candidate path rather than more lexical-weight tuning.
 
+The next reranker experiment is separate from this PR's runtime behavior.
+Compare fixed first-stage candidate pools of 20, 50, and 100 on the pinned
+SciFact and BEIR inputs and an independently reviewed ELM set. Record candidate
+recall before reranking, final ranking quality, latency, memory, and text
+truncation for every pool. Keep the model and revision pinned, candidates
+source-scoped, and the feature default-off with a timeout and lexical fallback.
+Do not use the overlapping BEIR SciFact queries as an untouched validation set
+or promote a reranker on aggregate scores alone.
+
 ## Retrieval Profiles
 
 The SciFact evaluator compares three deterministic profiles over the same
