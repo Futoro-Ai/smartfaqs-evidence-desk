@@ -322,9 +322,14 @@ Validation on 2026-09-30:
 - Two independent read-only source/report reviews completed; the cold/warm
   ordered-result overclaim was corrected. These are AI reviews, not human gold
   adjudication or a repository-wide security audit.
-- CLI Playwright: environment-blocked. Chrome aborted before page assertions
+- Local CLI Playwright: environment-blocked. Chrome aborted before page assertions
   in the native isolation sandbox. A corrected task-local configuration lists
   all six desktop/mobile tests, but listing is not execution or a passing suite.
+- [GitHub Linux CI](https://github.com/Futoro-Ai/smartfaqs-evidence-desk/actions/runs/36779902351)
+  on implementation commit `a31b8d75cb674331830ba7004d3e5ddfdea4d793`:
+  lint, 91 unit tests, production build and all six desktop/mobile Playwright
+  tests passed. CI installed the matching Chromium and ran the existing suite;
+  this closes the matching-browser execution gap for that implementation.
 - Supported in-app browser smoke against this task's local production build:
   seven fixed WebMCP tools, lexical search with heading ancestry and canonical
   synthetic references, synthetic UI review/export controls, pending agent
@@ -334,8 +339,9 @@ Validation on 2026-09-30:
   header assertions, human gold adjudication or deployment-head verification.
 
 The temporary local server was stopped. The public hosted alias was opened for
-viewing, not certified against this unmerged branch. Fresh matching-browser
-Playwright checks on the final PR head remain a release gate. Existing npm
+viewing, not certified against this unmerged branch. Matching-browser CI proof
+is distinct from hosted deployment validation, broader PR review and the blocked
+domain-quality/runtime-adoption gates. Existing npm
 advisories (two moderate, two high and one critical) were not remediated by this
 offline task; no dependency-security-clean claim is made. No production
 readiness or external human adjudication is claimed.
