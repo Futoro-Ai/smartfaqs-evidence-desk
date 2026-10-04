@@ -211,10 +211,10 @@ leaderboard result or live semantic assessment score is claimed by this feature.
 Implemented: strict source-scoped API/tool, bounded provider adapter, independent
 signals, pair comparisons, human correction UI, unchanged answer-approval
 boundary, inspectable receipts, private materialization, offline evaluator,
-provisional fixtures, and fake-backed integration tests. Browser test cases are
-included, but their standalone Chrome launch is blocked in the task sandbox;
-they have not passed here. Local side-browser interaction checks are separate
-from that automated browser-suite gate.
+provisional fixtures, and fake-backed integration tests. Browser tests have passed
+in GitHub Actions managed Chromium; local standalone Chrome launch remains blocked
+in the task sandbox. Local side-browser checks are separate from automated CI,
+and neither establishes native WebMCP support or live model accuracy.
 
 Before paid/public rollout: independently adjudicate labels, authorize a small
 live pilot and budget, measure semantic quality/calibration/latency, test unseen
@@ -236,9 +236,14 @@ ingestion, global agent configuration, or larger retrieval rewrite is required.
   The attempt stopped at the first failure; twelve tests did not run and another
   worker was interrupted. Its failure reports are preserved separately.
   The side-browser checks do not certify the full fake-response browser suite.
-- The existing GitHub Actions workflow installs managed Chromium and runs
-  `npm run test:e2e`. Run it on the published feature head; no passing CI result
-  for this feature is claimed. System Chrome, personal browser profiles, and
-  global browser configuration were not changed.
+- [GitHub Actions run 37183594701](https://github.com/Futoro-Ai/smartfaqs-evidence-desk/actions/runs/37183594701)
+  passed lint, 112 tests, the production build, and the fourteen-case Chromium
+  desktop/mobile suite at `83fa7e7f3bc1a100fa9a0b1d1a82d27b109b3194`. Thirteen browser
+  tests passed on the first attempt; one mobile unavailable-result check passed
+  on retry. Its follow-up assertion now waits for and checks the actual API
+  response before checking UI state. Check the final PR head's CI separately.
+  These are development-server tests, Pixel emulation rather than a real device,
+  and fake WebMCP adapter coverage rather than native browser WebMCP proof.
+  System Chrome, personal profiles, and global browser settings were unchanged.
 - No live JEV assessment, calibrated semantic score, public deployment, or
   independent human adjudication is claimed by this snapshot.

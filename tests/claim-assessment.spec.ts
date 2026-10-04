@@ -5,7 +5,12 @@ import { evidenceChunks } from "../src/data/evidenceCatalog";
 
 test("shows unavailable assessments without inventing judgments", async ({ page }) => {
   await page.goto("/");
+  const response = page.waitForResponse((result) =>
+    result.url().endsWith("/api/assessments") && result.request().method() === "POST");
   await page.getByRole("button", { name: "Assess claim", exact: true }).click();
+  const assessment = await response;
+  expect(assessment.status()).toBe(200);
+  expect(await assessment.json()).toMatchObject({ status: "unavailable", failureReason: "assessment_disabled" });
   await expect(page.getByText("Assessment is not enabled on this server.")).toBeVisible();
   await expect(page.getByText("Assessment incomplete", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Independent evidence signals")).toHaveCount(0);
