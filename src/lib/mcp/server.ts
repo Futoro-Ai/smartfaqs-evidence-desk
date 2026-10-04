@@ -10,6 +10,7 @@ import { ZodError } from "zod";
 
 import { toolDefinitions } from "@/lib/capabilities/contracts";
 import { executeEvidenceTool } from "@/lib/capabilities/evidence";
+import { assessEvidenceClaim } from "@/lib/assessment/server";
 
 function toStructuredContent(value: unknown): Record<string, unknown> {
   if (typeof value === "object" && value !== null && !Array.isArray(value)) {
@@ -71,12 +72,12 @@ export function createEvidenceDeskMcpServer(): Server {
       annotations: {
         readOnlyHint: definition.annotations.readOnlyHint,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: definition.name === "assess_evidence_claim",
       },
     })),
   }));
 
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
     const definition = toolDefinitions.find(
       ({ name }) => name === request.params.name,
     );
@@ -89,7 +90,7 @@ export function createEvidenceDeskMcpServer(): Server {
 
     try {
       return toToolResult(
-        executeEvidenceTool(
+        definition.name === "assess_evidence_claim" ? await assessEvidenceClaim(request.params.arguments ?? {}, extra.signal) : await executeEvidenceTool(
           definition.name,
           request.params.arguments ?? {},
         ),

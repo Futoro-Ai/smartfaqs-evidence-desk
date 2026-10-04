@@ -28,6 +28,9 @@ application and shows the unsupported adapter state without failing the page.
 3. Call `check_evidence_readiness` for that source.
 4. Call `search_evidence` with a focused question and a bounded `limit`.
 5. Call `read_evidence_chunk` only for returned chunks that need inspection.
+   Optionally call `assess_evidence_claim` with a precise claim and scoped refs,
+   but set external consent true only with the person's permission. Backend
+   enablement is independent; unavailable assessment does not block manual work.
 6. Call `stage_evidence_answer` with one to five scoped `evidenceRefs`.
 7. Ask the person to approve or reject the staged answer in the interface.
 8. Leave final packet preparation to the person. The agent export tool can
@@ -53,6 +56,11 @@ needed, stage a concise answer with citations, and stop for my approval.
 Successful agent calls dispatch a bounded `evidence-desk:tool-result` event.
 The React interface listens for that event and updates its visible state. This
 keeps agent actions inspectable and avoids a hidden parallel workflow.
+
+Claim assessment is asynchronous. A successful call updates the assessment
+panel only for its current source; changing sources discards stale results.
+Model judgments and human passage corrections cannot change answer approval.
+See [Claim Assessment](CLAIM_ASSESSMENT.md) before enabling external calls.
 
 ## Safety Notes
 

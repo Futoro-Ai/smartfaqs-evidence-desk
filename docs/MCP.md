@@ -79,8 +79,17 @@ in-process limiter would not coordinate reliably across serverless replicas.
 
 ## Integration Boundary
 
-The remote endpoint and WebMCP adapter share the same schemas and deterministic
-functions. The endpoint cannot access browser state, approve a human decision,
-fetch arbitrary URLs, read files, execute commands, or access credentials.
+The remote endpoint and WebMCP adapter share schemas and fixed functions. The
+optional `assess_evidence_claim` tool executes through the server-only JEV adapter;
+it never fetches a browser API from the server. It requires backend enablement,
+explicit external consent, and a server key. It cannot accept arbitrary URLs or
+credentials. Results are advisory and unavailable failures are explicit.
+
+The endpoint cannot access browser state, approve a human decision, fetch
+arbitrary URLs, expose secrets, read arbitrary files, or execute commands.
+Default-off claim assessment must not be enabled on an unrestricted public MCP
+endpoint merely because origin checks exist: non-browser clients omit Origin.
+Require authorization, shared rate controls, and deployment-wide cost budgets
+before a broader paid rollout. See [Claim Assessment](CLAIM_ASSESSMENT.md).
 
 For every available operation and field, see [Tool Reference](TOOL_REFERENCE.md).

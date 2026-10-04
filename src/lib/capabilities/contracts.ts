@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { SOURCE_REFS } from "@/lib/evidence/types";
+import { assessmentInputSchema } from "@/lib/assessment/contracts";
 
 const sourceRefSchema = z.enum(SOURCE_REFS);
 const evidenceRefsSchema = z
@@ -12,6 +13,7 @@ const evidenceRefsSchema = z
   });
 
 export const toolInputSchemas = {
+  assess_evidence_claim: assessmentInputSchema,
   list_knowledge_sources: z.object({}).strict(),
   select_knowledge_source: z
     .object({
@@ -73,6 +75,12 @@ const metadata: Record<
   ToolName,
   Omit<ToolDefinition, "name" | "inputSchema">
 > = {
+  assess_evidence_claim: {
+    title: "Assess a claim against evidence",
+    description:
+      "Assess one atomic claim against up to twenty selected-source passages. JEV requires explicit external-assessment consent and server enablement. Signals and conflict comparisons are advisory; human approval remains separate.",
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
+  },
   list_knowledge_sources: {
     title: "List knowledge sources",
     description:

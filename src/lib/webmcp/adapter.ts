@@ -2,12 +2,15 @@
 
 import {
   toolDefinitions,
+  toolInputSchemas,
   type ToolName,
 } from "@/lib/capabilities/contracts";
 import { executeEvidenceTool } from "@/lib/capabilities/evidence";
 
 export const EVIDENCE_DESK_TOOL_RESULT_EVENT =
   "evidence-desk:tool-result" as const;
+export const ASSESSMENT_STARTED_EVENT = "evidence-desk:assessment-started";
+export const ASSESSMENT_CANCEL_EVENT = "evidence-desk:assessment-cancel";
 
 export type WebMcpToolResult = {
   content: Array<{ type: "text"; text: string }>;
@@ -15,6 +18,7 @@ export type WebMcpToolResult = {
 };
 
 export type EvidenceDeskToolResultDetail = {
+  requestId: string;
   name: ToolName;
   input: Record<string, unknown>;
   result: Record<string, unknown>;
@@ -118,7 +122,15 @@ export async function registerEvidenceDeskWebMcpTools(
   }
 
   const controller = new AbortController();
-  const unregister = () => controller.abort();
+  let activeAssessment: { requestId: string; controller: AbortController } | undefined;
+  const cancel = (event: Event) => {
+    if ((event as CustomEvent).detail?.requestId === activeAssessment?.requestId) activeAssessment?.controller.abort();
+  };
+  targetWindow.addEventListener(ASSESSMENT_CANCEL_EVENT, cancel);
+  const unregister = () => {
+    controller.abort(); activeAssessment?.controller.abort();
+    targetWindow.removeEventListener(ASSESSMENT_CANCEL_EVENT, cancel);
+  };
 
   try {
     await Promise.all(
@@ -127,18 +139,37 @@ export async function registerEvidenceDeskWebMcpTools(
           {
             ...definition,
             execute: async (input: unknown) => {
-              const output = executeEvidenceTool(definition.name, input ?? {});
+              const requestId = crypto.randomUUID();
+              const eventInput = toolInputSchemas[definition.name].parse(input ?? {});
+              let signal = controller.signal;
+              if (definition.name === "assess_evidence_claim") {
+                activeAssessment?.controller.abort();
+                const pending = new AbortController();
+                activeAssessment = { requestId, controller: pending };
+                signal = AbortSignal.any([signal, pending.signal]);
+                targetWindow.dispatchEvent(new targetWindow.CustomEvent(ASSESSMENT_STARTED_EVENT,
+                  { detail: { requestId, input: eventInput } }));
+              }
+              let output: unknown;
+              try { output = await executeEvidenceTool(definition.name, eventInput, signal); }
+              catch (error) {
+                if (definition.name === "assess_evidence_claim" && !signal.aborted) {
+                  targetWindow.dispatchEvent(new targetWindow.CustomEvent(EVIDENCE_DESK_TOOL_RESULT_EVENT, {
+                    detail: { requestId, name: definition.name, input: eventInput,
+                      result: { error: "claim_assessment_request_failed" } },
+                  }));
+                }
+                throw error;
+              }
               const result = toWebMcpResult(output);
-              const eventInput =
-                typeof input === "object" && input !== null && !Array.isArray(input)
-                  ? (input as Record<string, unknown>)
-                  : {};
+              if (signal.aborted) return result;
 
               targetWindow.dispatchEvent(
                 new targetWindow.CustomEvent<EvidenceDeskToolResultDetail>(
                   EVIDENCE_DESK_TOOL_RESULT_EVENT,
                   {
                     detail: {
+                      requestId,
                       name: definition.name,
                       input: eventInput,
                       result: result.structuredContent,

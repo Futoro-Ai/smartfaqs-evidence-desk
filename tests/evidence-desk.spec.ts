@@ -43,12 +43,13 @@ test("registers fixed WebMCP tools and reflects an agent call in the page", asyn
     "frame-ancestors 'none'",
   );
   expect(response?.headers()["x-frame-options"]).toBe("DENY");
-  await expect(page.getByText("7 agent tools ready")).toBeVisible();
+  await expect(page.getByText("8 agent tools ready")).toBeVisible();
 
   const toolNames = await page.evaluate(() =>
     Object.keys(window.__evidenceDeskTools),
   );
   expect(toolNames).toEqual([
+    "assess_evidence_claim",
     "list_knowledge_sources",
     "select_knowledge_source",
     "check_evidence_readiness",

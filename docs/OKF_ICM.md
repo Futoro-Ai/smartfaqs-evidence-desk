@@ -23,7 +23,24 @@ This implementation deliberately separates three responsibilities:
    rights classification, and safe output.
 
 The app still requires no database, API key, embedding service, or external
-runtime. Its public corpus is fictional and committed to this repository.
+runtime by default. Optional claim assessment requires a backend key and consent;
+its public corpus remains fictional and committed to this repository.
+
+## Live Claim-Assessment Handoffs
+
+Optional claim assessment now returns concrete per-request records, not only
+workflow descriptions. Seven sanitized JSON artifacts bind contract, scope,
+retrieved passage identity, four independent judgments, pair comparison, pending
+human review, and receipt. The UI exposes them and includes them in downloads.
+Manual labels can be materialized as a separate correction stage. Knowledge
+files and downloaded artifacts never become executable workflow authority.
+
+The local writer publishes a checksummed manifest last, enforces private file
+permissions, and rejects symlink paths. Integrity verification does not establish
+semantic completeness or human approval. Hosted requests still do not create
+persistent filesystem workspaces, and ordinary searches are not transformed into
+durable per-request runs. See [Claim Assessment](CLAIM_ASSESSMENT.md) for the
+materialization commands, limitations, and evaluation procedure.
 
 ## Repository Layout
 

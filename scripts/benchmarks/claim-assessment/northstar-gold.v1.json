@@ -1,0 +1,284 @@
+{
+  "schemaVersion": "claim-gold.v1",
+  "corpusSha256": "8aa0d80081482670ebecdd4c05818a63dfe6f2dc99697bbb90f18fc59f56a6af",
+  "sourceRevision": "2026.3",
+  "labelAuthority": "ai_review_provisional",
+  "split": "regression",
+  "cases": [
+    {
+      "id": "hours-supported",
+      "sourceRef": "source:employee-handbook",
+      "claim": "Full-time employees with 5-9 completed years receive 104 annual leave hours.",
+      "category": "numeric_table",
+      "passages": [
+        {
+          "chunkRef": "chunk:leave-accrual-table",
+          "textHash": "sha256:8c42eacc17911084864b9aa660e19f323124bfd78ef3fc5e9ec70bc122eb910f",
+          "labels": {
+            "supports": true,
+            "contradicts": false,
+            "qualifies": false,
+            "needs_context": false
+          },
+          "rationale": "The full-time table gives 104 hours for 5-9 years with units and row headings."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:leave-accrual-table"
+        ]
+      ]
+    },
+    {
+      "id": "days-not-hours",
+      "sourceRef": "source:employee-handbook",
+      "claim": "Full-time employees with 5-9 completed years receive 104 annual leave days.",
+      "category": "units_contradiction",
+      "passages": [
+        {
+          "chunkRef": "chunk:leave-accrual-table",
+          "textHash": "sha256:8c42eacc17911084864b9aa660e19f323124bfd78ef3fc5e9ec70bc122eb910f",
+          "labels": {
+            "supports": false,
+            "contradicts": true,
+            "qualifies": false,
+            "needs_context": false
+          },
+          "rationale": "The same row gives 104 hours and 13 days, not 104 days."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:leave-accrual-table"
+        ]
+      ]
+    },
+    {
+      "id": "public-computer-exception",
+      "sourceRef": "source:remote-work-standard",
+      "claim": "Confidential information may be accessed on a shared public computer if its connection is encrypted.",
+      "category": "negation",
+      "passages": [
+        {
+          "chunkRef": "chunk:remote-security",
+          "textHash": "sha256:a64a287ed1f222bbe5ae004f4dabfbcedba2b9506d00ba6dbefa783eec36940c",
+          "labels": {
+            "supports": false,
+            "contradicts": true,
+            "qualifies": false,
+            "needs_context": false
+          },
+          "rationale": "Shared public computers are prohibited; encryption does not create an exception."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:remote-security"
+        ]
+      ]
+    },
+    {
+      "id": "holiday-separate",
+      "sourceRef": "source:employee-handbook",
+      "claim": "Holiday time is part of annual leave.",
+      "category": "contradiction",
+      "passages": [
+        {
+          "chunkRef": "chunk:holiday-schedule",
+          "textHash": "sha256:6f8d3cf3c9fbfa866c14026fe7f4108ae5da3f9258d5b749459d992254b21367",
+          "labels": {
+            "supports": false,
+            "contradicts": true,
+            "qualifies": false,
+            "needs_context": false
+          },
+          "rationale": "The passage explicitly says holiday time is separate from annual leave."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:holiday-schedule"
+        ]
+      ]
+    },
+    {
+      "id": "retirement-condition",
+      "sourceRef": "source:benefits-guide",
+      "claim": "Northstar matches the first four percent of eligible compensation.",
+      "category": "qualification",
+      "passages": [
+        {
+          "chunkRef": "chunk:retirement-match",
+          "textHash": "sha256:989c00dcf176d0ab32ccaf03052761f70d70391527e512531b29144580ac395e",
+          "labels": {
+            "supports": true,
+            "contradicts": false,
+            "qualifies": true,
+            "needs_context": false
+          },
+          "rationale": "The passage supports the percentage but restricts matching to after 90 days of service."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:retirement-match"
+        ]
+      ]
+    },
+    {
+      "id": "population-proration",
+      "sourceRef": "source:employee-handbook",
+      "claim": "All employees with 5-9 completed years receive an unprorated 104 annual leave hours.",
+      "category": "population_qualification",
+      "passages": [
+        {
+          "chunkRef": "chunk:leave-accrual-table",
+          "textHash": "sha256:8c42eacc17911084864b9aa660e19f323124bfd78ef3fc5e9ec70bc122eb910f",
+          "labels": {
+            "supports": false,
+            "contradicts": false,
+            "qualifies": true,
+            "needs_context": true
+          },
+          "rationale": "The table applies to full-time employees only; it cannot establish the allowance for all employees."
+        },
+        {
+          "chunkRef": "chunk:leave-eligibility",
+          "textHash": "sha256:1fb5331efad22db21a082e87c89df6d7831c1424fded3d0dbabb5fb9d64d994c",
+          "labels": {
+            "supports": false,
+            "contradicts": true,
+            "qualifies": true,
+            "needs_context": true
+          },
+          "rationale": "Part-time allowances are prorated; the exact numeric allowance also needs the table and scheduled hours."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:leave-accrual-table"
+        ],
+        [
+          "chunk:leave-eligibility"
+        ]
+      ]
+    },
+    {
+      "id": "holiday-time-supported",
+      "sourceRef": "source:employee-handbook",
+      "claim": "Under the publication rule, the 2027 holiday calendar is scheduled for publication in November 2026.",
+      "category": "temporal",
+      "passages": [
+        {
+          "chunkRef": "chunk:holiday-schedule",
+          "textHash": "sha256:6f8d3cf3c9fbfa866c14026fe7f4108ae5da3f9258d5b749459d992254b21367",
+          "labels": {
+            "supports": true,
+            "contradicts": false,
+            "qualifies": false,
+            "needs_context": false
+          },
+          "rationale": "The standing rule publishes each November for the following year; this is a rule inference, not proof publication actually occurred."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:holiday-schedule"
+        ]
+      ]
+    },
+    {
+      "id": "holiday-time-contradicted",
+      "sourceRef": "source:employee-handbook",
+      "claim": "Under the publication rule, the 2027 holiday calendar is scheduled for publication in November 2027.",
+      "category": "temporal_contradiction",
+      "passages": [
+        {
+          "chunkRef": "chunk:holiday-schedule",
+          "textHash": "sha256:6f8d3cf3c9fbfa866c14026fe7f4108ae5da3f9258d5b749459d992254b21367",
+          "labels": {
+            "supports": false,
+            "contradicts": true,
+            "qualifies": false,
+            "needs_context": false
+          },
+          "rationale": "The standing rule uses the prior November, not November in the calendar year."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:holiday-schedule"
+        ]
+      ]
+    },
+    {
+      "id": "amount-and-recording",
+      "sourceRef": "source:employee-handbook",
+      "claim": "A full-time employee's 5-9-year annual leave tier is credited biweekly from a 104-hour allowance.",
+      "category": "multiple_passages",
+      "passages": [
+        {
+          "chunkRef": "chunk:leave-accrual-table",
+          "textHash": "sha256:8c42eacc17911084864b9aa660e19f323124bfd78ef3fc5e9ec70bc122eb910f",
+          "labels": {
+            "supports": true,
+            "contradicts": false,
+            "qualifies": false,
+            "needs_context": true
+          },
+          "rationale": "The table supplies the amount, but the crediting method requires another passage."
+        },
+        {
+          "chunkRef": "chunk:leave-accrual-method",
+          "textHash": "sha256:e5d794e1520ed4b0e0a829ca92156a165f32d4227a8f8861b6a30bc6bd536f66",
+          "labels": {
+            "supports": true,
+            "contradicts": false,
+            "qualifies": false,
+            "needs_context": true
+          },
+          "rationale": "The method supplies timing, but the allowance and service tier require the table."
+        }
+      ],
+      "evidenceGroups": [
+        [
+          "chunk:leave-accrual-table"
+        ],
+        [
+          "chunk:leave-accrual-method"
+        ]
+      ]
+    },
+    {
+      "id": "carryover-unknown",
+      "sourceRef": "source:employee-handbook",
+      "claim": "The annual leave carryover cap is 40 hours.",
+      "category": "unanswerable",
+      "passages": [
+        {
+          "chunkRef": "chunk:leave-accrual-table",
+          "textHash": "sha256:8c42eacc17911084864b9aa660e19f323124bfd78ef3fc5e9ec70bc122eb910f",
+          "labels": {
+            "supports": false,
+            "contradicts": false,
+            "qualifies": false,
+            "needs_context": true
+          },
+          "rationale": "The table lists annual allowances, not carryover; silence is not contradiction."
+        },
+        {
+          "chunkRef": "chunk:leave-accrual-method",
+          "textHash": "sha256:e5d794e1520ed4b0e0a829ca92156a165f32d4227a8f8861b6a30bc6bd536f66",
+          "labels": {
+            "supports": false,
+            "contradicts": false,
+            "qualifies": false,
+            "needs_context": true
+          },
+          "rationale": "Accrual timing and balance viewing do not establish a carryover cap."
+        }
+      ],
+      "evidenceGroups": []
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import {
   type ToolInput,
   type ToolName,
 } from "@/lib/capabilities/contracts";
+import { requestClaimAssessment } from "@/lib/assessment/client";
 import type {
   EvidenceChunk,
   EvidencePacket,
@@ -244,9 +245,12 @@ export function exportEvidencePacket(
 export function executeEvidenceTool<Name extends ToolName>(
   name: Name,
   rawInput: unknown,
+  signal?: AbortSignal,
 ) {
   const input = parseToolInput(name, rawInput);
   switch (name) {
+    case "assess_evidence_claim":
+      return requestClaimAssessment(input, signal);
     case "list_knowledge_sources":
       return listKnowledgeSources();
     case "select_knowledge_source":

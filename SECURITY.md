@@ -35,7 +35,7 @@ Controls include:
 - a fixed registry with no dynamic command dispatch;
 - browser-origin validation on the remote MCP endpoint;
 - human-only answer approval;
-- synthetic repository-local data with no provider connection;
+- synthetic repository-local data, with optional default-off JEV assessment;
 - sanitized evidence exports.
 
 ## Knowledge Ingestion Boundary
@@ -63,6 +63,23 @@ have been completed. The compiler's rights check is a guard, not legal advice.
 
 Evidence packets are illustrative summaries. They are not signed and do not
 cryptographically bind an approval decision to answer text.
+
+## Optional Claim Assessment
+
+JEV assessment has a fixed server-only provider URL, strict request/response
+schemas, catalog-resolved source ownership, explicit transmission consent,
+bounded text/question/response sizes, timeouts, no redirects or retries, and
+conservative cost reservations. Keys never enter client bundles or tools.
+Browser POST calls require exact same origin. Unavailable observations are null;
+provider errors/bodies are not exposed. Workspace hashes establish integrity,
+not semantic truth, human approval, or authenticated provider provenance.
+
+The feature stays default-off. Its semaphore, rate limit, budget, and cache are
+per process, not shared across replicas. Consent and origins are not credentials;
+public non-browser MCP clients can omit Origin. Before enabling paid calls beyond
+trusted private testing, add authenticated authorization, shared edge limits,
+deployment-wide spending controls, dependency remediation, and security review.
+See [Claim Assessment](docs/CLAIM_ASSESSMENT.md).
 
 This demo is not an authentication or multi-tenant reference implementation.
 Deployments that add private data must add authenticated identity, per-tenant

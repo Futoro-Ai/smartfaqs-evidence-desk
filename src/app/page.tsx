@@ -35,6 +35,7 @@ import type {
   SourceRef,
 } from "@/lib/evidence/types";
 import styles from "./page.module.css";
+import ClaimAssessment from "@/components/ClaimAssessment";
 
 type Decision = "pending" | "approved" | "rejected";
 
@@ -430,6 +431,8 @@ export default function Home() {
           </div>
         </aside>
       </section>
+      <ClaimAssessment key={selectedSource + results.map((r) => r.chunkRef).join(",")} sourceRef={selectedSource} results={results} onOpen={openChunk}
+        onSelect={(refs) => { setCitationRefs(refs); setDecision("pending"); setPacket(null); setNotice("Review evidence selected. Human approval is pending."); }} />
       <footer className={styles.footer}><span>All sources and evidence shown here are synthetic public demonstration data.</span><span>Answers remain staged until a human reviewer records a decision.</span></footer>
     </main>
   );
