@@ -1,0 +1,36 @@
+.section { width: min(1440px, 100%); margin: 20px auto 0; border-top: 1px solid var(--line-strong); padding-top: 20px; min-width: 0; }
+.header, .controls, .receipt { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.header h2 { margin: 0 0 5px; font-size: 17px; letter-spacing: 0; }
+.header span, .receipt, .notice, .reviewList span { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.section button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 6px 10px; border: 1px solid var(--line-strong); background: white; color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; }
+.section button:disabled { color: var(--muted); cursor: not-allowed; }
+.form { display: grid; gap: 8px; margin-top: 15px; }
+.form > label { font-size: 12px; font-weight: 700; }
+.form textarea { width: 100%; min-height: 70px; resize: vertical; padding: 10px; border: 1px solid var(--line-strong); font: inherit; font-size: 14px; line-height: 1.5; color: var(--ink); background: white; }
+.consent { display: flex; align-items: start; gap: 8px; font-size: 12px; line-height: 1.5; max-width: 560px; }
+.consent input { flex: 0 0 auto; margin-top: 2px; }
+.controls > button { flex-shrink: 0; color: white; background: var(--ink); min-width: 135px; }
+.notice { min-height: 18px; margin: 12px 0; }
+.signals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 15px; border-block: 1px solid var(--line); }
+.signals > div { min-width: 0; padding: 12px; border-right: 1px solid var(--line); }
+.signals > div:last-child { border-right: 0; }
+.signals h3, .comparisons h3 { margin: 0 0 10px; font-size: 13px; letter-spacing: 0; }
+.supports h3 { color: var(--green); }.contradicts h3 { color: var(--coral); }.qualifies h3 { color: #876313; }.needs_context h3 { color: #3a6277; }
+.signals ol { padding: 0; margin: 0; list-style: none; display: grid; gap: 8px; }
+.signals li { display: flex; align-items: start; gap: 8px; justify-content: space-between; min-height: 34px; font-size: 12px; }
+.signals li button { min-height: 0; padding: 0; border: 0; text-align: left; justify-content: start; font-size: 12px; line-height: 1.5; background: transparent; overflow-wrap: anywhere; }
+.signals li span { flex: 0 0 32px; font-variant-numeric: tabular-nums; text-align: right; }
+.reviewList { margin-top: 15px; }
+.reviewList > div { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); padding: 9px 0; }
+.reviewList > div > div { display: grid; min-width: 0; }
+.reviewList button { border: 0; padding: 0; min-height: 24px; justify-content: start; text-align: left; overflow-wrap: anywhere; background: transparent; }
+.reviewList span { overflow-wrap: anywhere; }
+.reviewList select { width: 140px; min-height: 34px; font: inherit; font-size: 12px; border: 1px solid var(--line-strong); color: var(--ink); background: white; padding: 5px; }
+.selection { margin-top: 12px; }.comparisons { margin-top: 18px; }.comparisons p { font-size: 13px; line-height: 1.5; }
+.artifacts { margin-top: 16px; font-size: 12px; }.artifacts summary { padding: 8px 0; cursor: pointer; }
+.artifacts details { border-top: 1px solid var(--line); }.artifacts pre { max-height: 280px; padding: 10px; background: white; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.spinner { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+@media (max-width: 900px) { .signals { grid-template-columns: repeat(2, minmax(0, 1fr)); }.signals > div:nth-child(2) { border-right: 0; }.signals > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); } }
+@media (max-width: 520px) { .controls, .receipt { align-items: start; flex-direction: column; }.reviewList > div { align-items: start; flex-direction: column; }.reviewList select { width: 180px; }.header span { max-width: 220px; display: block; }.signals > div { padding: 10px 6px; } }

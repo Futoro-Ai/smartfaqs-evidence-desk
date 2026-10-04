@@ -3,6 +3,29 @@
 The tool registry is closed: only the tools in this document are available.
 All object schemas reject extra fields.
 
+## `assess_evidence_claim`
+
+Advisory assessment of one claim against one to twenty unique references from
+one selected source. Requires backend enablement, a server key, and explicit
+external-transmission consent; otherwise returns an unavailable receipt.
+
+```json
+{
+  "sourceRef": "source:employee-handbook",
+  "claim": "Full-time employees with 5-9 completed years receive 104 annual leave hours.",
+  "evidenceRefs": ["chunk:leave-accrual-table", "chunk:leave-eligibility"],
+  "allowExternalAssessment": true
+}
+```
+
+Claim length is 3-500 characters. The server resolves bounded passage text;
+raw evidence, provider URLs, secrets, and approval decisions are forbidden input.
+Output contains four independent probabilities per passage (`supports`,
+`contradicts`, `qualifies`, `needs_context`), up to three advisory comparisons,
+scope/text/rubric hashes, usage, safe failures, and checksum-bound stage artifacts.
+Unavailable probabilities are null. The tool never stages or approves an answer.
+See [Claim Assessment](CLAIM_ASSESSMENT.md) for complete semantics and limits.
+
 ## `list_knowledge_sources`
 
 Lists the three fictional source summaries compiled from the OKF bundle.

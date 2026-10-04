@@ -73,7 +73,19 @@ describe("Evidence Desk MCP Streamable HTTP endpoint", () => {
       title: toolDefinitions[0].title,
       description: toolDefinitions[0].description,
       inputSchema: toolDefinitions[0].inputSchema,
+      annotations: { openWorldHint: true },
     });
+  });
+
+  it("executes claim assessment on the server and preserves the approval boundary", async () => {
+    const { payload } = await post({ jsonrpc: "2.0", id: 12, method: "tools/call", params: {
+      name: "assess_evidence_claim", arguments: { sourceRef: "source:employee-handbook",
+        claim: "The five-year allowance is 104 annual hours.", evidenceRefs: ["chunk:leave-accrual-table"] },
+    } });
+    expect(payload.result.structuredContent).toMatchObject({ packetVersion: "claim-assessment.v1",
+      status: "unavailable", failureReason: "assessment_disabled", humanApprovalRequired: true });
+    expect(payload.result.structuredContent.passages[0].probabilities).toBeNull();
+    expect(payload.result.structuredContent).not.toHaveProperty("decision");
   });
 
   it("executes an allowlisted fixed tool with text and structured content", async () => {

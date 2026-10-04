@@ -33,7 +33,7 @@ Strict Zod schemas + fixed capability registry
 ```
 
 All shipped source material is committed synthetic data. There is no database
-or provider dependency. The application never parses files at request time;
+or required provider dependency. The application never parses knowledge files at request time;
 build-time compilation produces a checked-in JSON catalog suitable for both
 browser and server bundles.
 
@@ -93,6 +93,22 @@ The agent-facing export tool can create only a pending packet. The human
 interface can create a packet with the visible decision state. Both forms
 contain only the source label, evidence labels, counts, decision state, and the
 synthetic-data boundary marker.
+
+## Optional Claim Assessment
+
+`src/lib/assessment` resolves source-scoped chunks from the same compiled catalog
+and asks pinned JEV four independent advisory questions per bounded passage.
+The browser uses a fixed same-origin `/api/assessments` route; the MCP server
+calls the same server assessor directly. No generic HTTP proxy is exposed.
+The provider key stays server-side. Backend enablement and per-call transmission
+consent are both required; manual search/review remains usable when disabled.
+
+Up to three apparent-disagreement pairs can be compared. Human corrections are
+separate from model observations and cannot approve an answer. Every result has
+sanitized, hash-bound ICM stage records; private local folder materialization is
+an optional CLI step. Failure and truncation remain explicit. This is an
+assessment feature, not a replacement retrieval/ranking engine or proof of
+semantic accuracy. See [Claim Assessment](CLAIM_ASSESSMENT.md).
 
 ## Retrieval
 

@@ -23,6 +23,8 @@ The demo includes:
 - source-scoped fielded BM25 over text, metadata, headings, and table fields;
 - optional SciFact and local-OKF retrieval benchmarks with structural ablations;
 - an ICM-style workflow plus sanitized per-run retrieval artifacts;
+- optional source-scoped JEV claim assessment, independent support/conflict/
+  qualification/context signals, human corrections, and inspectable receipts;
 - unit, protocol, build, and browser-level checks.
 
 No SmartFAQs production service, customer document, credential, private
@@ -45,7 +47,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-The application does not require an API key, database, or external service.
+The application does not require an API key, database, or external service by
+default. Optional JEV claim assessment is backend-gated, default-off, and requires
+explicit consent. See [Claim Assessment](docs/CLAIM_ASSESSMENT.md) for setup,
+privacy, limits, offline evaluation, and the private-pilot rollout boundary.
 
 The shipped corpus is fictional. Private or third-party Docling exports can be
 converted only into ignored local output and cannot pass the public-catalog
@@ -123,6 +128,7 @@ src/data/                   Generated deterministic runtime catalog
 src/lib/capabilities/       Shared schemas and deterministic tool behavior
 src/lib/webmcp/             Browser WebMCP registration adapter
 src/lib/mcp/                Streamable HTTP MCP adapter
+src/lib/assessment/         Default-off bounded JEV claim assessment
 workflows/retrieve/         ICM-style inspectable retrieval stages
 docs/                       Public architecture and usage documentation
 ```
@@ -135,6 +141,7 @@ docs/                       Public architecture and usage documentation
 - Public builds accept only stable concepts marked `synthetic_public_demo`.
 - Chunk reads fail closed if the chunk is outside the selected source.
 - Agent tools cannot approve or reject a staged answer.
+- Claim-assessment model judgments and human passage labels never approve answers.
 - Evidence exports contain labels and counts, not raw evidence bodies.
 - Remote MCP browser origins are checked against `MCP_ALLOWED_ORIGINS`.
 - The interface remains fully usable without an agent.
